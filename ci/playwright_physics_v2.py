@@ -3,6 +3,7 @@
 All state is public opt-in (?e2e=1); no private source/tokens stored.
 """
 import json
+import os
 import re
 import time
 from collections import Counter
@@ -108,6 +109,16 @@ def main():
                 raise AssertionError("Moss Temple and four 3D actors missing")
             # Visual V0 is separate from the camera-angle regression gate.
             # Refuse a stale Web PCK even if old movement assertions pass.
+            expected_pipeline = os.environ.get("BEAST_EXPECT_PIPELINE_SHA", "").strip()
+            expected_build_run = os.environ.get("BEAST_EXPECT_BUILD_RUN_ID", "").strip()
+            if expected_pipeline and first.get("pipeline_sha") != expected_pipeline:
+                raise AssertionError(
+                    "STALE_PAGES: loaded PCK public SHA %s but triggering CI used %s" %
+                    (first.get("pipeline_sha"), expected_pipeline))
+            if expected_build_run and str(first.get("build_run_id")) != expected_build_run:
+                raise AssertionError(
+                    "STALE_PAGES: loaded PCK run %s instead of triggering build %s" %
+                    (first.get("build_run_id"), expected_build_run))
             if not re.fullmatch(r"[0-9a-f]{40}", first.get("source_sha", "")):
                 raise AssertionError("missing exact private source SHA in deployed PCK")
             if not re.fullmatch(r"[0-9a-f]{40}", first.get("pipeline_sha", "")):
