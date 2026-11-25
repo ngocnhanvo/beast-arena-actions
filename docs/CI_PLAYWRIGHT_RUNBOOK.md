@@ -311,3 +311,12 @@ run for exact game SHA and live Playwright camera lock, not assumed.
 - Staging https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/ verified. Original P1.5 root remains unchanged.
 - **CAMERA TILT REGRESSION CLOSED.** Smoothed camera POSITION is supported, per-frame angle changes are not. Preserve angle telemetry/acceptance tests.
 - Evidence: https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45676762869 and https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45677121093
+
+
+## 2026-11-26 — Visual-first Nekketsu acceptance: camera ANGLE PASS does not equal satisfactory 2.5D LOOK
+
+- User continues to report `vẫn nghiêng` after source `cf634df`; the newly confirmed #45676762869 Godot+Pages SUCCESS and #45677121093 Web Chromium SUCCESS establish camera pitch/yaw/roll rotation drift <=0.10°, **not** satisfactory fixed 2.5D art composition. Existing camera pitch approx -37.405° may be visually too steep. Diagnose visually rather than weakening or removing the angle assertions.
+- New plan in PRIVATE `docs/plans/NEKKETSU_VISUAL_FIRST_2026-11-26.md`: V0 camera/presentation → V1 original pixel-art system → V2 original stage → V3 human sprite → V4 human 2v2 → V5 transformation. Original main P1.5 and isolated `/physics-v2/` must remain separate.
+- When implementing V0, add public diagnostic build/source ID on both routes, verify deployed PCK source SHA (watch Pages caching), capture idle/flat run/forward-depth run/ramp entry and middle/teleport/map-switch in identical viewport. Compare projected horizontal stage-axis and fixed landmarks before/after: **no world grid/skew rotation, no entire arena tilting as movement changes**, even while real physical Y of ramp varies.
+- Review original authored pixel-art reference mockup versus actual browser screenshots: clean horizontal stage composition, 50–56px original fighters (960x540), nearest-neighbor pixel scaling, collision-foot anchors, foreground and obstacle occlusion. Visual status `VISUAL_ACCEPTED` requires human comparison and user approval; do not mark from telemetry alone.
+- No proprietary Nekketsu sprite/ROM/map/audio extracted or published. Preserve source SHA, browser screenshot artifacts, JSON state, tests and review checklist in future checkpoint. New design/plan commits are DOCS-ONLY, not a new gameplay build claim.
