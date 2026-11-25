@@ -28,3 +28,18 @@ Older source verified slope visibility: CI #45673586733 and
 Chromium #45673951103 (Moss +2.14m, Docks -2.39m).
 Keep old root P1.5 unchanged, test only staging
 https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/
+
+
+## FINAL VERIFIED — Camera no longer tilts the world (2026-11-26)
+
+- PRIVATE game functional source SHA `cf634df49426bdd893bdd674492424b4ef9d1121`.
+- PUBLIC Actions run head SHA `5b9fceb5b576b9c2a5910df869214271f62e8916`.
+- First public build #45676396568 FAILED on syntax error in new game telemetry dictionary; detected strict Godot import. No Pages deploy. Patched missing comma in `cf634df`, then triggered fresh build.
+- Godot import/physics/map/collision/export + Pages run **#45676762869 SUCCESS** on exact game SHA.
+- Chromium browser tests **#45677121093 SUCCESS** for legacy P1.5 and new V2. Downloaded `beast-arena-browser-screenshots` and inspected `physics-v2/result.json`:
+  - `status=PASS`, `camera_projection_locked=true`.
+  - Camera reference pitch `-37.405356819751°`, yaw `0°`, roll `0°`; Playwright assertions guarantee drift <=0.10° at each walk/ramp/teleport/stage switch checkpoint.
+  - Moss player climbed `2.137m`, Night Docks descended `2.476m`, flat dx `4.035m`. `page_errors=[]`, `critical_asset_failures=[]`.
+- Staging https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/ verified. Original P1.5 root remains unchanged.
+- **CAMERA TILT REGRESSION CLOSED.** Smoothed camera POSITION is supported, per-frame angle changes are not. Preserve angle telemetry/acceptance tests.
+- Evidence: https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45676762869 and https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45677121093

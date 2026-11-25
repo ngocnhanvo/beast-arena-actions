@@ -1,5 +1,7 @@
 # START HERE — Beast Arena Actions Public
 
+**CAMERA TILT FIX VERIFIED 2026-11-26:** Godot CI/Pages #45676762869 PASS, browser #45677121093 PASS, Physics0 `camera_projection_locked=true` at fixed pitch -37.405°, yaw/roll=0. Read `docs/checkpoints/2026-11-26-camera-fixed-orientation.md`. Original P1.5 root remains unchanged.
+
 **LATEST CAMERA FIX (2026-11-26):** Physics0 user sees whole map tilted during movement. Private game `d5bec34` locks 2.5D projection by removing per-frame camera `look_at`; Public test `e18cf413` rejects drift >0.10° on movement, ramps and map change. Read `docs/checkpoints/2026-11-26-camera-fixed-orientation.md`; check run #45676396568 and follow-up Chromium before reporting PASS.
 
 **LATEST VERIFIED 2026-11-26:** Visible real slopes (isolated Physics0 only) built+deployed #45673586733 SUCCESS, Chromium #45673951103 SUCCESS: Moss +2.14m, Night Docks -2.39m real Y, screenshots checked. Read `docs/checkpoints/2026-11-26-visible-slopes.md`. Main P1.5 still separate.
