@@ -1,5 +1,12 @@
 # START HERE — Beast Arena Actions Public
 
+**OSS REUSE REVIEW 2026-11-26:** PRIVATE
+`docs/architecture/OPEN_SOURCE_COMPONENT_AUDIT.md` lists pinned,
+licensed candidates (Godot official demos, GDQuest code, SUCC,
+Stairs Character). Source review complete, **no plugin imported or
+Physics V2 tests run**. New latest checkpoint:
+`docs/checkpoints/2026-11-26-physics-v2-oss-audit.md`.
+ 
 **IMPORTANT UPDATE 2026-11-26:** Physics V2 architecture-first decision.
 Before new physics CI/Playwright work read PRIVATE
 `docs/architecture/PHYSICS_FOUNDATION_V2.md`,

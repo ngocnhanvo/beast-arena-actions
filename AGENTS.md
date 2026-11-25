@@ -24,3 +24,10 @@ QUY TẮC:
   `docs/testing/PHYSICS_V2_ACCEPTANCE_MATRIX.md`. Before creating
   new workflows for slope/3D gameplay, read these docs plus the newest
   Private checkpoint. No unapproved swap of public Pages main build.
+
+- **Physics V2 reuse-first (2026-11-26):** Trước khi build/đưa controller
+  bên thứ ba vào Public pipeline, đọc PRIVATE
+  `docs/architecture/OPEN_SOURCE_COMPONENT_AUDIT.md` và checkpoint
+  `2026-11-26-physics-v2-oss-audit.md`.
+  Chỉ lấy code có license/pin commit, không lấy asset CC-BY-NC-SA;
+  cần thử Web Compatibility, không đè P1.5 Pages.

@@ -155,3 +155,22 @@ When the experiment exists, introduce a separate CI stage:
 
 No physics V2 workflow/test has been created in this documentation-only
 commit; do not claim Web/Windows Physics V2 PASS.
+
+## 2026-11-26 — Use existing licensed engine/controllers before implementing Physics V2
+
+- PRIVATE game source audit committed in
+  `docs/architecture/OPEN_SOURCE_COMPONENT_AUDIT.md`.
+  Original engine Godot is MIT; official 3D platformer and kinematic examples
+  selected as reference, GDQuest MIT code (DO NOT COPY CC-BY-NC-SA art),
+  SUCC MIT optional comparison but FPS-specific. Source SHA pins in audit.
+- **No new Physics V2 controller code has been imported or tested**.
+  Current CI and browser validations remain for the P1.5 2D prototype.
+- When separate V2 spike exists, use Public runner, inspect licenses/manifests
+  in Private, compare official baseline vs optional SUCC on identical
+  slope, 0.2m step, low/high obstacle, landing and Web rendering fixtures.
+- Godot built-in Jolt and GodotPhysics3D backends need measured test.
+  Default Web export templates lack GDExtension support: do not add
+  standalone Jolt extension automatically.
+- Preserve current Pages root until go/no-go approval, capture all real
+  job logs, screenshots, FPS and camera/position telemetry before claiming
+  a successful migration.
