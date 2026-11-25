@@ -3,6 +3,7 @@
 All state is public opt-in (?e2e=1); no private source/tokens stored.
 """
 import json
+import re
 import time
 from pathlib import Path
 
@@ -91,6 +92,14 @@ def main():
                 raise AssertionError("Moss Temple and four 3D actors missing")
             # Visual V0 is separate from the camera-angle regression gate.
             # Refuse a stale Web PCK even if old movement assertions pass.
+            if not re.fullmatch(r"[0-9a-f]{40}", first.get("source_sha", "")):
+                raise AssertionError("missing exact private source SHA in deployed PCK")
+            if not re.fullmatch(r"[0-9a-f]{40}", first.get("pipeline_sha", "")):
+                raise AssertionError("missing public Actions build commit SHA")
+            if not str(first.get("build_run_id", "")).isdigit():
+                raise AssertionError("missing actual deployment build run ID")
+            report["version"] = {key: first[key] for key in
+                                  ("source_sha", "pipeline_sha", "build_run_id", "visual_style_id")}
             if first.get("visual_style_id") != "v0-shallow-pixel-stage-20261126":
                 raise AssertionError("stale or wrong Physics0 visual build: " +
                                      str(first.get("visual_style_id")))
