@@ -112,8 +112,8 @@ def main():
                 raise AssertionError("3D ramp and props missing")
             if first.get("pixel_floor_sections") != 3 or first.get("pixel_facade_panels", 0) < 10:
                 raise AssertionError("Original pixel art layers missing in Moss scene")
-            if first.get("human_sprite_hframes") != 4 or first.get("human_sprite_vframes") != 3:
-                raise AssertionError("Original 12-frame directional chibi sprite not loaded")
+            if first.get("human_sprite_hframes") != 4 or first.get("human_sprite_vframes") != 20:
+                raise AssertionError("Original 80-frame directional human animation atlas not loaded")
             if abs(first.get("human_sprite_pixel_size", 0.0) - 0.025) > 0.0001:
                 raise AssertionError("Human pixel scale differs from approved test contract")
             if first["map_width_m"] < 60.0:
@@ -144,6 +144,17 @@ def main():
             if moved["player"]["vx"] > 5.0:
                 raise AssertionError("3D horizontal motor exceeded configured speed")
             canvas.screenshot(path=str(OUT / "moss-moving.png"))
+            page.keyboard.press("j")
+            page.wait_for_timeout(180)
+            attack_visual = snap(page)
+            report["human_attack_visual"] = attack_visual
+            if attack_visual.get("human_visual_action") != "punch_light":
+                raise AssertionError("J did not start the original light attack visual preview")
+            if attack_visual.get("human_sprite_frame", -1) // 4 not in (7, 8):
+                raise AssertionError("attack animation not on the original punch rows")
+            canvas.screenshot(path=str(OUT / "moss-light-preview.png"))
+            # This verifies animation playback only; combat damage/boxes
+            # remain a separate milestone, never inferred from pixels.
 
             before_jumps = moved["player"]["jump_events"]
             page.keyboard.press("Space")
