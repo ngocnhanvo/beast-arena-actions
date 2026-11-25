@@ -31,3 +31,9 @@ GitHub connector in this chat can fetch workflow jobs only for known run IDs, no
 NEXT: find the next run at https://github.com/ngocnhanvo/beast-arena-actions/actions/workflows/build.yml, inspect exact source SHA and failing steps, fix/build until green; then separate Chrome Web E2E and visual screenshot review, update both repos START_HERE/ENGINEERING_LOG/checkpoints and preserve current P1.5 root. Do not ship unapproved V2 migration. Existing task automation `6b072e50a28c81918b45f9359c805ce7` was checked active with next scheduled 03:00 +07 on 2026-11-26.
 
 **Trạng thái: PARTIAL — chưa hoàn tất**
+
+
+## Original 2v2 health bars (source update)
+- PRIVATE `b8bf2e5` to `da1313e`: four screen-space color-coded original HP bars, width from `BeastCombatState.health` and debug `hud_hp_bar_px` for each human. PRIVATE source before docs update includes `da1313e44ada873febdddcdeda4b59e05f1b3868`.
+- PUBLIC `916750336fad01213e9ef43ff72450df3ffc6dfd`: Chromium after C 2v2 AI checks all four visual HP fills against actual state (<=3.5 px difference). Screenshot `moss-human-2v2.png` needed for color/layout quality.
+- Still **NO VERIFIED new CI/Web run**, no visual acceptance; prior PASS IDs are old source only. Required next action unchanged: inspect newest build run and actual browser screenshots, fix errors, update checkpoint.
