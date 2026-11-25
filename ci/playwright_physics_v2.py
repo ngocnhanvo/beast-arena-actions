@@ -287,6 +287,27 @@ def main():
                 k: first["camera"][k]
                 for k in ("pitch_deg", "yaw_deg", "roll_deg")
             }
+            # Opt-in human-only 2v2: leave the baseline slope/camera
+            # traversal untouched. C starts AI and real damage resolution.
+            page.keyboard.press("1")
+            page.wait_for_timeout(350)
+            restart = snap(page)
+            if restart["map_id"] != "moss_temple" or restart.get("combat_completed_hits", -1) != 0:
+                raise AssertionError("2v2 round did not reset for independent test")
+            page.keyboard.press("c")
+            page.wait_for_timeout(4800)
+            battle = snap(page)
+            report["human_2v2"] = battle
+            if not battle.get("combat_ai_enabled", False):
+                raise AssertionError("2v2 AI was not enabled by C")
+            if battle.get("combat_completed_hits", 0) < 1:
+                raise AssertionError("real 2v2 actors never landed a gameplay attack")
+            health = battle.get("combat_hp", {})
+            if not health or sum(health.values()) >= 400:
+                raise AssertionError("2v2 attack did not reduce any authoritative HP")
+            canvas.screenshot(path=str(OUT / "moss-human-2v2.png"))
+            report["human_2v2_pass"] = True
+
             if report["page_errors"]:
                 raise AssertionError("3D Web has uncaught JavaScript errors")
             report["status"] = "PASS"
