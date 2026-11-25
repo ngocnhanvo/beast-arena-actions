@@ -155,7 +155,9 @@ jobs:
           zip -qr "$GITHUB_WORKSPACE/beast-arena-windows.zip" windows
       - name: Upload Web game as PUBLIC GitHub Pages artifact (explicit opt-in)
         id: upload_pages
-        if: steps.change-gate.outputs.skip_build != 'true' && ((github.event_name == 'workflow_dispatch' && inputs.deploy_pages == true) || vars.AUTO_DEPLOY_PAGES == 'true')
+        # Owner explicitly enabled public Pages publishing on 2026-11-25.
+        # Auto-deploy on CI-repository pushes; manual runs remain opt-in.
+        if: steps.change-gate.outputs.skip_build != 'true' && ((github.event_name == 'workflow_dispatch' && inputs.deploy_pages == true) || github.event_name == 'push' || vars.AUTO_DEPLOY_PAGES == 'true')
         uses: actions/upload-pages-artifact@v4
         with:
           path: game/build/web
@@ -243,10 +245,49 @@ jobs:
       id-token: write
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deploy1.outputs.page_url || steps.deploy2.outputs.page_url || steps.deploy3.outputs.page_url || steps.deploy4.outputs.page_url }}
     steps:
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
-      - name: Deploy Godot Web
-        id: deployment
+      - name: Deploy Pages (attempt 1)
+        id: deploy1
         uses: actions/deploy-pages@v4
+        continue-on-error: true
+      - name: Pause before retry 2
+        if: steps.deploy1.outcome == 'failure'
+        run: sleep 20
+      - name: Deploy Pages (attempt 2)
+        id: deploy2
+        if: steps.deploy1.outcome == 'failure'
+        uses: actions/deploy-pages@v4
+        continue-on-error: true
+      - name: Pause before retry 3
+        if: steps.deploy1.outcome == 'failure' && steps.deploy2.outcome == 'failure'
+        run: sleep 40
+      - name: Deploy Pages (attempt 3)
+        id: deploy3
+        if: steps.deploy1.outcome == 'failure' && steps.deploy2.outcome == 'failure'
+        uses: actions/deploy-pages@v4
+        continue-on-error: true
+      - name: Pause before retry 4
+        if: steps.deploy1.outcome == 'failure' && steps.deploy2.outcome == 'failure' && steps.deploy3.outcome == 'failure'
+        run: sleep 60
+      - name: Deploy Pages (attempt 4)
+        id: deploy4
+        if: steps.deploy1.outcome == 'failure' && steps.deploy2.outcome == 'failure' && steps.deploy3.outcome == 'failure'
+        uses: actions/deploy-pages@v4
+        continue-on-error: true
+      - name: Confirm Pages deployment completed
+        if: always()
+        env:
+          OUTCOME_1: ${{ steps.deploy1.outcome }}
+          OUTCOME_2: ${{ steps.deploy2.outcome }}
+          OUTCOME_3: ${{ steps.deploy3.outcome }}
+          OUTCOME_4: ${{ steps.deploy4.outcome }}
+        run: |
+          if [[ "$OUTCOME_1" == "success" || "$OUTCOME_2" == "success" || "$OUTCOME_3" == "success" || "$OUTCOME_4" == "success" ]]; then
+            echo "GitHub Pages deployment succeeded."
+          else
+            echo "::error::GitHub Pages deployment failed on all 4 attempts (previously API HTTP 500)."
+            exit 1
+          fi
