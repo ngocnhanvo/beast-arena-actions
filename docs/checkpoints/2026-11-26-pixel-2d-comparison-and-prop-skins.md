@@ -60,3 +60,13 @@ Date 2026-11-26. **Overall: PARTIAL — chưa hoàn tất.**
 - Do NOT move human-beast transformation ahead of visual-first acceptance; gameplay core still incomplete (combo/grab/throw/navigation/editor) and root P1.5 not migrated.
 
 **Trạng thái: PARTIAL — chưa hoàn tất**
+
+
+## 2026-11-26 — Exact 2v2 round E2E PASS, trigger fine-grained original slope render gate
+
+- **VERIFIED:** Public Godot+Pages #45690550928 SUCCESS with private SHA `732d652392b21d4ec2b30a73a98b85dbfcc30d50`, pipeline SHA `9d36afd9a634e414d6838c10cbd555c1d85e0d0f`. Original art/physics/guard and NEW 60Hz `match_state_smoke.gd` and `match_scene_smoke.gd` PASS.
+- **VERIFIED:** Chromium [#45690919676](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45690919676) SUCCESS. Real artifact `physics-v2/result.json` inspected: ACTIVE round timer 5106/5400, HUD `ROUND 1  86`, T restart PASS (all four HP=100, 5400 ticks, no active AI or hits), exact direct pixel URL source SHA, legacy P1.5 PASS. Screenshot `moss-direct-pixel-url.png` inspected; original 2D level and four portraits still visually render; not artist-approved.
+- **SOURCE ONLY / NEXT:** Private `BeastPixelProjection.floor_x_strips` `758d420` and `BeastPixelView` `5a84826` draw true physical 3D uphill/downhill with finer 0.5m X image tessellation, avoiding visually chunky 2m staircase bands. Private `tests/pixel_projection_smoke.gd` `1dd00ce` asserts map-wide seamless coverage and <=0.5m visible ramp columns on Moss and Docks. Private `scripts/demo.gd` `4041d63` removes large visible SHA strip for original arcade controls while keeping F2 exact diagnostics and opt-in Web SHA.
+- This PUBLIC docs commit intentionally triggers new full public CI/Pages+Chromium against PRIVATE HEAD (verify exact checkout SHA). **Do not claim deployment or live screenshot PASS for new ramp/HUD until new run and screenshot inspected.** Root P1.5 still separate; user original Nekketsu-like artwork acceptance OPEN; no beast form V5.
+
+**Trạng thái: PARTIAL — chưa hoàn tất**
