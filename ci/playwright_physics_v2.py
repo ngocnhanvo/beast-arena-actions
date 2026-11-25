@@ -492,6 +492,39 @@ def main():
             canvas.screenshot(path=str(OUT / "moss-direct-pixel-url.png"))
             report["pixel_direct_url_pass"] = True
 
+            # Real defensive contact, not merely pressing G on an empty
+            # arena. Keep the original 2D view ON, face the approaching
+            # rivals, and capture a live CYAN spark while 3D HP resolves.
+            page.keyboard.press("t")
+            page.wait_for_timeout(350)
+            page.keyboard.down("g")
+            try:
+                page.wait_for_function(
+                    "() => window.__beastPhysicsDebug && window.__beastPhysicsDebug.player_guarding === true",
+                    timeout=7000, polling=70)
+                page.keyboard.press("c")
+                page.wait_for_function(
+                    "() => { const s = window.__beastPhysicsDebug; return s"
+                    " && s.pixel_guard_fx_total > 0 && s.pixel_hit_fx_active > 0"
+                    " && s.pixel_projection_mode === true; }",
+                    timeout=20000, polling=45)
+                guard_contact = snap(page)
+                report["real_guard_contact"] = {
+                    "blocks": guard_contact.get("player_blocks"),
+                    "guard_fx_total": guard_contact.get("pixel_guard_fx_total"),
+                    "total_fx": guard_contact.get("pixel_hit_fx_total"),
+                    "real_contacts": guard_contact.get("combat_completed_hits"),
+                    "active_fx": guard_contact.get("pixel_hit_fx_active"),
+                    "player_hp": guard_contact.get("combat_hp", {}).get("player")}
+                if (report["real_guard_contact"]["blocks"] < 1 or
+                        report["real_guard_contact"]["guard_fx_total"] < 1 or
+                        report["real_guard_contact"]["active_fx"] < 1):
+                    raise AssertionError("G guard is not generating live 3D-block cyan FX")
+                canvas.screenshot(path=str(OUT / "moss-cyan-guard-contact.png"))
+                report["real_guard_contact_screenshot_pass"] = True
+            finally:
+                page.keyboard.up("g")
+
             if report["page_errors"]:
                 raise AssertionError("3D Web has uncaught JavaScript errors")
             report["status"] = "PASS"
