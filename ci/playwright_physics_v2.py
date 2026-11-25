@@ -89,6 +89,16 @@ def main():
             report["initial"] = first
             if first["map_id"] != "moss_temple" or first["actors"] != 4:
                 raise AssertionError("Moss Temple and four 3D actors missing")
+            # Visual V0 is separate from the camera-angle regression gate.
+            # Refuse a stale Web PCK even if old movement assertions pass.
+            if first.get("visual_style_id") != "v0-shallow-pixel-stage-20261126":
+                raise AssertionError("stale or wrong Physics0 visual build: " +
+                                     str(first.get("visual_style_id")))
+            if not (12.0 <= abs(first["camera"]["pitch_deg"]) <= 25.0):
+                raise AssertionError("Nekketsu side-biased camera pitch outside visual profile")
+            if abs(first.get("horizontal_world_axis_screen_dy", 999.0)) > 0.15:
+                raise AssertionError("Horizontal world axis is not screen-horizontal")
+
             if first["ramp_rise_m"] < 2.0 or first["obstacles"] < 5:
                 raise AssertionError("3D ramp and props missing")
             if first["map_width_m"] < 60.0:
@@ -225,6 +235,23 @@ def main():
                 ("docks far", docks_far),
             ):
                 assert_locked_projection(first, checkpoint, name)
+            # The real 3D player climbs/descends, but a fixed 2.5D stage
+            # must not pan vertically in reaction to elevation changes.
+            for stage, checkpoint in (
+                ("moss ramp", moss_ramp_mid),
+                ("docks ramp", docks_slope_mid),
+                ("docks switch", docks),
+            ):
+                if abs(checkpoint["camera"]["y"] - first["camera"]["y"]) > 0.06:
+                    raise AssertionError("stage camera vertically bobs during " + stage)
+                if abs(checkpoint.get("horizontal_world_axis_screen_dy", 999.0)) > 0.15:
+                    raise AssertionError("world X axis is visually tilted during " + stage)
+                if checkpoint.get("visual_style_id") != first.get("visual_style_id"):
+                    raise AssertionError("visual style changed across stages")
+            report["visual_v0_horizontal_axis_locked"] = True
+            report["visual_v0_stage_elevation_bob_m"] = round(
+                max(abs(cp["camera"]["y"] - first["camera"]["y"])
+                    for cp in (moss_ramp_mid, docks_slope_mid, docks)), 4)
             report["camera_projection_locked"] = True
             report["camera_rotation_deg"] = {
                 k: first["camera"][k]
