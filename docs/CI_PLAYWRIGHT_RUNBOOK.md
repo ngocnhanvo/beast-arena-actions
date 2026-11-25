@@ -232,3 +232,10 @@ movement dx=4.175m, page errors 0, critical asset errors 0; screenshots
 reviewed and CSG block colors no longer black.
 Retain the Pillow screenshot gate; CI success alone previously missed
 the black-floor rendering bug. Physics0 only STAGING, don't replace root.
+
+## 2026-11-26 — User cannot see slopes despite previous green physics/Web tests
+
+- OBSERVED: P0 Moss X[-7,+7] +2.4m/14m ~9.7deg and Docks -2.8m/18m; both mid-map. Spawn and far-camera snapshots skipped the actual ramp. Same texture across flat and slope. Existing Playwright only checked nonblack ground, not readable slope.
+- Code fix PRIVATE game `22c3e80`: +3.6m/12m (~16.7deg) in both directions, contrasted ramp albedo, 11 cross-path tread lines, retaining face in side view, yellow floor borders, world-space height labels, player spawn/camera at ramp, R to teleport to slope entry.
+- NEW browser acceptance `ci/playwright_physics_v2.py` PUBLIC `4fee8eb`: require ramp visuals >=25, angle >=14deg, screenshots of BOTH map slope entry/mid-traversal, measure actor actual world Y changes >=1.2m up/down after D held 2.6sec, contact floor angle >=10deg.
+- Godot build run #45672632606 started, strict import and native 3D tests passed in preliminary logs. Check **final** CI/Pages+browser and screenshots before claiming slope visible. Original P1.5 page remains untouched; V2 stages under `/physics-v2/`.

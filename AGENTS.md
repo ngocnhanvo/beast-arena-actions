@@ -39,3 +39,5 @@ QUY TẮC:
 - Native Map Editor của Godot GridMap/CSG đã có test riêng, giữ Private
   nguồn và tài nguyên authored scenes; đọc checkpoint mới nhất trước khi
   triển khai hoặc gỡ các bước smoke.
+
+- **Slope visual acceptance fix 2026-11-26:** never claim an incline visible just because PhysicsServer normals/data pass. The Web E2E must visibly traverse each incline using `R` then `D`, capture slope-entry and mid-traversal screenshots, verify +/- physical Y >=1.2m and floor angle >=10deg. See latest `docs/checkpoints/2026-11-26-visible-slopes.md` and PRIVATE `VISIBLE_SLOPE_ACCEPTANCE.md`.
