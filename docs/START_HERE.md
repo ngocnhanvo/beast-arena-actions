@@ -49,3 +49,13 @@ Private source token BEAST_ARENA_READ_TOKEN (fine-grained Contents Read-only, on
 
 ## Final verified P0/P1a (2026-11-25)
 See docs/checkpoints/2026-11-25-p0-p1-verified.md. Public CI/Pages 45657432571 and 45657606670 SUCCESS; browser E2E 45657791050 SUCCESS with J/Space/D gameplay state, F2 collision overlay and screenshot. Source functional SHA e3d3b3f; later private docs-only head may differ. Full per-frame combat engine is NOT implemented.
+
+## P1.5 follow-up design — camera and image-first stages
+
+Owner approved maps larger than viewport with Camera2D following player,
+camera clamp, independent playable/world/image boundaries and layered
+image-first art with editable collision/walkable/navigation polygons.
+See PRIVATE `beast-arena/docs/architecture/P1_5_IMAGE_FIRST_MAP_CAMERA.md`
+and PRIVATE checkpoint `2026-11-25-p1-5-camera-requirement.md`.
+Public test acceptance is in `docs/CI_PLAYWRIGHT_RUNBOOK.md`.
+**This is a PLAN, not implemented.**

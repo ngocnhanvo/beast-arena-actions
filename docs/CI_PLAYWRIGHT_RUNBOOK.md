@@ -64,3 +64,24 @@ Date/Repo SHA/Actions run & job/Expected/Observed error/Verified vs hypothesis/F
 - Browser #45657791050 SUCCESS. JSON snapshot: player x before=210, after=437.5 (+227.5); jumps=1 with positive Z; attacks=2; collision_debug=true; obstacle count=2; no critical JS/WASM/PCK asset error. Screenshot artifact arena-debug-overlays.png visually confirms red collision outlines and yellow spawn points.
 - Use opt-in ?e2e=1 and explicit Godot debug-state readiness; no assumptions about loading splash or pixel color.
 - Next engineering task is P1b frame-accurate combat hitbox model, NOT reopening P0 without new evidence.
+
+## 2026-11-25 — Future P1.5 scrolling-map camera acceptance (NOT IMPLEMENTED)
+
+Product requirement is recorded in PRIVATE game repository
+`docs/architecture/P1_5_IMAGE_FIRST_MAP_CAMERA.md`.
+
+Once game source adds Camera2D/StageData world bounds, extend Public Playwright:
+1. Open stage larger than 960x540 viewport (e.g. 3000x1500), wait for ready.
+2. Read opt-in `?e2e=1` snapshot: player world XY, camera world XY,
+   world bounds and camera bounds. Assert D movement past visible frame makes
+   camera X increase (do not just inspect screenshot).
+3. Assert camera clamps near both limits; screenshots show no blank outside
+   background image and F2 collision graphics still align with obstacles.
+4. Jump with Space; player height Z changes but camera Y does not bob solely
+   because of Z. UI remains fixed while world scrolls.
+5. Check collision and AI continue outside viewport; test return to spawn
+   and teleports reset smoothing.
+6. Capture screenshot evidence and result.json, preserve code SHA & run links.
+
+Current P1a E2E runs are PASS, but this **new scrolling-map camera feature is
+NOT TESTED and must never be represented as shipped**.
