@@ -145,6 +145,23 @@ def main():
             if first.get("ramp_end_y", 0) - first.get("ramp_start_y", 0) < 3.3:
                 raise AssertionError("Moss ramp physical height not large enough to notice")
             canvas.screenshot(path=str(OUT / "moss-start.png"))
+            # Record visual-first art before the fighters take any damage.
+            page.keyboard.press("F5")
+            page.wait_for_timeout(480)
+            moss_pixel = snap(page)
+            if (not moss_pixel.get("pixel_projection_mode") or
+                    moss_pixel.get("pixel_view_fighters") != 4 or
+                    moss_pixel.get("pixel_view_floor_tiles", 0) < 60):
+                raise AssertionError("Moss F5 2D start scene is missing map/4 humans")
+            canvas.screenshot(path=str(OUT / "moss-nes-style-2d-start.png"))
+            report["moss_pixel_2d_start"] = {
+                "tiles": moss_pixel["pixel_view_floor_tiles"],
+                "fighters": moss_pixel["pixel_view_fighters"],
+                "colors": floor_tile_diversity(OUT / "moss-nes-style-2d-start.png")}
+            page.keyboard.press("F5")
+            page.wait_for_timeout(180)
+            if snap(page).get("pixel_projection_mode"):
+                raise AssertionError("Moss F5 2D cannot return to 3D physics preview")
             report["moss_visible_floor_fraction"] = round(
                 visible_floor_fraction(OUT / "moss-start.png"), 3)
             report["moss_tile_diversity"] = floor_tile_diversity(OUT / "moss-start.png")
@@ -239,6 +256,23 @@ def main():
             if docks.get("pixel_floor_sections") != 3 or docks.get("pixel_facade_panels", 0) < 10:
                 raise AssertionError("Original pixel art layers missing in Docks scene")
             canvas.screenshot(path=str(OUT / "docks-high-platform.png"))
+            page.keyboard.press("F5")
+            page.wait_for_timeout(480)
+            docks_pixel = snap(page)
+            if (not docks_pixel.get("pixel_projection_mode") or
+                    docks_pixel.get("map_id") != "night_docks" or
+                    docks_pixel.get("pixel_view_fighters") != 4 or
+                    docks_pixel.get("pixel_view_floor_tiles", 0) < 60):
+                raise AssertionError("Docks F5 2D scene missing original map/characters")
+            canvas.screenshot(path=str(OUT / "docks-nes-style-2d-start.png"))
+            report["docks_pixel_2d_start"] = {
+                "tiles": docks_pixel["pixel_view_floor_tiles"],
+                "fighters": docks_pixel["pixel_view_fighters"],
+                "colors": floor_tile_diversity(OUT / "docks-nes-style-2d-start.png")}
+            page.keyboard.press("F5")
+            page.wait_for_timeout(180)
+            if snap(page).get("pixel_projection_mode"):
+                raise AssertionError("Docks F5 could not return to original 3D view")
             if docks.get("ramp_visual_count", 0) < 25 or docks.get("ramp_angle_deg", 0) < 14:
                 raise AssertionError("Docks downhill visual face and elevation labels missing")
             if docks["ramp_start_y"] - docks["ramp_end_y"] < 3.3:
