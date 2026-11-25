@@ -336,3 +336,11 @@ run for exact game SHA and live Playwright camera lock, not assumed.
 
 - Source V4 now provides four original distinct-color player/ally/enemy HP bars on the fixed 960×540 CanvasLayer. Browser `ci/playwright_physics_v2.py` reads `combat_hp` and `hud_hp_bar_px` and must verify all four rendered widths match actual HP after 2v2 combat. `moss-human-2v2.png` must be inspected for visible contrast and overlapping labels.
 - Private source through `da1313e`; public test commit `9167503`. **NOT VERIFIED** in new Godot/Chromium. See latest matching checkpoint in both repos.
+
+
+### 2026-11-26 — Image material visibly absent despite green Physics0 E2E
+
+- Verified historical/current Web run [#45682788253](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45682788253) PASS on private SHA `9e0a30b`: all physics, camera, teams/HP and asset nodes PASS. However screenshot artifact manually inspected showed **untextured flat green/blue floor**. Exact Moss interior crop `x=.13–.21w, y=.50–.61h` contained *one RGB color* `(100,141,116)` over 8,448 pixels; prior `visible_floor_fraction` (bright fraction .988) gave false confidence.
+- Current `ci/playwright_physics_v2.py` additionally samples that same stage-safe crop on BOTH Moss and Docks. `floor_tile_diversity()` reports counts of dominant (>1%) RGB groups and largest-color share. Fail if groups <3 or largest >0.85. It also requires `visual_style_id=v1-visible-pixel-floor-20261126` to prevent stale Pages PCK pass.
+- Underlying PRIVATE fix `9360b449` reverses ArrayMesh face winding, texture material disables backface culling and raises art plane; fixes distracting ramps and uses F2 to gate large debug labels. PRIVATE `b84f7994` checks 2-sided material and actual texture presence in Godot.
+- Godot import/Pages [#45683483080](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45683483080) SUCCESS. Browser [#45683778280](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45683778280) pending at documentation time. Download artifact and inspect real floor colors/screenshots; a green build without this browser visual test is not a visual PASS.
