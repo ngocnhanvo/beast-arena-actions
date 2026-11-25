@@ -79,3 +79,13 @@ Date 2026-11-26. **Overall: PARTIAL — chưa hoàn tất.**
 - **NOT DONE:** user art approval and complete original hand-drawn Nekketsu-era character frames, varied map decorations/navigation/better editor, advanced 2v2 human combo/grab/throw, production migration/perf/ADR approval and all beast transformations. Root P1.5 still isolated. This is technically PASS for the milestone, but **overall PARTIAL**.
 
 NEXT: source HEAD/run check, improve original human animation and stage art, add damage feedback/advanced combat/level editor; after each change rerun Godot+Pages+Chromium, inspect screenshots and update this latest checkpoint. **Trạng thái: PARTIAL — chưa hoàn tất**
+
+
+## 2026-11-26 — Original pixel contact effects source committed, still RUNNING CI
+
+- PRIVATE latest feature code `scripts/hit_effects.gd` `3274327`, `scripts/pixel_view.gd` `48ed652`/`141d2cf`, `scripts/demo.gd` `3385b34` adds original short amber hit and cyan guard sprite sparks drawn from actual authoritative 3D hit events. View-only, never computes collision/HP.
+- PRIVATE new tests `hit_effects_smoke.gd` `cc8ce4f` and `combat_scene_smoke.gd` `c5110fe` require physical hit emit one event, block classification, 0.2s expiration, reset and bounded active queue. PUBLIC workflow `1f1d0a9` runs the new fixture. PUBLIC Chromium source `59a2448` checks pixel event count equals real physical 2v2 contacts.
+- Public CI #45693121067 was IN PROGRESS, #45693164657 QUEUED; exact source checkout, status of new strict parser/tests, Pages and browser evidence **NOT YET VERIFIED**. Do not mark the VFX feature PASS until logs/Chromium screenshots inspected. Last established full technical baseline: #45691649914 Godot+Pages PASS, #45691975794 Chromium PASS from source d1a22ba with smoother pixel 0.5m ramps and 2v2 round.
+- Continue to verify both runs after feature commit, correct failing parser or test without disabling assertion. Source/screenshot benchmark and artistic user acceptance still open; no transformation V5 or root P1.5 replacement.
+
+**Trạng thái: PARTIAL — chưa hoàn tất**
