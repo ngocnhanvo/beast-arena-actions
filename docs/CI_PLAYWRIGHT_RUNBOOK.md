@@ -330,3 +330,9 @@ run for exact game SHA and live Playwright camera lock, not assumed.
 - Human gameplay remains experimental: G is only guard art; grabs, throws, frame-accurate hurtbox per body part, combo/cancel, terrain-aware AI navigation and multiplayer are NOT complete. V5 beast transformation intentionally deferred until V0–V4 accepted. No game P1.5 production swap.
 - **NO NEW CI PASS CLAIM**: latest run IDs/logs/screenshot for these code commits were not available through current GitHub connector (only jobs-by-ID), and public Actions page fetch yielded DisabledError; terminal external network DNS unavailable. The known older successful runs #45676762869/#45677121093 apply ONLY to a previous functional source.
 - Next: retrieve newest run ID manually from https://github.com/ngocnhanvo/beast-arena-actions/actions/workflows/build.yml or via future workflow-list tool; inspect strict Godot parser and headless/Pages jobs, then Chromium artifacts. Record exact PRIVATE SHA and new PUBLIC SHA, actual screenshot comparison and performance baseline; do not simply loosen tests to green. Current source milestone details in both repos `docs/checkpoints/2026-11-26-v3-v4-human-combat-source.md`.
+
+
+### V4 HUD source-only extension — no live claim
+
+- Source V4 now provides four original distinct-color player/ally/enemy HP bars on the fixed 960×540 CanvasLayer. Browser `ci/playwright_physics_v2.py` reads `combat_hp` and `hud_hp_bar_px` and must verify all four rendered widths match actual HP after 2v2 combat. `moss-human-2v2.png` must be inspected for visible contrast and overlapping labels.
+- Private source through `da1313e`; public test commit `9167503`. **NOT VERIFIED** in new Godot/Chromium. See latest matching checkpoint in both repos.
