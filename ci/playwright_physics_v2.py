@@ -126,6 +126,10 @@ def main():
 
             if first["ramp_rise_m"] < 2.0 or first["obstacles"] < 5:
                 raise AssertionError("3D ramp and props missing")
+            # Real obstructions are authored meshes, not flat colored cubes.
+            # A skin must decorate each physical prop on both stages.
+            if first.get("pixel_prop_skins") != 6:
+                raise AssertionError("Moss stage is missing original textured obstacle skins")
             if first.get("pixel_floor_sections") != 3 or first.get("pixel_facade_panels", 0) < 10:
                 raise AssertionError("Original pixel art layers missing in Moss scene")
             if first.get("human_sprite_hframes") != 4 or first.get("human_sprite_vframes") != 20:
@@ -230,6 +234,8 @@ def main():
                 raise AssertionError("Docks stage depth is outside compact 2.5D composition")
             if docks["actors"] != 4 or docks["obstacles"] < 5:
                 raise AssertionError("3D actors / native colliders not created on switch")
+            if docks.get("pixel_prop_skins") != 6:
+                raise AssertionError("Night Docks missing original prop cladding")
             if docks.get("pixel_floor_sections") != 3 or docks.get("pixel_facade_panels", 0) < 10:
                 raise AssertionError("Original pixel art layers missing in Docks scene")
             canvas.screenshot(path=str(OUT / "docks-high-platform.png"))
