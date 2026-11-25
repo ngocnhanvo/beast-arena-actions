@@ -2,7 +2,7 @@
 
 - Public Actions `beast-arena-actions/main`: CI code and workflow.
 - Private Game `beast-arena/main`: Godot 4.7.2 scaffold.
-- Public push = preflight; workflow_dispatch = private checkout/build.
+- Public push = preflight; manual workflow_dispatch = immediate private checkout/build; hourly public schedule = SHA change-detection + build (no private minutes).
 - Mandatory read-only PAT secret: `BEAST_ARENA_READ_TOKEN`.
 - Optional private release token: `BEAST_ARENA_RELEASE_TOKEN`.
 - Public artifacts are OFF by default.
