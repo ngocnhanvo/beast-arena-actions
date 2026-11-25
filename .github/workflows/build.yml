@@ -1,0 +1,146 @@
+name: Beast Arena - Godot CI (public runner)
+
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/**", "ci/**", "docs/**", "README.md"]
+  workflow_dispatch:
+    inputs:
+      publish_public_artifacts:
+        description: "Publish compiled builds as PUBLIC artifacts (can expose game data)"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: beast-arena-public-ci
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    name: Validate public CI configuration
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate scripts
+        run: bash ci/validate.sh
+      - name: Check source token configured (value never printed)
+        env:
+          HAS_READ_TOKEN: ${{ secrets.BEAST_ARENA_READ_TOKEN != '' }}
+        run: |
+          if [[ "$HAS_READ_TOKEN" == "true" ]]; then
+            echo "Private source credential is configured."
+          else
+            echo "::notice::To build, set BEAST_ARENA_READ_TOKEN in repo Actions secrets."
+          fi
+
+  build:
+    name: Import, test, export game source
+    needs: preflight
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - name: Require private-source token
+        env:
+          HAS_READ_TOKEN: ${{ secrets.BEAST_ARENA_READ_TOKEN != '' }}
+        run: |
+          if [[ "$HAS_READ_TOKEN" != "true" ]]; then
+            echo "::error::Missing BEAST_ARENA_READ_TOKEN; see docs/SETUP.md."
+            exit 1
+          fi
+      - name: Checkout PRIVATE game source
+        uses: actions/checkout@v4
+        with:
+          repository: ngocnhanvo/beast-arena
+          ref: main
+          token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
+          persist-credentials: false
+          path: game
+          fetch-depth: 1
+      - name: Checkout PUBLIC pipeline scripts
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          path: pipeline
+      - name: Record source commit (SHA only)
+        shell: bash
+        run: git -C game rev-parse HEAD | tee /tmp/beast-arena-commit
+      - name: Install Godot 4.7.2 stable
+        shell: bash
+        run: bash pipeline/ci/setup_godot.sh
+      - name: Import project headlessly
+        run: godot --headless --editor --path game --import --quit
+      - name: Test combat rules
+        run: godot --headless --path game --script res://tests/combat_test.gd
+      - name: Smoke test arena scene
+        run: godot --headless --path game --script res://tests/smoke_test.gd
+      - name: Install export templates
+        shell: bash
+        run: bash pipeline/ci/install_templates.sh
+      - name: Export Web and Windows
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p game/build/web game/build/windows
+          godot --headless --path game --export-release "Web" build/web/index.html
+          godot --headless --path game --export-release "Windows Desktop" build/windows/BeastArena.exe
+          test -s game/build/web/index.html
+          test -s game/build/windows/BeastArena.exe
+          test -s game/build/windows/BeastArena.pck
+          echo "All export checks passed."
+      - name: Package compiled exports only
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd game/build
+          zip -qr "$GITHUB_WORKSPACE/beast-arena-web.zip" web
+          zip -qr "$GITHUB_WORKSPACE/beast-arena-windows.zip" windows
+      - name: Upload to PRIVATE repo release (optional)
+        shell: bash
+        env:
+          PRIVATE_RELEASE_TOKEN: ${{ secrets.BEAST_ARENA_RELEASE_TOKEN }}
+          GH_REPO: ngocnhanvo/beast-arena
+        run: |
+          set -euo pipefail
+          if [[ -z "$PRIVATE_RELEASE_TOKEN" ]]; then
+            echo "::notice::BEAST_ARENA_RELEASE_TOKEN absent; not storing a private release."
+            exit 0
+          fi
+          echo "::add-mask::$PRIVATE_RELEASE_TOKEN"
+          SOURCE_SHA="$(cat /tmp/beast-arena-commit)"
+          SHORT_SHA="$(printf '%s' "$SOURCE_SHA" | cut -c1-12)"
+          TAG="ci-$SHORT_SHA"
+          export GH_TOKEN="$PRIVATE_RELEASE_TOKEN"
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" --target "$SOURCE_SHA" --title "Beast Arena CI $SHORT_SHA" --notes "Private game source commit $SOURCE_SHA" --prerelease
+          fi
+          gh release upload "$TAG" beast-arena-web.zip beast-arena-windows.zip --clobber
+          echo "Private release uploaded."
+      - name: Publish PUBLIC binary artifacts (explicit opt-in)
+        if: inputs.publish_public_artifacts == true
+        uses: actions/upload-artifact@v4
+        with:
+          name: beast-arena-public-exports
+          path: |
+            beast-arena-web.zip
+            beast-arena-windows.zip
+          if-no-files-found: error
+          retention-days: 7
+      - name: Build summary
+        if: always()
+        shell: bash
+        env:
+          PUBLIC_UPLOAD: ${{ inputs.publish_public_artifacts }}
+          HAS_PRIVATE_RELEASE_TOKEN: ${{ secrets.BEAST_ARENA_RELEASE_TOKEN != '' }}
+        run: |
+          echo "## Beast Arena public-runner build" >> "$GITHUB_STEP_SUMMARY"
+          echo "Source: private repository ngocnhanvo/beast-arena" >> "$GITHUB_STEP_SUMMARY"
+          echo "Public artifacts requested: $PUBLIC_UPLOAD" >> "$GITHUB_STEP_SUMMARY"
+          echo "Private release token configured: $HAS_PRIVATE_RELEASE_TOKEN" >> "$GITHUB_STEP_SUMMARY"
