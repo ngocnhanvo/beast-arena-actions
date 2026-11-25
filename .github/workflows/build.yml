@@ -167,6 +167,9 @@ jobs:
       - name: Test Physics V2 reusable native GridMap map editor
         if: steps.change-gate.outputs.skip_build != 'true'
         run: godot --headless --path game/experiments/physics_v2 --script res://tests/map_editor_smoke.gd
+      - name: Test Physics V2 low-rail vault and tall-wall 3D collision
+        if: steps.change-gate.outputs.skip_build != 'true'
+        run: godot --headless --path game/experiments/physics_v2 --script res://tests/obstacle_collision_smoke.gd
 
       - name: Install export templates
         if: steps.change-gate.outputs.skip_build != 'true'
