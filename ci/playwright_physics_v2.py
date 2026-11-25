@@ -79,6 +79,10 @@ def main():
                 raise AssertionError("3D ramp and props missing")
             if first["map_width_m"] < 60.0:
                 raise AssertionError("Stage should scroll beyond viewport")
+            if first.get("ramp_visual_count", 0) < 25 or first.get("ramp_angle_deg", 0) < 14:
+                raise AssertionError("Visible slope markers and 14+ degree rise missing")
+            if first.get("ramp_end_y", 0) - first.get("ramp_start_y", 0) < 3.3:
+                raise AssertionError("Moss ramp physical height not large enough to notice")
             canvas.screenshot(path=str(OUT / "moss-start.png"))
             report["moss_visible_floor_fraction"] = round(
                 visible_floor_fraction(OUT / "moss-start.png"), 3)
@@ -111,6 +115,27 @@ def main():
                 raise AssertionError("3D body elevation did not rise")
             canvas.screenshot(path=str(OUT / "moss-jump.png"))
 
+            # New acceptance gate: a player must SEE and actually CLIMB a
+            # significant incline, not just have a slope hidden offscreen.
+            page.keyboard.press("r")  # stage entrance, no browser F5 reload
+            page.wait_for_timeout(400)
+            moss_ramp_entry = snap(page)
+            report["moss_slope_entry"] = moss_ramp_entry
+            canvas.screenshot(path=str(OUT / "moss-slope-entry.png"))
+            page.keyboard.down("d")
+            page.wait_for_timeout(2600)
+            moss_ramp_mid = snap(page)
+            page.keyboard.up("d")
+            report["moss_slope_mid"] = moss_ramp_mid
+            report["moss_ramp_climb_m"] = round(
+                moss_ramp_mid["player"]["y"] - moss_ramp_entry["player"]["y"], 3)
+            if report["moss_ramp_climb_m"] < 1.2:
+                raise AssertionError("Moss looks like a ramp but player did not climb: "
+                                     + str(report["moss_ramp_climb_m"]))
+            if moss_ramp_mid["player"]["floor_angle_deg"] < 10:
+                raise AssertionError("Moss terrain has no contact slope normal")
+            canvas.screenshot(path=str(OUT / "moss-ramp-mid-climb.png"))
+
             page.keyboard.press("F3")
             page.wait_for_timeout(420)
             far = snap(page)
@@ -128,12 +153,36 @@ def main():
             if docks["actors"] != 4 or docks["obstacles"] < 5:
                 raise AssertionError("3D actors / native colliders not created on switch")
             canvas.screenshot(path=str(OUT / "docks-high-platform.png"))
+            if docks.get("ramp_visual_count", 0) < 25 or docks.get("ramp_angle_deg", 0) < 14:
+                raise AssertionError("Docks downhill visual face and elevation labels missing")
+            if docks["ramp_start_y"] - docks["ramp_end_y"] < 3.3:
+                raise AssertionError("Docks downhill should descend by >= 3.3m")
             report["docks_visible_floor_fraction"] = round(
                 visible_floor_fraction(OUT / "docks-high-platform.png"), 3)
             if report["docks_visible_floor_fraction"] < 0.14:
                 raise AssertionError(
                     "Night Docks floor is not visibly rendered: "
                     + str(report["docks_visible_floor_fraction"]))
+            # Explicitly verify descending on the real 3D stage in Chromium.
+            page.keyboard.press("r")
+            page.wait_for_timeout(350)
+            docks_slope_entry = snap(page)
+            report["docks_slope_entry"] = docks_slope_entry
+            canvas.screenshot(path=str(OUT / "docks-slope-entry.png"))
+            page.keyboard.down("d")
+            page.wait_for_timeout(2600)
+            docks_slope_mid = snap(page)
+            page.keyboard.up("d")
+            report["docks_slope_mid"] = docks_slope_mid
+            report["docks_ramp_descent_m"] = round(
+                docks_slope_entry["player"]["y"] - docks_slope_mid["player"]["y"], 3)
+            if report["docks_ramp_descent_m"] < 1.2:
+                raise AssertionError("Docks does not actually descend the 3D incline: "
+                                     + str(report["docks_ramp_descent_m"]))
+            if docks_slope_mid["player"]["floor_angle_deg"] < 10:
+                raise AssertionError("Docks terrain has no downhill contact normal")
+            canvas.screenshot(path=str(OUT / "docks-ramp-mid-descent.png"))
+
             page.keyboard.press("F3")
             page.wait_for_timeout(350)
             docks_far = snap(page)
@@ -151,8 +200,9 @@ def main():
             if report["page_errors"]:
                 raise AssertionError("3D Web has uncaught JavaScript errors")
             report["status"] = "PASS"
-            print("Physics V2 Web PASS: 3D character, jump, 2 editable maps, camera, dx=%.2fm" %
-                  report["player_dx"], flush=True)
+            print("Physics V2 Web PASS: climb=%.2fm, descent=%.2fm, actual contact angles >=10deg, dx=%.2fm" %
+                  (report["moss_ramp_climb_m"], report["docks_ramp_descent_m"],
+                   report["player_dx"]), flush=True)
         except Exception as error:
             report["status"] = "FAIL"
             report["failure"] = str(error)
