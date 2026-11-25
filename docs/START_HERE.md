@@ -1,5 +1,7 @@
 # START HERE — Beast Arena Actions Public
 
+**FINAL VERIFIED 2026-11-26:** Native Godot Physics0/map staging build+Pages run #45670308588 and Web Chromium run #45670647655 PASS on game code a39af14. Screenshot Moss + Docks + colored CSG proof reviewed. Read `docs/checkpoints/2026-11-26-physics0-oss-staging-passed.md`; staging is separate and not Physics V2 full migration.
+
 **LATEST 2026-11-26:** See docs/checkpoints/2026-11-26-physics0-oss-staging-passed.md: Godot/Pages #45670308588 PASS for native 3D Physics0 + built-in GridMap/CSG. Chromium #45670647655 pending at documentation time. Staging /physics-v2/ is NOT production migration.
 
 **LATEST 2026-11-26:** Physics0 is now implemented and verified in

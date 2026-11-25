@@ -221,3 +221,14 @@ replace production P1.5 (staging remains /physics-v2/).
 Game code a39af14ac7fe51785d36778ea0af440d366d2d88, Actions code 3a7233a027a7d87676e6def2399944223a2a6200.
 Godot/Pages #45670308588 SUCCESS, including real slope tests, native GridMap/CSG unshaded editor prop validation, real jump over low rail/tall wall block, 55.8px sprite scale and Web export.
 Earlier real Chromium #45669821453 PASS with Moss floor fraction .989 and Docks .987; new browser #45670647655 pending at this writing to examine latest CSG material. Never infer browser pass from Godot import success.
+
+## 2026-11-26 — FINAL Physics0 staging Web QA
+
+Godot/Pages run #45670308588 SUCCESS, browser #45670647655 SUCCESS,
+exact game source a39af14ac7fe51785d36778ea0af440d366d2d88,
+action source 3a7233a027a7d87676e6def2399944223a2a6200.
+Downloaded Playwright artifact: Moss floor fraction .989, Docks .987,
+movement dx=4.175m, page errors 0, critical asset errors 0; screenshots
+reviewed and CSG block colors no longer black.
+Retain the Pillow screenshot gate; CI success alone previously missed
+the black-floor rendering bug. Physics0 only STAGING, don't replace root.
