@@ -50,3 +50,13 @@ Date 2026-11-26. **Overall: PARTIAL — chưa hoàn tất.**
 
 - Confirmed #45688659887 Chromium PASS on Public pipeline exact-SHA E2E after fix #45688176577 CI+Pages PASS. This validates prior source `9f27e53`, **not** the latest physical prop/fighter occlusion source.
 - This public docs commit triggers a new Godot CI to check PRIVATE latest head `b9586fae69f...` including actual code `c79731a`, `5890143` and test `0911450`. Need verify Godot import and pixel projection test, Pages, then Chromium screenshot. **Requested/triggered is NOT success**.
+
+## 2026-11-26 — V4 human guard verified and real 60 Hz match results in repair cycle
+
+- PRIVATE directional guard code `46cf5fad` + PUBLIC guard browser `12837ad` verified: build+Pages [#45689560800](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45689560800) SUCCESS and Chromium [#45689891139](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45689891139) SUCCESS. G hold/release and actual gameplay guard animation checked.
+- NEW source PRIVATE `439ab5a` (`BeastMatchState`, 60Hz timer, team-KO and timeout/draw results), `d45d6e3` unit test; `558ed1b` integrated 4-player match HUD + C start/T restart, `446904f` real 4-actor scene fixture. PUBLIC workflow `3e72352` added unit+scene jobs and browser `9f1d1fe` tests authoritative countdown/true T reset.
+- **OBSERVED FAIL** build [#45690255618](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45690255618): strict Godot import, old physical/visual/combat tests and new round 60Hz UNIT test PASS; new `match_scene_smoke.gd` fails `ROUND-12: real UI doesn't reflect gameplay team victory`. Earlier in same test, `match_state.outcome == TEAM_1_WIN` was PASS. This is likely `SceneTree.process_frame` firing before `Node._process`, so the victory label had not been redrawn yet; no Pages deployment happened.
+- PRIVATE fix `c19b31d89532a60e5eba25f91402055e05791fa6` waits one more actual render frame after physical KO/restart, improves the failure log. This **PUBLIC DOCS COMMIT intentionally triggers NEW CI** (not skip-ci). Verify exact private source SHA, all stages and Chromium; don't claim new match V4 PASS until run and browser evidence.
+- Do NOT move human-beast transformation ahead of visual-first acceptance; gameplay core still incomplete (combo/grab/throw/navigation/editor) and root P1.5 not migrated.
+
+**Trạng thái: PARTIAL — chưa hoàn tất**
