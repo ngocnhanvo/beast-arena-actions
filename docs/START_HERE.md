@@ -1,5 +1,7 @@
 # START HERE — Beast Arena Actions Public
 
+**LATEST VERIFIED 2026-11-26:** Visible real slopes (isolated Physics0 only) built+deployed #45673586733 SUCCESS, Chromium #45673951103 SUCCESS: Moss +2.14m, Night Docks -2.39m real Y, screenshots checked. Read `docs/checkpoints/2026-11-26-visible-slopes.md`. Main P1.5 still separate.
+
 **2026-11-26 PLAYER-VISIBLE SLOPE FIX:** read `docs/checkpoints/2026-11-26-visible-slopes.md` and PRIVATE `docs/architecture/VISIBLE_SLOPE_ACCEPTANCE.md`. The earlier V2 demo passed physics but slope was offscreen and nearly invisible. New source `22c3e80` plus Playwright `4fee8eb` require R ramp-entry screenshots and measured Y uphill/downhill on BOTH stages. GitHub CI #45672632606 started; do not assert final Web PASS until inspected.
 
 **FINAL VERIFIED 2026-11-26:** Native Godot Physics0/map staging build+Pages run #45670308588 and Web Chromium run #45670647655 PASS on game code a39af14. Screenshot Moss + Docks + colored CSG proof reviewed. Read `docs/checkpoints/2026-11-26-physics0-oss-staging-passed.md`; staging is separate and not Physics V2 full migration.
