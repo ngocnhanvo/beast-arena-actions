@@ -355,6 +355,30 @@ def main():
             canvas.screenshot(path=str(OUT / "moss-human-2v2.png"))
             report["human_2v2_pass"] = True
 
+            # New visual-first *comparison* view: still the same 3D physics,
+            # but stage/fighters use an independent horizontal NES-like 2D
+            # compositor, eliminating large oblique textured 3D planes.
+            page.keyboard.press("F5")
+            page.wait_for_timeout(680)
+            pixel = snap(page)
+            report["pixel_2d_preview"] = pixel
+            if not pixel.get("pixel_projection_mode", False):
+                raise AssertionError("F5 did not enable the 2D physics-backed visual adapter")
+            if pixel.get("pixel_view_floor_tiles", 0) < 60:
+                raise AssertionError("2D view did not render enough authored floor tiles")
+            if pixel.get("pixel_view_fighters", 0) < 2:
+                raise AssertionError("2D mode lost visible original human fighters")
+            canvas.screenshot(path=str(OUT / "moss-nes-style-2d-preview.png"))
+            report["pixel_2d_diversity"] = floor_tile_diversity(
+                OUT / "moss-nes-style-2d-preview.png")
+            if report["pixel_2d_diversity"]["visible_color_groups"] < 4:
+                raise AssertionError("2D mode rendered a flat/blank stage")
+            page.keyboard.press("F5")
+            page.wait_for_timeout(200)
+            if snap(page).get("pixel_projection_mode"):
+                raise AssertionError("F5 cannot restore the legacy 3D visual comparison")
+            report["pixel_2d_overlay_pass"] = True
+
             if report["page_errors"]:
                 raise AssertionError("3D Web has uncaught JavaScript errors")
             report["status"] = "PASS"
