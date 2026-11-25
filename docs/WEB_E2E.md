@@ -22,3 +22,12 @@ Do not mark the latest P1 build passed until a new Browser Playwright workflow r
 On 2026-11-25, run https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45660829632 succeeded against published Web build. The script now also verifies two map IDs, both world sizes exceed 960x540, F3 far-side camera follow/clamp, switching to map 2 with key 2 and F4 return camera reset. Images and `result.json` are stored as Public Actions artifact; the asset and player state debug hook is only enabled by `?e2e=1`.
 
 This verifies a preview, NOT fully interactive map editor functionality.
+
+## 2026-11-26 — Obstacle visual smoke
+
+Playwright run #45663585488 PASS for P1.5b ground-foot obstacle visuals.
+Tests actual five visual models and five physical obstacles/map and height
+metadata; captures screenshots on both large maps. The first CI build
+#45662885191 failed in Godot editor due to missing @tool; corrected and
+reverified build #45663247335 PASS. Remaining E2E plans:
+height-aware vault and character-to-obstacle occlusion pixels.

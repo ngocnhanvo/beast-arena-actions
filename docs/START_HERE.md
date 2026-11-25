@@ -80,3 +80,13 @@ solid collision and limits. Both map demos now use 5 authored model instances.
 Read newest obstacle checkpoint in both repos; first CI #45662885191
 failed due to StageData @tool placeholder and source fix was committed.
 Do not claim deployment before latest build, Pages and Playwright verify.
+
+## 2026-11-26 — Verified 2.5D obstacle model preview
+
+Previous "retest required" note is historical. CI/Pages #45663247335
+and browser #45663585488 PASSED for Private game source FF19F025.
+Both maps feature five original modeled obstacle visuals with ground-foot
+collider, separate height and F2 overlays. See latest Public checkpoint
+`docs/checkpoints/2026-11-26-obstacles-verified.md` and Private standard
+`docs/architecture/STAGE_OBSTACLE_DESIGN_STANDARD.md`.
+Vaults/platforms/hazards/destructible props are NOT implemented.

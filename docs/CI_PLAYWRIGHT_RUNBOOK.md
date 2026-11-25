@@ -111,3 +111,18 @@ NOT TESTED and must never be represented as shipped**.
   Check that actual F2 footprint overlays align after camera scrolling.
 - Height data currently affects visual projection and asset contract.
   Jump-vault/platform physics, hazards and destructible props NOT implemented.
+
+## 2026-11-26 — Obstacle models and deployment confirmed
+
+- First import #45662885191 FAILED because the StageData resource class
+  lacked @tool while ArenaStage._draw was @tool. Private source fixed.
+- CI #45663247335 **SUCCESS**: source ff19f0253c9c, Godot import,
+  combat/P1/P1.5 tests, Web/Windows export, Private Release and Pages.
+- Browser #45663585488 **SUCCESS**: 5 physical+5 actual visual props per
+  map. Moss height [105,142,66,126,32]; docks [134,72,80,164,130].
+  D +213.5 world units, F2 overlay, jump/attack, map switch, far camera.
+  Screenshots artifact `beast-arena-browser-screenshots`.
+- CHECKED: browser run error-free critical network/JS; F2 screenshot
+  demonstrates foot outline + vertical height marks separate from silhouette.
+- No claim yet for jumping across low rails, elevated surfaces, damage hazards,
+  destructible props or production-quality pixel art.
