@@ -85,3 +85,11 @@ Once game source adds Camera2D/StageData world bounds, extend Public Playwright:
 
 Current P1a E2E runs are PASS, but this **new scrolling-map camera feature is
 NOT TESTED and must never be represented as shipped**.
+
+## 2026-11-25 — P1.5 two map/camera test observed PASS
+
+- Public build https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45660505234 SUCCESS: checkout private source 226d413e683e, Godot import, combat/smoke/P1 core, **new P1.5 map test**, Web/Windows export, private ZIP release and Pages.
+- Browser https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45660829632 SUCCESS: HTTP 200, no JS/WASM/PCK errors, readiness via opt-in `?e2e=1`, D moved +220.5 world units, Space/J/F2, stages switch with key 2, F3 far camera, F4 return.
+- Snapshot values: Moss Temple world 2560x1440, far camera X=2080 Y=1140; Night Docks world 3072x1536, far camera X=2592 Y=1220, return X=480 Y=520. Test asserts camera never exceeds limit_right-viewport_width/2.
+- Screenshots in public artifact `beast-arena-browser-screenshots`: `arena-ready.png`, `moss-temple-far-camera.png`, `night-docks-start.png`, `night-docks-far-camera.png`, `night-docks-return.png`.
+- P1.5b editable polygons in Godot EditorPlugin and P1.5c props/characters are NOT IMPLEMENTED; the current demo offers `@tool` map texture/region Resource Inspector preview only.

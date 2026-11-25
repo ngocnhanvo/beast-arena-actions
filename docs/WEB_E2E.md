@@ -16,3 +16,9 @@ Do not mark the latest P1 build passed until a new Browser Playwright workflow r
 - #45657184814 PASS on P1 source, Space/J/D state changes, player +224 world units.
 - #45657791050 PASS with F2 collision debug true, screenshot plus player +227.5 world units, no critical browser JS/WASM/PCK request errors.
 - Images and result.json are GitHub Actions public artifacts. Re-verify on each new rendering/logic release; these runs do not test combos, throws, multiplayer, or Android.
+
+## Live P1.5 verification
+
+On 2026-11-25, run https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45660829632 succeeded against published Web build. The script now also verifies two map IDs, both world sizes exceed 960x540, F3 far-side camera follow/clamp, switching to map 2 with key 2 and F4 return camera reset. Images and `result.json` are stored as Public Actions artifact; the asset and player state debug hook is only enabled by `?e2e=1`.
+
+This verifies a preview, NOT fully interactive map editor functionality.

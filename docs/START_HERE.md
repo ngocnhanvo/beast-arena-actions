@@ -59,3 +59,15 @@ See PRIVATE `beast-arena/docs/architecture/P1_5_IMAGE_FIRST_MAP_CAMERA.md`
 and PRIVATE checkpoint `2026-11-25-p1-5-camera-requirement.md`.
 Public test acceptance is in `docs/CI_PLAYWRIGHT_RUNBOOK.md`.
 **This is a PLAN, not implemented.**
+
+## Verified P1.5a two wide-map preview — 2026-11-25
+
+PRIOR P1.5 'not implemented' notes are historical. The user can now play
+two larger-than-viewport maps on public Pages:
+Moss Temple 2560x1440, Night Docks 3072x1536, bounded/smoothed Camera2D.
+Private functional SHA `226d413e683ee30ea5e511a630e5ab96e6442e63`.
+Public workflow/test SHA `1dc3845e9769713e359da144c93a19e9fab4bc73`.
+Build+Pages #45660505234 SUCCESS; browser #45660829632 SUCCESS, screenshot
+artifact has both maps near/far, jump/attack/movement, F2 and camera clamp.
+Read latest checkpoint `docs/checkpoints/2026-11-25-p1-5-demo-verified.md`.
+Interactive polygon map editor/character/equipment tools remain TODO.

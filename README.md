@@ -25,3 +25,14 @@ Bản Web **công khai**, có thể bị trích xuất tài nguyên. Chủ dự 
 5. Alternatively choose `publish_public_artifacts=true` manually **only if you intend to publish the exported binaries and embedded game data**.
 
 See [detailed setup](docs/SETUP.md) and [security model](docs/SECURITY.md). Never add PATs to code, workflow YAML or conversation.
+
+## P1.5 demo — two scrollable image-backed maps
+
+Play https://ngocnhanvo.github.io/beast-arena-actions/
+- Press 1/2 or HUD buttons: Moss Temple 2560x1440 / Night Docks 3072x1536.
+- Camera smoothly follows player; F3 jumps to far section; F4 returns;
+  F2 displays collision and spawn regions.
+- Public CI #45660505234 and Playwright #45660829632 are both verified PASS.
+- Only the exported Web build is public. Private Godot source and authoring
+  resources remain in `ngocnhanvo/beast-arena`; custom art/collision can be
+  modified through Godot Inspector, not yet through a full map editing UI.
