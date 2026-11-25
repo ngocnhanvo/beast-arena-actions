@@ -157,6 +157,18 @@ def main():
                 raise AssertionError("Visible slope markers and 14+ degree rise missing")
             if first.get("ramp_end_y", 0) - first.get("ramp_start_y", 0) < 3.3:
                 raise AssertionError("Moss ramp physical height not large enough to notice")
+            page.keyboard.down("g")
+            page.wait_for_timeout(380)
+            guard_on = snap(page)
+            if guard_on.get("player_guarding") is not True:
+                raise AssertionError("Hold G must activate authoritative facing guard")
+            if guard_on.get("human_visual_action") != "guard":
+                raise AssertionError("G guard animation not synchronized with combat state")
+            page.keyboard.up("g")
+            page.wait_for_timeout(250)
+            if snap(page).get("player_guarding") is not False:
+                raise AssertionError("G release must stop authoritative guard")
+            report["player_guard_input_pass"] = True
             canvas.screenshot(path=str(OUT / "moss-start.png"))
             # Record visual-first art before the fighters take any damage.
             page.keyboard.press("F5")
