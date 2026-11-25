@@ -126,3 +126,32 @@ NOT TESTED and must never be represented as shipped**.
   demonstrates foot outline + vertical height marks separate from silhouette.
 - No claim yet for jumping across low rails, elevated surfaces, damage hazards,
   destructible props or production-quality pixel art.
+
+## 2026-11-26 — Physics V2 architecture spike (PLANNED ONLY)
+
+The owner asked for one unified physics design before any more slope/height
+patches. Private architecture documents:
+- `docs/architecture/PHYSICS_FOUNDATION_V2.md`
+- `docs/decisions/ADR_0002_UNIFIED_3D_PHYSICS.md` (PROPOSED, not ACCEPTED)
+- `docs/testing/PHYSICS_V2_ACCEPTANCE_MATRIX.md`
+
+The proposed technical proof uses Godot CharacterBody3D, real XZ ground/Y
+elevation, floor slopes/materials and orthographic 2.5D rendering. Risks:
+migration of current Node2D art/stage/camera, WebGL2 Compatibility renderer
+and game performance. The proof must be implemented ISOLATED from the
+current main scene to avoid breaking public playable demo.
+
+When the experiment exists, introduce a separate CI stage:
+1. Godot 4.7.2 headless test for PHYS-01..PHYS-08, PHYS-14 + negative tests,
+   floor normals, acceleration, low/high obstacle sweeps and raised platform.
+2. Web export in Compatibility renderer to SEPARATE route/artifact,
+   not overwrite the production GitHub Pages entrypoint.
+3. Playwright Chromium confirm 2.5D visuals, 60Hz input telemetry,
+   3D position/slope/contact/landing, camera ground following, screenshots
+   and reported frame timing on reference browser.
+4. Record source SHA and exact failed/passed jobs and artifacts.
+5. Only after successful gate and explicit ADR change begin migration,
+   with old 2-map E2E regression tests preserved.
+
+No physics V2 workflow/test has been created in this documentation-only
+commit; do not claim Web/Windows Physics V2 PASS.

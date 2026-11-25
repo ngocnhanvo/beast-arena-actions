@@ -17,3 +17,10 @@ QUY TẮC:
 - Nếu asset upload/release gặp HTTP 500: phân biệt lỗi GitHub external, dùng retry idempotent, không loop vô hạn.
 - Pages là PUBLIC đã được chủ repo đồng ý; PCK chứa scripts/assets export có thể bị trích xuất.
 - Không sửa source ở repo Public và không chạy test build nặng trong Private.
+
+- **2026-11-26 Physics V2 gate:** PRIVATE game now has
+  `docs/architecture/PHYSICS_FOUNDATION_V2.md`,
+  `docs/decisions/ADR_0002_UNIFIED_3D_PHYSICS.md` (PROPOSED) and
+  `docs/testing/PHYSICS_V2_ACCEPTANCE_MATRIX.md`. Before creating
+  new workflows for slope/3D gameplay, read these docs plus the newest
+  Private checkpoint. No unapproved swap of public Pages main build.

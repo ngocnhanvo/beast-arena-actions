@@ -1,5 +1,13 @@
 # START HERE — Beast Arena Actions Public
 
+**IMPORTANT UPDATE 2026-11-26:** Physics V2 architecture-first decision.
+Before new physics CI/Playwright work read PRIVATE
+`docs/architecture/PHYSICS_FOUNDATION_V2.md`,
+`docs/decisions/ADR_0002_UNIFIED_3D_PHYSICS.md`,
+`docs/testing/PHYSICS_V2_ACCEPTANCE_MATRIX.md`, and newest checkpoints in
+BOTH repos. ADR is PROPOSED and Physics V2 is NOT IMPLEMENTED.
+
+
 Ngày lập: 2026-11-25. Hướng dẫn tiếp quản CI/CD và browser testing.
 
 ## Repo topology
