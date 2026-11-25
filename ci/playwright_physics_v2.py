@@ -305,6 +305,15 @@ def main():
             health = battle.get("combat_hp", {})
             if not health or sum(health.values()) >= 400:
                 raise AssertionError("2v2 attack did not reduce any authoritative HP")
+            bar_widths = battle.get("hud_hp_bar_px", {})
+            for fighter, full_width in (("player", 206.0), ("ally", 206.0),
+                                        ("enemy_a", 208.0), ("enemy_b", 211.0)):
+                if fighter not in bar_widths or fighter not in health:
+                    raise AssertionError("missing live HP bar or actor: " + fighter)
+                expected_width = full_width * health[fighter] / 100.0
+                if abs(bar_widths[fighter] - expected_width) > 3.5:
+                    raise AssertionError("HUD HP bar does not track gameplay HP: " + fighter)
+            report["human_2v2_hud_hp_synced"] = True
             canvas.screenshot(path=str(OUT / "moss-human-2v2.png"))
             report["human_2v2_pass"] = True
 
