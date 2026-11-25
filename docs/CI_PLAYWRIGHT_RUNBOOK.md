@@ -285,3 +285,14 @@ the black-floor rendering bug. Physics0 only STAGING, don't replace root.
 - New CI run started #45676396568. Must verify real private game
   source SHA on build, Pages deploy, follow-up Web browser result and
   screenshot; avoid claiming verified until tests PASS.
+
+### Strict import regression found and corrected
+
+First run #45676396568 FAILED in Godot Physics0 strict parser import:
+`SCRIPT ERROR: Parse Error: Expected closing "}" after dictionary elements`
+in demo.gd. Cause was a missing comma after the camera telemetry
+dictionary; no Pages deploy occurred. PRIVATE source fix
+`cf634df49426bdd893bdd674492424b4ef9d1121` restored the separator.
+This public documentation push is intentional to trigger a new complete
+public-runner build against the corrected PRIVATE source. Check new
+run for exact game SHA and live Playwright camera lock, not assumed.
