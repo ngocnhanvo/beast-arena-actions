@@ -45,3 +45,8 @@ Date 2026-11-26. **Overall: PARTIAL — chưa hoàn tất.**
 - Next: inspect newest source SHA checked out, headless `pixel_projection_smoke.gd`, Web/Pages, Chromium #? and screenshots. If a stale build mismatch occurs do not mask it as PASS; retry only after correct deploy. USER VISUAL ACCEPTANCE still OPEN, root P1.5 unchanged, V5 not started.
 
 **Trạng thái: PARTIAL — chưa hoàn tất**
+
+### Immediate rebuild gate for new physical Z occlusion
+
+- Confirmed #45688659887 Chromium PASS on Public pipeline exact-SHA E2E after fix #45688176577 CI+Pages PASS. This validates prior source `9f27e53`, **not** the latest physical prop/fighter occlusion source.
+- This public docs commit triggers a new Godot CI to check PRIVATE latest head `b9586fae69f...` including actual code `c79731a`, `5890143` and test `0911450`. Need verify Godot import and pixel projection test, Pages, then Chromium screenshot. **Requested/triggered is NOT success**.
