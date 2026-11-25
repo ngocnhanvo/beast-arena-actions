@@ -174,3 +174,30 @@ commit; do not claim Web/Windows Physics V2 PASS.
 - Preserve current Pages root until go/no-go approval, capture all real
   job logs, screenshots, FPS and camera/position telemetry before claiming
   a successful migration.
+
+## 2026-11-26 — Isolated Physics0 and Web image-quality regression gate
+
+- Public CI now imports `game/experiments/physics_v2/`, runs
+  `physics_smoke.gd`, `map_editor_smoke.gd`,
+  `obstacle_collision_smoke.gd`, exports second Web under
+  `game/build/web/physics-v2/`. Public Pages root remains P1.5, not V2.
+- Browser `ci/playwright_physics_v2.py` uses opt-in
+  `window.__beastPhysicsDebug`, verifies real CharacterBody3D Y jump,
+  X movement in meters, maps/camera and screenshot. A separate
+  Pillow pixel test catches a prior BUG where the 3D floor was completely
+  black even though gameplay and assets had loaded. Use screenshots
+  not just state assertions.
+- CI #45667841114 and #45668117043 success for early Physics0 import,
+  movement and export. CI #45669118019 success for native GridMap
+  paint/erase/collision + art scale (55.8px at 960x540);
+  browser #45668562257 PASS initial physics but floor black.
+- Browser #45668868363 FAIL recorded a **transient** 503 response
+  for index.pck; game nevertheless booted and moved +4.155m. 
+  Updated test retains a `transient_asset_warnings` report when
+  complete game/visual assertions pass rather than failing solely
+  because an earlier retry got 503.
+- Visual fix in PRIVATE stage material: unshaded image albedo, WHITE
+  tint on authored image texture. New pixel acceptance test for Moss
+  and Night Docks is mandatory and pending fresh Web run.
+- Full V2 design matrix, native stage authoring usability and low/tall
+  collider tests are still ongoing; do not mark production migration ready.

@@ -31,3 +31,11 @@ QUY TẮC:
   `2026-11-26-physics-v2-oss-audit.md`.
   Chỉ lấy code có license/pin commit, không lấy asset CC-BY-NC-SA;
   cần thử Web Compatibility, không đè P1.5 Pages.
+
+- Physics0 hiện có staging riêng `/physics-v2/`. Khi kiểm thử Web
+  cần Godot state + Playwright hình ảnh pixel (map nền không đen).
+  Lỗi GitHub Pages 503 tạm thời phải phân loại với lỗi không phục hồi;
+  đừng lờ lỗi rendering khi movement vẫn hoạt động.
+- Native Map Editor của Godot GridMap/CSG đã có test riêng, giữ Private
+  nguồn và tài nguyên authored scenes; đọc checkpoint mới nhất trước khi
+  triển khai hoặc gỡ các bước smoke.

@@ -1,5 +1,14 @@
 # START HERE — Beast Arena Actions Public
 
+**LATEST 2026-11-26:** Physics0 is now implemented and verified in
+a SEPARATE Godot 3D project on GitHub Pages at `/physics-v2/`, but it
+is a prototype, NOT the production engine. Native Godot GridMap/CSG map
+scenes, source art and material zones are in Private repo
+`experiments/physics_v2/`. Read
+`docs/checkpoints/2026-11-26-physics0-native-map-progress.md`.
+Latest floor-visibility and obstacle-collision tests require checking
+actual runs/screenshots before marking accepted.
+
 **OSS REUSE REVIEW 2026-11-26:** PRIVATE
 `docs/architecture/OPEN_SOURCE_COMPONENT_AUDIT.md` lists pinned,
 licensed candidates (Godot official demos, GDQuest code, SUCC,

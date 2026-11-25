@@ -31,3 +31,14 @@ metadata; captures screenshots on both large maps. The first CI build
 #45662885191 failed in Godot editor due to missing @tool; corrected and
 reverified build #45663247335 PASS. Remaining E2E plans:
 height-aware vault and character-to-obstacle occlusion pixels.
+
+## Physics0 new staging route and visual QA
+
+New scene: https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/
+Built from PRIVATE `experiments/physics_v2` and exported to a nested
+subfolder without modifying main P1.5 URL. Browser Playwright
+`ci/playwright_physics_v2.py` exercises camera, 2 maps, World 3D
+jump/acceleration and original image floor. Pillow checks floor brightness,
+not only Godot readiness, to catch black WebGL material regressions.
+Early browser #45668562257 PASS movement (+4.11m) but showed black floor;
+later browser must confirm corrected art.
