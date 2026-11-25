@@ -89,3 +89,13 @@ NEXT: source HEAD/run check, improve original human animation and stage art, add
 - Continue to verify both runs after feature commit, correct failing parser or test without disabling assertion. Source/screenshot benchmark and artistic user acceptance still open; no transformation V5 or root P1.5 replacement.
 
 **Trạng thái: PARTIAL — chưa hoàn tất**
+
+
+## 2026-11-26 — VERIFIED original 8-bit contact feedback on live browser
+
+- **CI/Pages/Web SUCCESS:** [#45693164657](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45693164657), source `4ab090e33e51822cc4639d6165ac8d4319a9be37`, PUBLIC SHA `59a244842d3b45345f892fc7ea66cc1305e8383d`. All Godot strict import, new `hit_effects_smoke.gd`, real 2v2 hit-to-one-FX test, pixel 0.5m real ramps, 60Hz match/G guard, Web+Windows export and Pages deploy PASS.
+- **Chromium SUCCESS:** [#45693795373](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45693795373), actual screenshot ZIP `beast-arena-browser-screenshots` downloaded, `physics-v2/result.json.status=PASS`; `pixel_combat_fx_events_pass=true` and real 3D 2v2 hits=20, original pixel render contact events=20. Direct `?pixel=1`, exact source SHA, all 4 fighters, AI/HP, G press/release, 90s round/KO/T restart, headless 0.5m physical ramps and P1.5 existing route PASS. Actual `moss-nes-style-2d-preview.png` looked at: human sprites, 4 portraits, shallow horizontal perspective, fine incline remain legible.
+- Art/VFX: original amber damage burst and cyan block burst, 0.20sec finite lifetime, 24 event bounded queue; visual-only `BeastHitEffects` projected from true world XYZ. **Unverified:** browser battle had `pixel_guard_fx_total=0` (no real front block in that particular battle) and screenshot after 2v2 may not contain the transient 0.2sec visual spark. Do NOT claim a real captured cyan-block screenshot or final artwork approval. Model tests for guard event pass; next agent should stage actual guard hit + screenshot.
+- **Not complete:** visual user signoff and original fighter animation polishing, map/foreground variety, advanced combo/grab/throw and obstacle-aware AI, robust editor, mobile performance, P1.5 root migration and V5 original beast transformation remain. Use private matching checkpoint as authoritative; do not trigger beast early.
+
+**Trạng thái: PARTIAL — chưa hoàn tất**
