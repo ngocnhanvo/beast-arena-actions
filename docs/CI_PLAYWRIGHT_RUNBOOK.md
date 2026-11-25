@@ -263,3 +263,25 @@ the black-floor rendering bug. Physics0 only STAGING, don't replace root.
 - Artifact name `beast-arena-browser-screenshots` in run #45673951103 includes `physics-v2/moss-slope-entry.png`, `physics-v2/moss-ramp-mid-climb.png`, `physics-v2/docks-slope-entry.png`, `physics-v2/docks-ramp-mid-descent.png`, `physics-v2/result.json`.
 - Previous invisibility complaint is fixed **on staging** https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/ . Player: **R → D**, 1 uphill, 2 downhill.
 - Original P1.5 root still does NOT have slope physics. V2 production engine migration and polished final art remain separate future work. No claims of full Physics V2 completion.
+
+## 2026-11-26 — Fix unintended camera rotation in Physics0
+
+- ROOT CAUSE inspected in `experiments/physics_v2/scripts/demo.gd`:
+  `camera.global_position = camera.global_position.lerp(wanted,...)`
+  together with `camera.look_at(dynamic_focus)` every frame.
+  Translation follows with lag, look target instantly changes, so
+  yaw/pitch appear to tilt whole map while moving or climbing/descending.
+- NOT an intentional feature; 2.5D orthographic game should keep
+  pitch/yaw/roll fixed while camera translates/clamps/follows terrain.
+- PRIVATE patch SHA `d5bec34b89c406fe019d17fddfa0829fa7b14bd2`:
+  fixed `CAMERA_OFFSET`, initializes camera orientation at reset only,
+  removes per-frame `look_at` and exposes camera Euler angles in
+  opt-in E2E snapshot.
+- PUBLIC E2E patch SHA `e18cf4134e35fbba1774de60ba412ef61522485b`:
+  Playwright checks camera rotation pitch/yaw/roll drift <=0.10°
+  against initial frame after walk, Moss hill entry/climb, far teleport,
+  Docks switch/downhill and far. Requires actual browser run (not
+  only code assertion).
+- New CI run started #45676396568. Must verify real private game
+  source SHA on build, Pages deploy, follow-up Web browser result and
+  screenshot; avoid claiming verified until tests PASS.
