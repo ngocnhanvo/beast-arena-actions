@@ -13,3 +13,5 @@
 - CI run #45645624827: successful Godot import, combat/smoke tests, Windows/Web exports.
 - No private release was produced in that run because the release credential was absent at the time.
 - Rerun requested to verify current secret configuration and private-release upload on a public runner.
+
+- 2026-11-25: Added optional GitHub Pages Web deployment through Public Actions. Requires repo Pages setting Source = GitHub Actions; public publish disabled by default pending owner approval.

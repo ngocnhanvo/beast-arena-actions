@@ -8,3 +8,9 @@
 - No PR or `pull_request_target` event checks out private source with secrets.
 - Public binaries may permit decompilation of script/asset data. Public artifact upload disabled by default and requires explicit input.
 - Upgrade to full SHA pinning for external Actions after CI baseline is validated.
+
+## GitHub Pages
+
+- Web export trên GitHub Pages Public sẽ công khai, bao gồm script/tài nguyên nhúng trong PCK.
+- Chỉ upload `game/build/web`, không upload toàn bộ source Private.
+- Tắt public deployment theo mặc định, yêu cầu `deploy_pages=true` thủ công hoặc `AUTO_DEPLOY_PAGES=true` nếu chủ dự án chủ động đồng ý.

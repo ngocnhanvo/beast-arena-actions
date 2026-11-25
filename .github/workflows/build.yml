@@ -8,6 +8,11 @@ on:
     - cron: "17 * * * *"  # hourly check; no private-repo Actions minutes
   workflow_dispatch:
     inputs:
+      deploy_pages:
+        description: "Publish Web game publicly on GitHub Pages (asset/script disclosure)"
+        required: true
+        default: false
+        type: boolean
       publish_public_artifacts:
         description: "Publish compiled builds as PUBLIC artifacts (can expose game data)"
         required: true
@@ -56,6 +61,8 @@ jobs:
 
   build:
     name: Import, test, export game source
+    outputs:
+      pages_artifact_ready: ${{ steps.upload_pages.outcome }}
     needs: preflight
     if: (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || github.event_name == 'push') && needs.preflight.outputs.has_read_token == 'true'
     runs-on: ubuntu-24.04
@@ -146,6 +153,12 @@ jobs:
           cd game/build
           zip -qr "$GITHUB_WORKSPACE/beast-arena-web.zip" web
           zip -qr "$GITHUB_WORKSPACE/beast-arena-windows.zip" windows
+      - name: Upload Web game as PUBLIC GitHub Pages artifact (explicit opt-in)
+        id: upload_pages
+        if: steps.change-gate.outputs.skip_build != 'true' && ((github.event_name == 'workflow_dispatch' && inputs.deploy_pages == true) || vars.AUTO_DEPLOY_PAGES == 'true')
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: game/build/web
       - name: Upload to PRIVATE repo release (optional)
         if: steps.change-gate.outputs.skip_build != 'true'
         shell: bash
@@ -198,3 +211,23 @@ jobs:
           echo "Source: private repository ngocnhanvo/beast-arena" >> "$GITHUB_STEP_SUMMARY"
           echo "Public artifacts requested: $PUBLIC_UPLOAD" >> "$GITHUB_STEP_SUMMARY"
           echo "Private release token configured: $HAS_PRIVATE_RELEASE_TOKEN" >> "$GITHUB_STEP_SUMMARY"
+
+  deploy-pages:
+    name: Publish Web game to GitHub Pages (PUBLIC)
+    needs: [preflight, build]
+    if: needs.build.result == 'success' && needs.build.outputs.pages_artifact_ready == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Deploy Godot Web
+        id: deployment
+        uses: actions/deploy-pages@v4

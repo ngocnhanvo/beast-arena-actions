@@ -25,3 +25,17 @@ Chỉ bật tùy chọn `publish_public_artifacts` nếu chấp nhận người 
 ## Vòng lặp phát triển
 
 Push code vào private `beast-arena/main`; Public Actions tự kiểm tra mỗi giờ và build lại khi SHA thay đổi. Có thể kích hoạt workflow thủ công để build ngay. Public push chỉ chạy kiểm tra cấu hình; mọi build nặng đều ở repo Public, không cần workflow trên repo Private.
+
+## Chơi trực tiếp trên GitHub Pages
+
+Địa chỉ dự kiến (chỉ hoạt động sau khi Pages được bật và triển khai thành công): https://ngocnhanvo.github.io/beast-arena-actions/
+
+**Cần chủ repository bật Pages:** https://github.com/ngocnhanvo/beast-arena-actions/settings/pages → **Build and deployment → Source → GitHub Actions**.
+
+Sau đó vào https://github.com/ngocnhanvo/beast-arena-actions/actions/workflows/build.yml → **Run workflow** → chọn `deploy_pages = true`. Workflow chạy trên public runner, đóng gói Web và đưa duy nhất `game/build/web` lên Pages.
+
+Muốn mỗi bản build mới được tự động cập nhật trang, tạo Actions **repository variable** `AUTO_DEPLOY_PAGES=true` trong repo Public. Khi chưa có variable, workflow KHÔNG xuất bản Web ra Internet tự động.
+
+**Cảnh báo:** Web build công khai, Godot `index.pck` có thể chứa và bị trích xuất script, tài nguyên và hình ảnh. Source Git vẫn Private, nhưng xuất bản Web KHÔNG đồng nghĩa giữ nội dung game bí mật. Không để token, dữ liệu riêng tư hoặc tài nguyên có bản quyền chưa được phép trong Web build.
+
+Cấu hình hiện tại dùng WebGL2 Compatibility, Web export single-thread (không yêu cầu custom COOP/COEP headers). Điều khiển vẫn ưu tiên bàn phím PC; touch controls sẽ được phát triển sau.

@@ -8,6 +8,12 @@ This public repository runs Godot 4.7.2 tests and exports for the private projec
 - Exports: Web and Windows. Private releases are optional; public artifacts are off by default.
 - **No build workflow runs in the private repository.**
 
+## Chơi online qua GitHub Pages
+
+URL dự kiến sau khi chủ repo bật Pages và chọn `deploy_pages=true` trong workflow: https://ngocnhanvo.github.io/beast-arena-actions/
+
+Bản Web **công khai**, có thể bị trích xuất tài nguyên. Mặc định tắt tự xuất bản. Xem [hướng dẫn](docs/SETUP.md).
+
 ## Setup
 
 1. Create a *fine-grained* Personal Access Token with access to **only** `ngocnhanvo/beast-arena`, permission **Contents: Read**.
