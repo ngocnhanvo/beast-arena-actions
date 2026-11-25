@@ -413,6 +413,33 @@ def main():
                 raise AssertionError("F5 cannot restore the legacy 3D visual comparison")
             report["pixel_2d_overlay_pass"] = True
 
+            # A player can open the image-first version directly by URL
+            # rather than discovering F5. It must boot the SAME tested PCK.
+            direct_url = URL + "&pixel=1"
+            direct_response = page.goto(direct_url, wait_until="domcontentloaded", timeout=50000)
+            if direct_response is None or direct_response.status != 200:
+                raise AssertionError("direct pixel preview URL unavailable")
+            page.wait_for_function(
+                "() => window.__beastPhysicsDebug && window.__beastPhysicsDebug.ready === true",
+                timeout=180000, polling=750)
+            page.wait_for_timeout(520)
+            direct = snap(page)
+            report["pixel_direct_url"] = {
+                "url": direct_url, "source_sha": direct.get("source_sha"),
+                "enabled": direct.get("pixel_projection_mode"),
+                "drawn_tiles": direct.get("pixel_view_floor_tiles"),
+                "drawn_fighters": direct.get("pixel_view_fighters")}
+            if (direct.get("source_sha") != first.get("source_sha") or
+                    not direct.get("pixel_projection_mode") or
+                    direct.get("pixel_view_floor_tiles", 0) < 60 or
+                    direct.get("pixel_view_fighters") != 4):
+                raise AssertionError("?pixel=1 did not directly boot the same real 3D brawler in 2D")
+            canvas = page.locator("canvas#canvas").first
+            if canvas.count() == 0:
+                canvas = page.locator("canvas").first
+            canvas.screenshot(path=str(OUT / "moss-direct-pixel-url.png"))
+            report["pixel_direct_url_pass"] = True
+
             if report["page_errors"]:
                 raise AssertionError("3D Web has uncaught JavaScript errors")
             report["status"] = "PASS"
