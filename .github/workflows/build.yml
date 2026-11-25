@@ -164,6 +164,9 @@ jobs:
       - name: Physics V2 native 3D contact and slope smoke test
         if: steps.change-gate.outputs.skip_build != 'true'
         run: godot --headless --path game/experiments/physics_v2 --script res://tests/physics_smoke.gd
+      - name: Test Physics V2 reusable native GridMap map editor
+        if: steps.change-gate.outputs.skip_build != 'true'
+        run: godot --headless --path game/experiments/physics_v2 --script res://tests/map_editor_smoke.gd
 
       - name: Install export templates
         if: steps.change-gate.outputs.skip_build != 'true'
