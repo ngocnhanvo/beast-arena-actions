@@ -185,6 +185,9 @@ jobs:
       - name: Test data driven V2 3D combat boxes and frame timeline
         if: steps.change-gate.outputs.skip_build != 'true'
         run: godot --headless --path game/experiments/physics_v2 --script res://tests/combat_v2_test.gd
+      - name: Test playable human-only 2v2 HP and team filtering scene
+        if: steps.change-gate.outputs.skip_build != 'true'
+        run: godot --headless --path game/experiments/physics_v2 --script res://tests/combat_scene_smoke.gd
       - name: Test Physics V2 low-rail vault and tall-wall 3D collision
         if: steps.change-gate.outputs.skip_build != 'true'
         run: godot --headless --path game/experiments/physics_v2 --script res://tests/obstacle_collision_smoke.gd
