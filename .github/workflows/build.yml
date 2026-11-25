@@ -182,6 +182,9 @@ jobs:
       - name: Test original pixel art 2.5D camera and stage UV alignment
         if: steps.change-gate.outputs.skip_build != 'true'
         run: godot --headless --path game/experiments/physics_v2 --script res://tests/visual_smoke.gd
+      - name: Test independent fixed NES-style 2D presentation over 3D physics
+        if: steps.change-gate.outputs.skip_build != 'true'
+        run: godot --headless --path game/experiments/physics_v2 --script res://tests/pixel_projection_smoke.gd
       - name: Test data driven V2 3D combat boxes and frame timeline
         if: steps.change-gate.outputs.skip_build != 'true'
         run: godot --headless --path game/experiments/physics_v2 --script res://tests/combat_v2_test.gd
