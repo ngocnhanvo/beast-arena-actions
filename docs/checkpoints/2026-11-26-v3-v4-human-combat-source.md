@@ -37,3 +37,9 @@ NEXT: find the next run at https://github.com/ngocnhanvo/beast-arena-actions/act
 - PRIVATE `b8bf2e5` to `da1313e`: four screen-space color-coded original HP bars, width from `BeastCombatState.health` and debug `hud_hp_bar_px` for each human. PRIVATE source before docs update includes `da1313e44ada873febdddcdeda4b59e05f1b3868`.
 - PUBLIC `916750336fad01213e9ef43ff72450df3ffc6dfd`: Chromium after C 2v2 AI checks all four visual HP fills against actual state (<=3.5 px difference). Screenshot `moss-human-2v2.png` needed for color/layout quality.
 - Still **NO VERIFIED new CI/Web run**, no visual acceptance; prior PASS IDs are old source only. Required next action unchanged: inspect newest build run and actual browser screenshots, fix errors, update checkpoint.
+
+
+## 2026-11-26 — Actual CI failure recovered, rerun necessary
+- **OBSERVED** latest public push workflow run #45681701357 `failure`; preflight PASS, Godot strict import PASS, Physics0 `physics_smoke.gd` PASS, then `map_editor_smoke.gd:84` FAIL `SCALE-01: sprite vs viewport is inconsistent: 1028.57144389834`. Pages job SKIPPED and browser E2E skipped. Exact failing build job #139443703361.
+- **Root cause:** old art scale test counts entire 20-row animation atlas texture rather than the 64-pixel-height current frame. PRIVATE source `c7c408873102731bf00514c7d2d076857c167c62` now divides `texture.get_height()` by `Sprite3D.vframes` before projection. Expected ~51.43 pixels at 960×540 orthographic size 16.8. The previous failure is NOT an actual 1028px fighter, and is not to be hidden by weakening the true 50–59px visual contract.
+- **NEXT** this new Public docs commit (WITHOUT skip-ci) intentionally triggers normal build workflow to check the corrected PRIVATE head. Inspect run, source SHA, all subsequent tests, Pages and Chromium. Fix following failures in order; no success claim for this checkpoint yet.
