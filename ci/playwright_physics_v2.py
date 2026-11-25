@@ -6,7 +6,23 @@ import json
 import time
 from pathlib import Path
 
+from PIL import Image
 from playwright.sync_api import sync_playwright
+
+
+def visible_floor_fraction(image_path: Path) -> float:
+    # Screenshot pixel test catches a WebGL2/material regression where
+    # collision and debug telemetry pass but the entire 3D floor is BLACK.
+    # Only count a central interior crop; HUD/sprites occupy a minority.
+    with Image.open(image_path).convert("RGB") as image:
+        w, h = image.size
+        sample = image.crop((int(w*0.16), int(h*0.29),
+                             int(w*0.83), int(h*0.79)))
+        colors = list(sample.getdata())
+        bright = sum(1 for red, green, blue in colors
+                     if max(red, green, blue) >= 58
+                     and (green >= red*0.8 or blue >= red*0.8))
+        return bright / max(1, len(colors))
 
 URL = "https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/?e2e=1"
 OUT = Path("playwright-report/physics-v2")
@@ -64,6 +80,12 @@ def main():
             if first["map_width_m"] < 60.0:
                 raise AssertionError("Stage should scroll beyond viewport")
             canvas.screenshot(path=str(OUT / "moss-start.png"))
+            report["moss_visible_floor_fraction"] = round(
+                visible_floor_fraction(OUT / "moss-start.png"), 3)
+            if report["moss_visible_floor_fraction"] < 0.14:
+                raise AssertionError(
+                    "Stage floor appears black/blank in WebGL2: "
+                    + str(report["moss_visible_floor_fraction"]))
 
             page.keyboard.down("d")
             page.wait_for_timeout(950)
@@ -106,6 +128,12 @@ def main():
             if docks["actors"] != 4 or docks["obstacles"] < 5:
                 raise AssertionError("3D actors / native colliders not created on switch")
             canvas.screenshot(path=str(OUT / "docks-high-platform.png"))
+            report["docks_visible_floor_fraction"] = round(
+                visible_floor_fraction(OUT / "docks-high-platform.png"), 3)
+            if report["docks_visible_floor_fraction"] < 0.14:
+                raise AssertionError(
+                    "Night Docks floor is not visibly rendered: "
+                    + str(report["docks_visible_floor_fraction"]))
             page.keyboard.press("F3")
             page.wait_for_timeout(350)
             docks_far = snap(page)
