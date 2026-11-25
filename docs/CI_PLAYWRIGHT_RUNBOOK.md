@@ -201,3 +201,17 @@ commit; do not claim Web/Windows Physics V2 PASS.
   and Night Docks is mandatory and pending fresh Web run.
 - Full V2 design matrix, native stage authoring usability and low/tall
   collider tests are still ongoing; do not mark production migration ready.
+
+## 2026-11-26 — Retest Web CSG authoring colors after screenshot review
+
+Godot Physics0 Playwright #45669821453 passed both physics and P1.5;
+Pillow proof `moss_visible_floor_fraction=0.989`,
+`docks_visible_floor_fraction=0.987`, D +4.097m.
+Screenshots confirm original SVG floor textures now render correctly.
+However some bare editor-created `CSGBox3D` geometry was black because
+the editor blocks used default shaded material; added an original
+`@tool BeastPaintableBlock` subclass that assigns unshaded authored
+colors in both editor and Web. `map_editor_smoke.gd` now asserts
+CSG material is unshaded and CSG collision stays enabled.
+New public build is required to verify latest Private source, not to
+replace production P1.5 (staging remains /physics-v2/).
