@@ -4,17 +4,17 @@
 
 This public repository runs Godot 4.7.2 tests and exports for the private project [beast-arena](https://github.com/ngocnhanvo/beast-arena).
 
-- Push to this repository runs **token-free CI preflight**.
-- **Hourly scheduled check** on the PUBLIC repository reads the private `main` commit and rebuilds only for unseen successful source SHAs (cache stores SHA only). No private-repository Actions minutes are used.
+- Push to this repository runs **token-free CI preflight**, then builds/tests the private Godot source on a PUBLIC runner when the read-only token is available, and publishes Pages.
+- **Hourly scheduled check** on the PUBLIC repository reads the private `main` commit and rebuilds if the source SHA is new OR a successful Pages marker is missing (cache stores SHA only). No private-repository Actions minutes are used.
 - Manual `workflow_dispatch` can force a build immediately after checking out private `main`.
 - Exports: Web and Windows. Private releases are optional; public artifacts are off by default.
 - **No build workflow runs in the private repository.**
 
 ## Chơi online qua GitHub Pages
 
-URL dự kiến sau khi chủ repo bật Pages và chọn `deploy_pages=true` trong workflow: https://ngocnhanvo.github.io/beast-arena-actions/
+Địa chỉ GitHub Pages đã triển khai thành công (ví dụ run #45652585969): https://ngocnhanvo.github.io/beast-arena-actions/
 
-Bản Web **công khai**, có thể bị trích xuất tài nguyên. Mặc định tắt tự xuất bản. Xem [hướng dẫn](docs/SETUP.md).
+Bản Web **công khai**, có thể bị trích xuất tài nguyên. Chủ dự án đã phê duyệt xuất bản Web PUBLIC ngày 25/11/2026. Workflow tự triển khai khi repo Public push và kiểm tra lại theo lịch; chạy thủ công vẫn cần chọn deploy_pages=true. Xem [hướng dẫn](docs/SETUP.md).
 
 ## Setup
 
