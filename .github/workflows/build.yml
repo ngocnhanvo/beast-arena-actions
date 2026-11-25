@@ -28,6 +28,7 @@ jobs:
     timeout-minutes: 5
     outputs:
       has_read_token: ${{ steps.token-check.outputs.has_read_token }}
+      has_release_token: ${{ steps.token-check.outputs.has_release_token }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -38,7 +39,14 @@ jobs:
         id: token-check
         env:
           HAS_READ_TOKEN: ${{ secrets.BEAST_ARENA_READ_TOKEN != '' }}
+          HAS_RELEASE_TOKEN: ${{ secrets.BEAST_ARENA_RELEASE_TOKEN != '' }}
         run: |
+          echo "has_release_token=$HAS_RELEASE_TOKEN" >> "$GITHUB_OUTPUT"
+          if [[ "$HAS_RELEASE_TOKEN" == "true" ]]; then
+            echo "Private release credential is configured."
+          else
+            echo "::notice::Optional BEAST_ARENA_RELEASE_TOKEN is not configured."
+          fi
           echo "has_read_token=$HAS_READ_TOKEN" >> "$GITHUB_OUTPUT"
           if [[ "$HAS_READ_TOKEN" == "true" ]]; then
             echo "Private source credential is configured."
@@ -49,7 +57,7 @@ jobs:
   build:
     name: Import, test, export game source
     needs: preflight
-    if: (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule') && needs.preflight.outputs.has_read_token == 'true'
+    if: (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || github.event_name == 'push') && needs.preflight.outputs.has_read_token == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 35
     steps:
@@ -171,10 +179,10 @@ jobs:
           if-no-files-found: error
           retention-days: 7
       - name: Mark successful scheduled build
-        if: github.event_name == 'schedule' && steps.change-gate.outputs.skip_build != 'true' && success()
+        if: steps.change-gate.outputs.skip_build != 'true' && success()
         run: cat /tmp/beast-arena-commit > .ci-success.txt
       - name: Cache successful source commit (SHA only)
-        if: github.event_name == 'schedule' && steps.change-gate.outputs.skip_build != 'true' && success()
+        if: steps.change-gate.outputs.skip_build != 'true' && success()
         uses: actions/cache/save@v4
         with:
           path: .ci-success.txt
