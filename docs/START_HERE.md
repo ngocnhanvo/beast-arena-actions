@@ -1,3 +1,5 @@
+**LATEST VISUAL-FIRST PRIORITY (2026-11-26):** User still perceives the whole arena as tilted and wants original pixel-art stages/fighters close in *style* to Nekketsu Kakutō Densetsu, **before** transformation. Read PRIVATE `docs/plans/NEKKETSU_VISUAL_FIRST_2026-11-26.md` and BOTH `docs/checkpoints/2026-11-26-visual-first-nekketsu-plan.md`. Angle-locked browser PASS #45677121093 is not a VISUAL acceptance; next pipeline must prove fixed world-line appearance, build ID and human screenshot approval. Do not include reference-game assets in Public builds.
+
 # START HERE — Beast Arena Actions Public
 
 **CAMERA TILT FIX VERIFIED 2026-11-26:** Godot CI/Pages #45676762869 PASS, browser #45677121093 PASS, Physics0 `camera_projection_locked=true` at fixed pitch -37.405°, yaw/roll=0. Read `docs/checkpoints/2026-11-26-camera-fixed-orientation.md`. Original P1.5 root remains unchanged.
