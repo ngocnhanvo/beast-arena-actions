@@ -352,3 +352,10 @@ run for exact game SHA and live Playwright camera lock, not assumed.
 - Public `build.yml` added `tests/pixel_projection_smoke.gd` to assert X-horizontal, true physical Y and Z-depth, correct two-map/4-actor link; no fake height is introduced. Public `ci/playwright_physics_v2.py` now presses F5 after traditional physics+2v2 traversal, checks `pixel_projection_mode`, >60 drawn original tiles and at least 2 fighters, screenshots `moss-nes-style-2d-preview.png`, checks visible tile colors, then toggles F5 back to 3D.
 - Independently, `pixel_prop_skins=6` asserted on both Moss and Docks; each actual native collider has original pixel-art material (public source `c2b6048`). Build+Pages #45685202832 PASS. Browser #45685557148 and newer F5 builds #45685585437/#45685624341 had not been verified when this note was written.
 - Explicit user visual acceptance REQUIRED after viewing screenshots. CI green for 2D mapping cannot by itself establish Nekketsu look and feel. No P1.5 migration or beast form V5 until gates pass. See latest checkpoint in both repos.
+
+
+## 2026-11-26 — F5 browser result actually verified, next screenshot comparison
+
+- Current PASS for optional physics-backed Pixel2D view: Build/Pages #45685585437 on private `49ca27ea`, Chromium #45685984297. Screenshot/JSON downloaded, `pixel_2d_overlay_pass=true`, 221 tiles, 4 actors, 25 combat hits, original camera still stable. This proves runtime but does NOT approve visuals.
+- Visual QA FINDING: screenshot is closer to Nekketsu 2D orientation but sky blank and step/front gaps. Source `40f0cce` adds original parallax temple/harbor skylines plus world-height brick/metal risers, and private unique 80-frame silhouette additions. `ci/playwright_physics_v2.py` public `79f33d5` adds screenshots `moss-nes-style-2d-start.png` and `docks-nes-style-2d-start.png` before combat; keep after-combat F5 screenshot too. Review both maps and actual 3D physics matches.
+- New private headless alpha silhouette test `67c1ac8` must be included in a later Godot CI run. Never mark `VISUAL_ACCEPTED` from pixels-per-frame test alone or migrate P1.5. See latest matching checkpoint.
