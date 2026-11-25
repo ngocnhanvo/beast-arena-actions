@@ -27,6 +27,8 @@ jobs:
           python -m playwright install --with-deps chromium
       - name: Test live Godot game with Chromium
         run: python ci/playwright_smoke.py
+      - name: Test isolated Godot Physics V2 Web scene with Chromium
+        run: python ci/playwright_physics_v2.py
       - name: Save public screenshots
         if: always()
         uses: actions/upload-artifact@v4
