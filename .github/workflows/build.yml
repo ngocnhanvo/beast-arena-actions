@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
     paths: [".github/workflows/**", "ci/**", "docs/**", "README.md"]
+  schedule:
+    - cron: "17 * * * *"  # hourly check; no private-repo Actions minutes
   workflow_dispatch:
     inputs:
       publish_public_artifacts:
@@ -24,6 +26,8 @@ jobs:
     name: Validate public CI configuration
     runs-on: ubuntu-24.04
     timeout-minutes: 5
+    outputs:
+      has_read_token: ${{ steps.token-check.outputs.has_read_token }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -31,9 +35,11 @@ jobs:
       - name: Validate scripts
         run: bash ci/validate.sh
       - name: Check source token configured (value never printed)
+        id: token-check
         env:
           HAS_READ_TOKEN: ${{ secrets.BEAST_ARENA_READ_TOKEN != '' }}
         run: |
+          echo "has_read_token=$HAS_READ_TOKEN" >> "$GITHUB_OUTPUT"
           if [[ "$HAS_READ_TOKEN" == "true" ]]; then
             echo "Private source credential is configured."
           else
@@ -43,7 +49,7 @@ jobs:
   build:
     name: Import, test, export game source
     needs: preflight
-    if: github.event_name == 'workflow_dispatch'
+    if: (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule') && needs.preflight.outputs.has_read_token == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 35
     steps:
@@ -70,21 +76,50 @@ jobs:
           persist-credentials: false
           path: pipeline
       - name: Record source commit (SHA only)
+        id: source-sha
         shell: bash
-        run: git -C game rev-parse HEAD | tee /tmp/beast-arena-commit
+        run: |
+          SHA="$(git -C game rev-parse HEAD)"
+          printf '%s\n' "$SHA" | tee /tmp/beast-arena-commit
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+      - name: Look up prior successful build (SHA marker only)
+        id: built-cache
+        if: github.event_name == 'schedule'
+        uses: actions/cache/restore@v4
+        with:
+          path: .ci-success.txt
+          key: beast-arena-success-${{ steps.source-sha.outputs.sha }}
+      - name: Determine whether to rebuild
+        id: change-gate
+        shell: bash
+        env:
+          CACHE_HIT: ${{ steps.built-cache.outputs.cache-hit }}
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == "schedule" && "$CACHE_HIT" == "true" ]]; then
+            echo "skip_build=true" >> "$GITHUB_OUTPUT"
+            echo "No source changes since a successful scheduled build."
+          else
+            echo "skip_build=false" >> "$GITHUB_OUTPUT"
+          fi
       - name: Install Godot 4.7.2 stable
+        if: steps.change-gate.outputs.skip_build != 'true'
         shell: bash
         run: bash pipeline/ci/setup_godot.sh
       - name: Import project headlessly
+        if: steps.change-gate.outputs.skip_build != 'true'
         run: godot --headless --editor --path game --import --quit
       - name: Test combat rules
+        if: steps.change-gate.outputs.skip_build != 'true'
         run: godot --headless --path game --script res://tests/combat_test.gd
       - name: Smoke test arena scene
+        if: steps.change-gate.outputs.skip_build != 'true'
         run: godot --headless --path game --script res://tests/smoke_test.gd
       - name: Install export templates
+        if: steps.change-gate.outputs.skip_build != 'true'
         shell: bash
         run: bash pipeline/ci/install_templates.sh
       - name: Export Web and Windows
+        if: steps.change-gate.outputs.skip_build != 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -96,6 +131,7 @@ jobs:
           test -s game/build/windows/BeastArena.pck
           echo "All export checks passed."
       - name: Package compiled exports only
+        if: steps.change-gate.outputs.skip_build != 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -103,6 +139,7 @@ jobs:
           zip -qr "$GITHUB_WORKSPACE/beast-arena-web.zip" web
           zip -qr "$GITHUB_WORKSPACE/beast-arena-windows.zip" windows
       - name: Upload to PRIVATE repo release (optional)
+        if: steps.change-gate.outputs.skip_build != 'true'
         shell: bash
         env:
           PRIVATE_RELEASE_TOKEN: ${{ secrets.BEAST_ARENA_RELEASE_TOKEN }}
@@ -133,6 +170,15 @@ jobs:
             beast-arena-windows.zip
           if-no-files-found: error
           retention-days: 7
+      - name: Mark successful scheduled build
+        if: github.event_name == 'schedule' && steps.change-gate.outputs.skip_build != 'true' && success()
+        run: cat /tmp/beast-arena-commit > .ci-success.txt
+      - name: Cache successful source commit (SHA only)
+        if: github.event_name == 'schedule' && steps.change-gate.outputs.skip_build != 'true' && success()
+        uses: actions/cache/save@v4
+        with:
+          path: .ci-success.txt
+          key: beast-arena-success-${{ steps.source-sha.outputs.sha }}
       - name: Build summary
         if: always()
         shell: bash
