@@ -33,6 +33,20 @@ def snap(page):
     return page.evaluate("window.__beastPhysicsDebug || null")
 
 
+def assert_locked_projection(first, current, stage):
+    # Camera must slide across world positions, never tilt or rotate.
+    # The user perceives a rotating level otherwise, especially on ramps.
+    axes = ("pitch_deg", "yaw_deg", "roll_deg")
+    for axis in axes:
+        if axis not in first["camera"] or axis not in current["camera"]:
+            raise AssertionError("camera angle telemetry missing: " + axis)
+        drift = abs(first["camera"][axis] - current["camera"][axis])
+        if drift > 0.10:
+            raise AssertionError(
+                "2.5D camera rotates when moving (%s %s drift=%.3f deg)" %
+                (stage, axis, drift))
+
+
 def main():
     report = {"url": URL, "status": "NOT_TESTED", "page_errors": [],
               "critical_asset_failures": [], "navigation": []}
@@ -197,6 +211,25 @@ def main():
             # HTTP evidence without treating a recovered response as fatal.
             if report["critical_asset_failures"]:
                 report["transient_asset_warnings"] = list(report["critical_asset_failures"])
+            # Check actual camera orientation throughout movement, real
+            # incline traversal, map switch and far teleport. Translation
+            # to follow the player is fine; a change of yaw/pitch/roll isn't.
+            for name, checkpoint in (
+                ("moss walking", moved),
+                ("moss slope entry", moss_ramp_entry),
+                ("moss climbing", moss_ramp_mid),
+                ("moss far", far),
+                ("docks switch", docks),
+                ("docks slope entry", docks_slope_entry),
+                ("docks descending", docks_slope_mid),
+                ("docks far", docks_far),
+            ):
+                assert_locked_projection(first, checkpoint, name)
+            report["camera_projection_locked"] = True
+            report["camera_rotation_deg"] = {
+                k: first["camera"][k]
+                for k in ("pitch_deg", "yaw_deg", "roll_deg")
+            }
             if report["page_errors"]:
                 raise AssertionError("3D Web has uncaught JavaScript errors")
             report["status"] = "PASS"
