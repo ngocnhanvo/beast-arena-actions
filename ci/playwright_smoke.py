@@ -132,12 +132,64 @@ def main():
             if overlays.get("collision_debug") is not True:
                 raise AssertionError("F2 did not enable the collision/spawn debug overlay")
             canvas.screenshot(path=str(OUT / "arena-debug-overlays.png"))
+
+            # P1.5 camera acceptance: the world must be larger than the
+            # viewport and the camera must reach and clamp at both ends.
+            first_map = debug_snapshot(page)
+            assert first_map["map_id"] == "moss_temple", "Wrong default demo map"
+            assert first_map["world_bounds"]["width"] > first_map["viewport_size"]["x"] * 2
+            assert first_map["world_bounds"]["height"] > first_map["viewport_size"]["y"] * 2
+            page.keyboard.press("F3")  # teleport far side for deterministic test
+            page.wait_for_timeout(450)
+            temple_far = debug_snapshot(page)
+            report["temple_far"] = temple_far
+            if temple_far["player"]["x"] <= 1600:
+                raise AssertionError("Cannot traverse beyond initial viewport")
+            if temple_far["camera_world"]["x"] <= first_map["camera_world"]["x"] + 750:
+                raise AssertionError("Camera did not follow player to far section")
+            camera_max = (temple_far["camera_bounds"]["right"] -
+                          temple_far["viewport_size"]["x"] / 2)
+            if temple_far["camera_world"]["x"] > camera_max + 12:
+                raise AssertionError("Temple camera scrolled beyond authored right limit")
+            canvas.screenshot(path=str(OUT / "moss-temple-far-camera.png"))
+
+            page.keyboard.press("2")
+            page.wait_for_timeout(500)
+            docks = debug_snapshot(page)
+            report["night_docks_initial"] = docks
+            if docks["map_id"] != "night_docks" or docks["obstacles"] < 4:
+                raise AssertionError("Second wide demo stage did not load")
+            if docks["world_bounds"]["width"] <= temple_far["world_bounds"]["width"]:
+                raise AssertionError("Second stage should be wider")
+            if docks["camera_world"]["x"] > 530:
+                raise AssertionError("Camera failed to reset to second map spawn")
+            canvas.screenshot(path=str(OUT / "night-docks-start.png"))
+
+            page.keyboard.press("F3")
+            page.wait_for_timeout(450)
+            docks_far = debug_snapshot(page)
+            report["night_docks_far"] = docks_far
+            docks_limit = docks_far["camera_bounds"]["right"] - docks_far["viewport_size"]["x"] / 2
+            if docks_far["camera_world"]["x"] <= 2000:
+                raise AssertionError("Night Docks camera did not scroll far enough")
+            if docks_far["camera_world"]["x"] > docks_limit + 12:
+                raise AssertionError("Night Docks camera escaped right limit")
+            canvas.screenshot(path=str(OUT / "night-docks-far-camera.png"))
+
+            page.keyboard.press("F4")
+            page.wait_for_timeout(350)
+            home = debug_snapshot(page)
+            report["night_docks_return"] = home
+            if home["player"]["x"] >= 960 or home["camera_world"]["x"] > 530:
+                raise AssertionError("Return-to-spawn camera did not reset correctly")
+            canvas.screenshot(path=str(OUT / "night-docks-return.png"))
+
             if report["failed_assets"]:
                 raise AssertionError("Critical JS/WASM/PCK asset request failed")
             if report["page_errors"]:
                 raise AssertionError("Uncaught browser page errors")
             report["status"] = "PASS"
-            print("PASS P0: Godot ready; P1 stage and real Space/J/D input verified; dx=%.1f"
+            print("PASS P1.5: 2 large maps, scrolling/clamped camera, F2 overlays, Space/J/D; dx=%.1f"
                   % report["move_dx"], flush=True)
         except Exception as exc:
             report["status"] = "FAIL"

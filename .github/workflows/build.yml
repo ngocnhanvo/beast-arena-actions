@@ -148,6 +148,9 @@ jobs:
       - name: Test P1 state machine and solid stage collision
         if: steps.change-gate.outputs.skip_build != 'true'
         run: godot --headless --path game --script res://tests/p1_core_test.gd
+      - name: Test P1.5 image-first maps, camera limits and stage switching
+        if: steps.change-gate.outputs.skip_build != 'true'
+        run: godot --headless --path game --script res://tests/p1_5_map_test.gd
       - name: Install export templates
         if: steps.change-gate.outputs.skip_build != 'true'
         shell: bash
