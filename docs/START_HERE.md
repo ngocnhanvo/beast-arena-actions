@@ -1,5 +1,7 @@
 # START HERE — Beast Arena Actions Public
 
+**LATEST 2026-11-26:** See docs/checkpoints/2026-11-26-physics0-oss-staging-passed.md: Godot/Pages #45670308588 PASS for native 3D Physics0 + built-in GridMap/CSG. Chromium #45670647655 pending at documentation time. Staging /physics-v2/ is NOT production migration.
+
 **LATEST 2026-11-26:** Physics0 is now implemented and verified in
 a SEPARATE Godot 3D project on GitHub Pages at `/physics-v2/`, but it
 is a prototype, NOT the production engine. Native Godot GridMap/CSG map

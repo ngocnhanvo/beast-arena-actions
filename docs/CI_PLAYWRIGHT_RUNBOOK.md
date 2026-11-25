@@ -215,3 +215,9 @@ colors in both editor and Web. `map_editor_smoke.gd` now asserts
 CSG material is unshaded and CSG collision stays enabled.
 New public build is required to verify latest Private source, not to
 replace production P1.5 (staging remains /physics-v2/).
+
+## 2026-11-26 — Latest Physics0 native Godot/Pages run
+
+Game code a39af14ac7fe51785d36778ea0af440d366d2d88, Actions code 3a7233a027a7d87676e6def2399944223a2a6200.
+Godot/Pages #45670308588 SUCCESS, including real slope tests, native GridMap/CSG unshaded editor prop validation, real jump over low rail/tall wall block, 55.8px sprite scale and Web export.
+Earlier real Chromium #45669821453 PASS with Moss floor fraction .989 and Docks .987; new browser #45670647655 pending at this writing to examine latest CSG material. Never infer browser pass from Godot import success.
