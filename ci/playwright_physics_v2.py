@@ -399,6 +399,11 @@ def main():
                 raise AssertionError("2v2 AI was not enabled by C")
             if battle.get("combat_completed_hits", 0) < 1:
                 raise AssertionError("real 2v2 actors never landed a gameplay attack")
+            # Each genuine physics damage/block event must emit exactly
+            # one presentation-only original spark; art NEVER drives hits.
+            if battle.get("pixel_hit_fx_total", -1) != battle.get("combat_completed_hits", -2):
+                raise AssertionError("pixel hit flashes are not coupled one-to-one to real 3D hits")
+            report["pixel_combat_fx_events_pass"] = True
             health = battle.get("combat_hp", {})
             if not health or sum(health.values()) >= 400:
                 raise AssertionError("2v2 attack did not reduce any authoritative HP")
