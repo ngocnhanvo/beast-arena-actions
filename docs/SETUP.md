@@ -8,7 +8,7 @@ Chọn **Only select repositories**: `ngocnhanvo/beast-arena`, và **Contents: R
 
 Trong **repo Public** `beast-arena-actions`, mở Settings → Secrets and variables → Actions → New repository secret và tạo `BEAST_ARENA_READ_TOKEN` chứa token vừa tạo.
 
-Sau đó vào [Actions workflow](https://github.com/ngocnhanvo/beast-arena-actions/actions/workflows/build.yml) và chọn **Run workflow** (nhánh main) để build ngay. Ngoài ra Public Actions tự kiểm tra SHA của `beast-arena/main` mỗi giờ (phút 17 UTC) và chỉ build lại nếu chưa có marker build thành công cho SHA đó. Chỉ cache SHA, không cache source Private.
+Sau đó vào [Actions workflow](https://github.com/ngocnhanvo/beast-arena-actions/actions/workflows/build.yml) và chọn **Run workflow** (nhánh main) để build ngay. Ngoài ra Public Actions tự kiểm tra SHA của `beast-arena/main` mỗi giờ (phút 17 UTC) và chỉ skip khi có marker thành công cho **cả build và Pages** tương ứng source SHA (đọc workflow mới nhất để xác minh). Chỉ cache SHA, không cache source Private.
 
 ## Secret upload riêng vào Private (khuyến nghị)
 
@@ -24,7 +24,7 @@ Chỉ bật tùy chọn `publish_public_artifacts` nếu chấp nhận người 
 
 ## Vòng lặp phát triển
 
-Push code vào private `beast-arena/main`; Public Actions tự kiểm tra mỗi giờ và build lại khi SHA thay đổi. Có thể kích hoạt workflow thủ công để build ngay. Public push chỉ chạy kiểm tra cấu hình; mọi build nặng đều ở repo Public, không cần workflow trên repo Private.
+Push code vào private `beast-arena/main`; Public Actions tự kiểm tra mỗi giờ và build lại khi SHA thay đổi. Có thể kích hoạt workflow thủ công để build ngay. Public push chạy build/test/export và Pages khi được cấu hình; mọi build nặng đều ở repo Public, không cần workflow trên repo Private.
 
 ## Chơi trực tiếp trên GitHub Pages
 
@@ -34,7 +34,7 @@ Push code vào private `beast-arena/main`; Public Actions tự kiểm tra mỗi 
 
 Sau đó vào https://github.com/ngocnhanvo/beast-arena-actions/actions/workflows/build.yml → **Run workflow** → chọn `deploy_pages = true`. Workflow chạy trên public runner, đóng gói Web và đưa duy nhất `game/build/web` lên Pages.
 
-Muốn mỗi bản build mới được tự động cập nhật trang, tạo Actions **repository variable** `AUTO_DEPLOY_PAGES=true` trong repo Public. Khi chưa có variable, workflow KHÔNG xuất bản Web ra Internet tự động.
+Muốn mỗi bản build mới được tự động cập nhật trang, tạo Actions **repository variable** `AUTO_DEPLOY_PAGES=true` trong repo Public. Tính tới 25/11/2026, chủ dự án đã bật công khai Web: workflow tự deploy Pages khi PUBLIC repo push hoặc chạy theo lịch cần retry. Lượt chạy thủ công dùng deploy_pages=true. Dữ liệu và hình ảnh export trên Pages là công khai.
 
 **Cảnh báo:** Web build công khai, Godot `index.pck` có thể chứa và bị trích xuất script, tài nguyên và hình ảnh. Source Git vẫn Private, nhưng xuất bản Web KHÔNG đồng nghĩa giữ nội dung game bí mật. Không để token, dữ liệu riêng tư hoặc tài nguyên có bản quyền chưa được phép trong Web build.
 

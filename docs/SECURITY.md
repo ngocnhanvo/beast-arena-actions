@@ -13,4 +13,4 @@
 
 - Web export trên GitHub Pages Public sẽ công khai, bao gồm script/tài nguyên nhúng trong PCK.
 - Chỉ upload `game/build/web`, không upload toàn bộ source Private.
-- Tắt public deployment theo mặc định, yêu cầu `deploy_pages=true` thủ công hoặc `AUTO_DEPLOY_PAGES=true` nếu chủ dự án chủ động đồng ý.
+- Chủ dự án đã đồng ý xuất bản Pages PUBLIC ngày 25/11/2026. Workflow hiện chạy Pages khi push vào repo Actions và theo schedule; manual dispatch vẫn cần deploy_pages=true. Giới hạn nội dung xuất Web, không đưa source Git raw hay secret vào artifacts/log.

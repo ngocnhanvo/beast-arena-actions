@@ -1,5 +1,7 @@
 # Beast Arena Actions (Public)
 
+**AI / phiên chat mới: đọc [START_HERE](docs/START_HERE.md), [AGENTS.md](AGENTS.md) và [CI_PLAYWRIGHT_RUNBOOK](docs/CI_PLAYWRIGHT_RUNBOOK.md) trước khi sửa CI.** Trạng thái browser test có thể khác trạng thái Pages deploy.
+
 This public repository runs Godot 4.7.2 tests and exports for the private project [beast-arena](https://github.com/ngocnhanvo/beast-arena).
 
 - Push to this repository runs **token-free CI preflight**.
