@@ -116,7 +116,7 @@ def main():
                 raise AssertionError("missing actual deployment build run ID")
             report["version"] = {key: first[key] for key in
                                   ("source_sha", "pipeline_sha", "build_run_id", "visual_style_id")}
-            if first.get("visual_style_id") != "v1-visible-pixel-floor-20261126":
+            if first.get("visual_style_id") != "v2-compact-pixel-stage-20261126":
                 raise AssertionError("stale or wrong Physics0 visual build: " +
                                      str(first.get("visual_style_id")))
             if not (12.0 <= abs(first["camera"]["pitch_deg"]) <= 25.0):
@@ -134,6 +134,8 @@ def main():
                 raise AssertionError("Human pixel scale differs from approved test contract")
             if first["map_width_m"] < 60.0:
                 raise AssertionError("Stage should scroll beyond viewport")
+            if not (25.0 <= first.get("map_depth_m", 0.0) <= 28.0):
+                raise AssertionError("Moss stage depth loses compact horizontal brawler composition")
             if first.get("ramp_visual_count", 0) < 25 or first.get("ramp_angle_deg", 0) < 14:
                 raise AssertionError("Visible slope markers and 14+ degree rise missing")
             if first.get("ramp_end_y", 0) - first.get("ramp_start_y", 0) < 3.3:
@@ -224,6 +226,8 @@ def main():
             report["docks"] = docks
             if docks["map_id"] != "night_docks" or docks["ramp_rise_m"] >= 0.0:
                 raise AssertionError("Night Docks downhill map did not load")
+            if not (30.0 <= docks.get("map_depth_m", 0.0) <= 32.0):
+                raise AssertionError("Docks stage depth is outside compact 2.5D composition")
             if docks["actors"] != 4 or docks["obstacles"] < 5:
                 raise AssertionError("3D actors / native colliders not created on switch")
             if docks.get("pixel_floor_sections") != 3 or docks.get("pixel_facade_panels", 0) < 10:
