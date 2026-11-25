@@ -191,6 +191,9 @@ jobs:
       - name: Test playable human-only 2v2 HP and team filtering scene
         if: steps.change-gate.outputs.skip_build != 'true'
         run: godot --headless --path game/experiments/physics_v2 --script res://tests/combat_scene_smoke.gd
+      - name: Test original pixel hit and guard effect events
+        if: steps.change-gate.outputs.skip_build != 'true'
+        run: godot --headless --path game/experiments/physics_v2 --script res://tests/hit_effects_smoke.gd
       - name: Test data-driven 60Hz 2v2 round outcomes and timeouts
         if: steps.change-gate.outputs.skip_build != 'true'
         run: godot --headless --path game/experiments/physics_v2 --script res://tests/match_state_smoke.gd
