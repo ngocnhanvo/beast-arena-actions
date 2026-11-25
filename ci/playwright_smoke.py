@@ -87,8 +87,11 @@ def main():
             report["canvas_bounds"] = bounds
             if not bounds or bounds["width"] < 400 or bounds["height"] < 250:
                 raise AssertionError("Actual game canvas too small after ready: %s" % bounds)
-            if first["obstacles"] < 2:
-                raise AssertionError("P1 stage missing collision obstacles")
+            if first["obstacles"] < 5 or first.get("obstacle_art") != 5:
+                raise AssertionError("Expected at least five physical obstacles and five 2.5D models")
+            heights = first.get("obstacle_heights", [])
+            if len(heights) != 5 or min(heights) < 24 or max(heights) < 90:
+                raise AssertionError("Missing reasonable low/tall obstacle height metadata")
             canvas.click(force=True)
             canvas.screenshot(path=str(OUT / "arena-ready.png"))
 
@@ -157,8 +160,10 @@ def main():
             page.wait_for_timeout(500)
             docks = debug_snapshot(page)
             report["night_docks_initial"] = docks
-            if docks["map_id"] != "night_docks" or docks["obstacles"] < 4:
-                raise AssertionError("Second wide demo stage did not load")
+            if docks["map_id"] != "night_docks" or docks["obstacles"] < 5:
+                raise AssertionError("Second demo stage did not load with five shaped props")
+            if docks.get("obstacle_art") != 5:
+                raise AssertionError("Second stage is missing y-sorted prop models")
             if docks["world_bounds"]["width"] <= temple_far["world_bounds"]["width"]:
                 raise AssertionError("Second stage should be wider")
             if docks["camera_world"]["x"] > 530:
