@@ -132,6 +132,8 @@ def main():
                 raise AssertionError("Moss stage is missing original textured obstacle skins")
             if first.get("pixel_floor_sections") != 3 or first.get("pixel_facade_panels", 0) < 10:
                 raise AssertionError("Original pixel art layers missing in Moss scene")
+            if first.get("original_hud_portraits") != 4:
+                raise AssertionError("Four authored human portrait badges are missing from NES-style 2v2 HUD")
             if first.get("human_sprite_hframes") != 4 or first.get("human_sprite_vframes") != 20:
                 raise AssertionError("Original 80-frame directional human animation atlas not loaded")
             if abs(first.get("human_sprite_pixel_size", 0.0) - 0.025) > 0.0001:
