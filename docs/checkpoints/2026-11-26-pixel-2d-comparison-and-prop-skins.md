@@ -70,3 +70,12 @@ Date 2026-11-26. **Overall: PARTIAL — chưa hoàn tất.**
 - This PUBLIC docs commit intentionally triggers new full public CI/Pages+Chromium against PRIVATE HEAD (verify exact checkout SHA). **Do not claim deployment or live screenshot PASS for new ramp/HUD until new run and screenshot inspected.** Root P1.5 still separate; user original Nekketsu-like artwork acceptance OPEN; no beast form V5.
 
 **Trạng thái: PARTIAL — chưa hoàn tất**
+
+## 2026-11-26 — ACTUAL FINE-RAMP PAGES+CHROMIUM PASS; art approval still open
+
+- PRIVATE source `d1a22bae199ba80296e6af850906e95241619f9b`; PUBLIC pipeline `df8f1ff7ee145bf88f327a05bcadfd6eaa913011`. [Build+Pages #45691649914](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45691649914) **SUCCESS** on exact source: strict import, all physical slopes, original stage materials, `pixel_projection_smoke.gd` 0.5m continuous columns, guard/round, human 2v2, Web+Windows export and Pages.
+- [Chromium #45691975794](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45691975794) **SUCCESS**. Actual `beast-arena-browser-screenshots` artifact downloaded; `physics-v2/result.json.status=PASS`, no page errors, source SHA matches. Moss `moss-nes-style-2d-start.png` tile count=468; Night Docks `docks-nes-style-2d-start.png` tile count=576, both 4 visible pixel fighters. Previous old images had 234/288 much coarser stage steps. Visually inspected new two-map screenshots: slope edges materially smoother, level horizon fixed, UI cleaned (controls instead of full CI SHA string); true 3D physics unchanged.
+- Chrome also verifies C starts actual 60Hz timer, real HP/team hits/AI, player G guard, T rematch resets all 4 HP to 100 and 5400-tick timer, source/run exactness and P1.5 legacy route. Demo URL: https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/?pixel=1
+- **NOT DONE:** user art approval and complete original hand-drawn Nekketsu-era character frames, varied map decorations/navigation/better editor, advanced 2v2 human combo/grab/throw, production migration/perf/ADR approval and all beast transformations. Root P1.5 still isolated. This is technically PASS for the milestone, but **overall PARTIAL**.
+
+NEXT: source HEAD/run check, improve original human animation and stage art, add damage feedback/advanced combat/level editor; after each change rerun Godot+Pages+Chromium, inspect screenshots and update this latest checkpoint. **Trạng thái: PARTIAL — chưa hoàn tất**
