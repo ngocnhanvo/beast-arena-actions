@@ -413,6 +413,14 @@ def main():
             report["human_2v2_hud_hp_synced"] = True
             canvas.screenshot(path=str(OUT / "moss-human-2v2.png"))
             report["human_2v2_pass"] = True
+            report["round_status_during_battle"] = {
+                "outcome": battle.get("round_outcome"),
+                "time_ticks": battle.get("round_time_ticks"),
+                "banner": battle.get("round_banner")}
+            if battle.get("round_outcome") not in (1, 2, 3, 4):
+                raise AssertionError("real 2v2 combat failed to enter a match outcome state")
+            if not (0 <= battle.get("round_time_ticks", -1) < 5400):
+                raise AssertionError("round clock did not advance with authoritative 60Hz gameplay")
 
             # New visual-first *comparison* view: still the same 3D physics,
             # but stage/fighters use an independent horizontal NES-like 2D
@@ -437,6 +445,20 @@ def main():
             if snap(page).get("pixel_projection_mode"):
                 raise AssertionError("F5 cannot restore the legacy 3D visual comparison")
             report["pixel_2d_overlay_pass"] = True
+
+            # T is a real 2v2 rematch: restore all fighter health, disable AI,
+            # reset the timer and victory conditions, not merely the pixels.
+            page.keyboard.press("t")
+            page.wait_for_timeout(430)
+            restarted = snap(page)
+            report["round_restart"] = restarted
+            if (restarted.get("round_outcome") != 0 or
+                    restarted.get("round_time_ticks") != 5400 or
+                    restarted.get("combat_ai_enabled") or
+                    restarted.get("combat_completed_hits") != 0 or
+                    sum(restarted.get("combat_hp", {}).values()) != 400):
+                raise AssertionError("T restart failed to reset authoritative 2v2 HP/timer/AI")
+            report["round_restart_pass"] = True
 
             # A player can open the image-first version directly by URL
             # rather than discovering F5. It must boot the SAME tested PCK.
