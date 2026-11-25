@@ -93,3 +93,21 @@ NOT TESTED and must never be represented as shipped**.
 - Snapshot values: Moss Temple world 2560x1440, far camera X=2080 Y=1140; Night Docks world 3072x1536, far camera X=2592 Y=1220, return X=480 Y=520. Test asserts camera never exceeds limit_right-viewport_width/2.
 - Screenshots in public artifact `beast-arena-browser-screenshots`: `arena-ready.png`, `moss-temple-far-camera.png`, `night-docks-start.png`, `night-docks-far-camera.png`, `night-docks-return.png`.
 - P1.5b editable polygons in Godot EditorPlugin and P1.5c props/characters are NOT IMPLEMENTED; the current demo offers `@tool` map texture/region Resource Inspector preview only.
+
+## 2026-11-26 — Obstacle graphics / footprint validation
+
+- User requirement: objects must have real recognizable shapes and plausible
+  height, inspired by Nekketsu's staged hazards, not flat rectangles.
+- Game source now uses `ArenaObstacleData` (kind/material/footprint/height),
+  `ArenaObstacleView` with shaded projected form and y-sort alongside players.
+  Five distinct obstacles per map, StaticBody2D physical footprint separate.
+- Browser test `ci/playwright_smoke.py` now requires >=5 collision bodies,
+  five actual visual props and meaningful height metadata per stage.
+- First CI run #45662885191 **FAILED** during Godot headless editor import:
+  Stage @tool called get_obstacles() on non-@tool StageData placeholder.
+  Private fix: mark StageData @tool. Rebuild must confirm this and any further
+  parser/scene errors before Pages deploy.
+- If FAIL: inspect job log and screenshots; don't bypass importer gate.
+  Check that actual F2 footprint overlays align after camera scrolling.
+- Height data currently affects visual projection and asset contract.
+  Jump-vault/platform physics, hazards and destructible props NOT implemented.

@@ -71,3 +71,12 @@ Build+Pages #45660505234 SUCCESS; browser #45660829632 SUCCESS, screenshot
 artifact has both maps near/far, jump/attack/movement, F2 and camera clamp.
 Read latest checkpoint `docs/checkpoints/2026-11-25-p1-5-demo-verified.md`.
 Interactive polygon map editor/character/equipment tools remain TODO.
+
+## 2026-11-26 — 2.5D obstacle shaping follow-up
+
+PRIVATE game docs/architecture/STAGE_OBSTACLE_DESIGN_STANDARD.md defines:
+footprint(world XY), height_px, shape/material, shadow/top/side faces, Y-sort,
+solid collision and limits. Both map demos now use 5 authored model instances.
+Read newest obstacle checkpoint in both repos; first CI #45662885191
+failed due to StageData @tool placeholder and source fix was committed.
+Do not claim deployment before latest build, Pages and Playwright verify.
