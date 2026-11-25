@@ -239,3 +239,16 @@ the black-floor rendering bug. Physics0 only STAGING, don't replace root.
 - Code fix PRIVATE game `22c3e80`: +3.6m/12m (~16.7deg) in both directions, contrasted ramp albedo, 11 cross-path tread lines, retaining face in side view, yellow floor borders, world-space height labels, player spawn/camera at ramp, R to teleport to slope entry.
 - NEW browser acceptance `ci/playwright_physics_v2.py` PUBLIC `4fee8eb`: require ramp visuals >=25, angle >=14deg, screenshots of BOTH map slope entry/mid-traversal, measure actor actual world Y changes >=1.2m up/down after D held 2.6sec, contact floor angle >=10deg.
 - Godot build run #45672632606 started, strict import and native 3D tests passed in preliminary logs. Check **final** CI/Pages+browser and screenshots before claiming slope visible. Original P1.5 page remains untouched; V2 stages under `/physics-v2/`.
+
+## 2026-11-26 — post-verification HUD/sign legibility pass
+
+- Visual slope traversal Web #45672998414 SUCCESS for initial corrected
+  functional source `22c3e80`: Moss Y +2.21m, Docks Y -2.44m, real floor
+  normal >=10deg, 4 slope screenshots both maps, legacy P1.5 regression PASS.
+- Screenshot review: striped ramps and retaining walls clearly visible,
+  but previous five-line white debug HUD overlapped the map's altitude
+  signs near top of viewport. PRIVATE follow-up commit
+  `8e7b163bf59a62fc886046c1d9908b0b5b52c39d` uses a compact dark
+  HUD panel and moves billboard labels to near camera-side ramp edge.
+- New PUBLIC push CI should build this exact commit and run Playwright;
+  do not claim UI overlap fixed until actual screenshots reviewed.
