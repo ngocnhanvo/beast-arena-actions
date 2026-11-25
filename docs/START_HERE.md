@@ -46,3 +46,6 @@ Private source token BEAST_ARENA_READ_TOKEN (fine-grained Contents Read-only, on
 - New P1 Web smoke test now uses ?e2e=1 read-only game snapshot to check ready, Space jump Z/event, J attack event, D movement and screenshot. Verify newest run before claiming PASS.
 - Latest private source has F2 debug circles, walls and spawn points. New build required after source commit; do not confuse prior CI success with latest source.
 - Always read newest checkpoint in both repos and verify live runs.
+
+## Final verified P0/P1a (2026-11-25)
+See docs/checkpoints/2026-11-25-p0-p1-verified.md. Public CI/Pages 45657432571 and 45657606670 SUCCESS; browser E2E 45657791050 SUCCESS with J/Space/D gameplay state, F2 collision overlay and screenshot. Source functional SHA e3d3b3f; later private docs-only head may differ. Full per-frame combat engine is NOT implemented.

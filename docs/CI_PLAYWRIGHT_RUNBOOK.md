@@ -58,3 +58,9 @@ Date/Repo SHA/Actions run & job/Expected/Observed error/Verified vs hypothesis/F
 - P1 Godot import/tests/export/Pages run 45656838908 PASS (before F2 source). Earlier run 45656654819: GDScript Rect2.translated unavailable; Godot import returned exit 0 despite SCRIPT ERROR and smoke failed. Changed Stage to Rect2(pos+offset,size) and importer CI step to inspect logs for SCRIPT ERROR.
 - F2 overlay and docs private source are newer than 45656838908; require final full build and browser run before claiming latest version verified.
 - When Playwright fails, download artifact result.json and failure.png and inspect state/DOM/JS errors; DO NOT silence assertion to paint it green.
+
+## 2026-11-25 — Final verified P0/P1a browser outcome
+- Godot engine build+Pages #45657432571 and #45657606670 SUCCESS; source e3d3b3f with F2 debug layer.
+- Browser #45657791050 SUCCESS. JSON snapshot: player x before=210, after=437.5 (+227.5); jumps=1 with positive Z; attacks=2; collision_debug=true; obstacle count=2; no critical JS/WASM/PCK asset error. Screenshot artifact arena-debug-overlays.png visually confirms red collision outlines and yellow spawn points.
+- Use opt-in ?e2e=1 and explicit Godot debug-state readiness; no assumptions about loading splash or pixel color.
+- Next engineering task is P1b frame-accurate combat hitbox model, NOT reopening P0 without new evidence.
