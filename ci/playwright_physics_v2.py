@@ -5,6 +5,7 @@ All state is public opt-in (?e2e=1); no private source/tokens stored.
 import json
 import re
 import time
+from collections import Counter
 from pathlib import Path
 
 from PIL import Image
@@ -24,6 +25,21 @@ def visible_floor_fraction(image_path: Path) -> float:
                      if max(red, green, blue) >= 58
                      and (green >= red*0.8 or blue >= red*0.8))
         return bright / max(1, len(colors))
+
+def floor_tile_diversity(image_path: Path):
+    # This crop deliberately avoids character pixels, ramp stripes,
+    # foreground props and HUD. The old untextured BoxMesh displayed only
+    # one uniform color here while all older movement tests returned PASS.
+    with Image.open(image_path).convert("RGB") as image:
+        w, h = image.size
+        patch = image.crop((int(w * 0.13), int(h * 0.50),
+                            int(w * 0.21), int(h * 0.61)))
+        pixels = Counter(patch.getdata())
+        total = sum(pixels.values())
+        strong = sum(1 for n in pixels.values() if n / max(1, total) >= 0.01)
+        dominant = max(pixels.values(), default=0) / max(1, total)
+        return {"visible_color_groups": strong, "dominant_color_fraction": round(dominant, 4)}
+
 
 URL = "https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/?e2e=1"
 OUT = Path("playwright-report/physics-v2")
@@ -100,7 +116,7 @@ def main():
                 raise AssertionError("missing actual deployment build run ID")
             report["version"] = {key: first[key] for key in
                                   ("source_sha", "pipeline_sha", "build_run_id", "visual_style_id")}
-            if first.get("visual_style_id") != "v0-shallow-pixel-stage-20261126":
+            if first.get("visual_style_id") != "v1-visible-pixel-floor-20261126":
                 raise AssertionError("stale or wrong Physics0 visual build: " +
                                      str(first.get("visual_style_id")))
             if not (12.0 <= abs(first["camera"]["pitch_deg"]) <= 25.0):
@@ -125,6 +141,12 @@ def main():
             canvas.screenshot(path=str(OUT / "moss-start.png"))
             report["moss_visible_floor_fraction"] = round(
                 visible_floor_fraction(OUT / "moss-start.png"), 3)
+            report["moss_tile_diversity"] = floor_tile_diversity(OUT / "moss-start.png")
+            if (report["moss_tile_diversity"]["visible_color_groups"] < 3 or
+                    report["moss_tile_diversity"]["dominant_color_fraction"] > 0.85):
+                raise AssertionError("Moss pixel tile top surface is INVISIBLE "
+                                     "despite valid material/mesh and collision: " +
+                                     str(report["moss_tile_diversity"]))
             if report["moss_visible_floor_fraction"] < 0.14:
                 raise AssertionError(
                     "Stage floor appears black/blank in WebGL2: "
@@ -213,6 +235,12 @@ def main():
                 raise AssertionError("Docks downhill should descend by >= 3.3m")
             report["docks_visible_floor_fraction"] = round(
                 visible_floor_fraction(OUT / "docks-high-platform.png"), 3)
+            report["docks_tile_diversity"] = floor_tile_diversity(OUT / "docks-high-platform.png")
+            if (report["docks_tile_diversity"]["visible_color_groups"] < 3 or
+                    report["docks_tile_diversity"]["dominant_color_fraction"] > 0.85):
+                raise AssertionError("Docks pixel tile top surface is INVISIBLE "
+                                     "despite valid material/mesh and collision: " +
+                                     str(report["docks_tile_diversity"]))
             if report["docks_visible_floor_fraction"] < 0.14:
                 raise AssertionError(
                     "Night Docks floor is not visibly rendered: "
