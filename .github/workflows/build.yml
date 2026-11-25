@@ -106,9 +106,9 @@ jobs:
             echo 'class_name BeastBuildVersion'
             echo 'extends RefCounted'
             echo ''
-            printf 'const SOURCE_SHA: String = "%s"\\n' "$SHA"
-            printf 'const PIPELINE_SHA: String = "%s"\\n' "$GITHUB_SHA"
-            printf 'const BUILD_RUN_ID: String = "%s"\\n' "$GITHUB_RUN_ID"
+            printf 'const SOURCE_SHA: String = "%s"\n' "$SHA"
+            printf 'const PIPELINE_SHA: String = "%s"\n' "$GITHUB_SHA"
+            printf 'const BUILD_RUN_ID: String = "%s"\n' "$GITHUB_RUN_ID"
           } > game/experiments/physics_v2/scripts/build_version.gd
       - name: Look up prior successful build (SHA marker only)
         id: built-cache
