@@ -179,8 +179,27 @@ jobs:
           if ! gh release view "$TAG" >/dev/null 2>&1; then
             gh release create "$TAG" --target "$SOURCE_SHA" --title "Beast Arena CI $SHORT_SHA" --notes "Private game source commit $SOURCE_SHA" --prerelease
           fi
-          gh release upload "$TAG" beast-arena-web.zip beast-arena-windows.zip --clobber
-          echo "Private release uploaded."
+          # A source SHA maps to one immutable build. Avoid clobbering assets on
+          # repeat CI runs (GitHub sometimes returns HTTP 500 on asset deletion).
+          EXISTING_ASSETS="$(gh release view "$TAG" --json assets --jq '.assets[].name')"
+          if grep -qx 'beast-arena-web.zip' <<< "$EXISTING_ASSETS" && grep -qx 'beast-arena-windows.zip' <<< "$EXISTING_ASSETS"; then
+            echo "Private release already contains both ZIP files for this source commit; no upload required."
+          else
+            UPLOADED=false
+            for ATTEMPT in 1 2 3 4; do
+              if gh release upload "$TAG" beast-arena-web.zip beast-arena-windows.zip --clobber; then
+                UPLOADED=true
+                break
+              fi
+              echo "::warning::Private release upload failed on attempt $ATTEMPT; retrying."
+              sleep "$((ATTEMPT * 5))"
+            done
+            if [[ "$UPLOADED" != "true" ]]; then
+              echo "::error::Private release upload failed after 4 attempts."
+              exit 1
+            fi
+            echo "Private release uploaded."
+          fi
       - name: Publish PUBLIC binary artifacts (explicit opt-in)
         if: inputs.publish_public_artifacts == true
         uses: actions/upload-artifact@v4
