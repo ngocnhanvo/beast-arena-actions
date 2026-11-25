@@ -125,8 +125,13 @@ def main():
 
             page.keyboard.press("k")
             page.keyboard.press("u")  # may not transform until meter >=50
-            page.wait_for_timeout(160)
-            canvas.screenshot(path=str(OUT / "arena-after-controls.png"))
+            page.keyboard.press("F2")
+            page.wait_for_timeout(250)
+            overlays = debug_snapshot(page)
+            report["snapshot_collision_overlay"] = overlays
+            if overlays.get("collision_debug") is not True:
+                raise AssertionError("F2 did not enable the collision/spawn debug overlay")
+            canvas.screenshot(path=str(OUT / "arena-debug-overlays.png"))
             if report["failed_assets"]:
                 raise AssertionError("Critical JS/WASM/PCK asset request failed")
             if report["page_errors"]:
