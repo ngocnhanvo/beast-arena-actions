@@ -50,3 +50,11 @@ Ngocnhanvo/beast-arena-actions là PUBLIC, dùng standard hosted runners để i
 
 ## Ghi sự cố mới
 Date/Repo SHA/Actions run & job/Expected/Observed error/Verified vs hypothesis/Fix SHA/Tests PASS FAIL NOT TESTED/Remaining blocker.
+
+## 25/11/2026 — verified new evidence & P1 gates
+- Browser screenshot artifact run 45654797567 showed Godot splash/progress bar still loading; premature canvas-size check was wrong readiness criterion.
+- Fix first waited for actual arena pixel content. Run 45656492064 PASS: Web game rendered and player moved +266.2 pixels after D.
+- Updated game P1 emits opt-in public diagnostic snapshot only with query ?e2e=1 (window.__beastArenaDebug). Updated Playwright waits ready=true then checks obstacles=2, Space increments jump event with z>0, J increments attack event, D actually changes player world x, and screenshots.
+- P1 Godot import/tests/export/Pages run 45656838908 PASS (before F2 source). Earlier run 45656654819: GDScript Rect2.translated unavailable; Godot import returned exit 0 despite SCRIPT ERROR and smoke failed. Changed Stage to Rect2(pos+offset,size) and importer CI step to inspect logs for SCRIPT ERROR.
+- F2 overlay and docs private source are newer than 45656838908; require final full build and browser run before claiming latest version verified.
+- When Playwright fails, download artifact result.json and failure.png and inspect state/DOM/JS errors; DO NOT silence assertion to paint it green.

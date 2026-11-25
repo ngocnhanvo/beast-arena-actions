@@ -39,3 +39,10 @@ Private source token BEAST_ARENA_READ_TOKEN (fine-grained Contents Read-only, on
 5. Mỗi sự cố bổ sung runbook/checkpoint, không dán secret vào chat.
 
 **Một dòng nhớ:** BUILD PASS != PAGES PASS != PLAYWRIGHT PASS.
+
+## P0/P1a live update 2026-11-25
+- Playwright older source was fixed by waiting for rendered scene; run 45656492064 PASS and D moved +266.2px.
+- Godot P1 headless import, combat, smoke, spatial FSM and wall collision tests + Web/Windows + Pages PASSED in run 45656838908 (pre-F2 overlay source).
+- New P1 Web smoke test now uses ?e2e=1 read-only game snapshot to check ready, Space jump Z/event, J attack event, D movement and screenshot. Verify newest run before claiming PASS.
+- Latest private source has F2 debug circles, walls and spawn points. New build required after source commit; do not confuse prior CI success with latest source.
+- Always read newest checkpoint in both repos and verify live runs.

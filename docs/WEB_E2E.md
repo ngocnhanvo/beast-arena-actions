@@ -1,9 +1,12 @@
-# Beast Arena Web E2E
+
+# Beast Arena Web E2E — 2026-11-25
 
 Workflow: .github/workflows/web-e2e.yml
 Script: ci/playwright_smoke.py
-Target: https://ngocnhanvo.github.io/beast-arena-actions/
+Target: https://ngocnhanvo.github.io/beast-arena-actions/?e2e=1
 
-Uses Playwright/Chromium + SwiftShader on PUBLIC runner. Expects Pages 200, visible canvas, screenshot of blue placeholder fighter, D moves right at least 30px, J/K/Space/U keys dispatched. Stores before/after screenshots and result JSON, public artifacts (7-day retention).
+Evidence P0: run 45656492064 PASS on older source — game rendered, D moved +266.2 pixels. Earlier runs failed because tests inspected Godot canvas during loading splash.
 
-IMPORTANT: as of 2026-11-25, runs 45652872940 and 45653213044 are FAIL, AssertionError: Godot canvas too small. Browser gameplay is NOT verified. Read docs/CI_PLAYWRIGHT_RUNBOOK.md, download screenshots and inspect DOM/loader; do not simply suppress the assertion. Sending J/K/U does not prove an attack/hit/transform occurred (U needs enough Beast meter). Update this document after verified passing run with exact run ID and image evidence.
+New test is NOT solely pixel-based: Godot Web publishes a minimal opt-in read-only snapshot window.__beastArenaDebug when URL includes e2e=1. Wait for ready=true after WASM startup; verify canvas visible, StageData obstacles=2, Space causes jump event and positive height Z, J starts attack, D causes world-space player X to increase >=28. Store screenshot, browser DOM, errors and state snapshots as PUBLIC artifacts.
+
+Do not mark the latest P1 build passed until a new Browser Playwright workflow run succeeds. Pressing U with beast meter below 50 cannot prove transformation. F2 toggles collision/obstacle/spawn markers for manual tests.
