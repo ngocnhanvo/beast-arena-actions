@@ -22,3 +22,14 @@ Date 2026-11-26. **Overall: PARTIAL — chưa hoàn tất.**
 3. Keep visual acceptance open, no production root migration, no beast transformation until actual user-approved V0–V4 human/gameplay slice.
 
 **Trạng thái: PARTIAL — chưa hoàn tất**
+
+
+## 2026-11-26 — Verified F5 release, visual feedback, stronger cross-map screenshot QA
+
+- VERIFIED PUBLIC Godot+Pages [#45685585437](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45685585437) SUCCESS, actual PRIVATE source `49ca27ea6e7729c9d35033f4420d2a70bf402cc0`, PUBLIC pipeline `a04fc583d3af6392154f619868451e4fd68d3d60`. Headless physical 3D tests + independent `pixel_projection_smoke.gd` passed.
+- VERIFIED browser Chromium [#45685984297](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45685984297) SUCCESS. Artifact screenshot `physics-v2/moss-nes-style-2d-preview.png` downloaded & visually inspected; result has `pixel_2d_overlay_pass=true`, 221 tile draws, four real fighter renderings, 25 3D combat hits, 9 distinct visible color groups, F5 returns to original view.
+- Human visual QA: the whole map no longer feels like a single tilted 3D plane, but F5 sky has too much empty space and raised stair tiles lack connected supporting walls. Thus **VISUAL_ACCEPTED=FALSE / USER REVIEW PENDING**; don't conflate this with technical browser PASS.
+- PRIVATE new code `40f0cce` adds original sky parallax and pixelated physical retaining walls; unique hair/scarf/armor variants `330f3ce`, `7395afc`, `659e3b4`; source visual test `67c1ac8` checks distinct alpha silhouettes. PUBLIC `ci/playwright_physics_v2.py` commit `79f33d5` captures **both Moss and Docks F5 start** images BEFORE combat in addition to original F5 post-2v2 image.
+- **NOT YET VERIFIED** at documentation time: build [#45686677550](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45686677550) and follow-up screenshot runs for new sky/retaining wall/F5 two-map captures. `67c1ac8` alpha test may be newer than that source checkout and must be re-built. Preserve old P1.5 and no V5 deployment.
+
+**Trạng thái: PARTIAL — chưa hoàn tất**
