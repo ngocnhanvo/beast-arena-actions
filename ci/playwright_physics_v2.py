@@ -101,6 +101,12 @@ def main():
 
             if first["ramp_rise_m"] < 2.0 or first["obstacles"] < 5:
                 raise AssertionError("3D ramp and props missing")
+            if first.get("pixel_floor_sections") != 3 or first.get("pixel_facade_panels", 0) < 10:
+                raise AssertionError("Original pixel art layers missing in Moss scene")
+            if first.get("human_sprite_hframes") != 4 or first.get("human_sprite_vframes") != 3:
+                raise AssertionError("Original 12-frame directional chibi sprite not loaded")
+            if abs(first.get("human_sprite_pixel_size", 0.0) - 0.025) > 0.0001:
+                raise AssertionError("Human pixel scale differs from approved test contract")
             if first["map_width_m"] < 60.0:
                 raise AssertionError("Stage should scroll beyond viewport")
             if first.get("ramp_visual_count", 0) < 25 or first.get("ramp_angle_deg", 0) < 14:
@@ -124,6 +130,8 @@ def main():
             report["player_dx"] = round(moved["player"]["x"]-first["player"]["x"], 3)
             if report["player_dx"] <= 0.8:
                 raise AssertionError("3D motor did not respond to D: " + str(report["player_dx"]))
+            if moved.get("human_sprite_frame", -1) % 4 != 2:
+                raise AssertionError("Directional pixel sprite did not face right on D movement")
             if moved["player"]["vx"] > 5.0:
                 raise AssertionError("3D horizontal motor exceeded configured speed")
             canvas.screenshot(path=str(OUT / "moss-moving.png"))
@@ -176,6 +184,8 @@ def main():
                 raise AssertionError("Night Docks downhill map did not load")
             if docks["actors"] != 4 or docks["obstacles"] < 5:
                 raise AssertionError("3D actors / native colliders not created on switch")
+            if docks.get("pixel_floor_sections") != 3 or docks.get("pixel_facade_panels", 0) < 10:
+                raise AssertionError("Original pixel art layers missing in Docks scene")
             canvas.screenshot(path=str(OUT / "docks-high-platform.png"))
             if docks.get("ramp_visual_count", 0) < 25 or docks.get("ramp_angle_deg", 0) < 14:
                 raise AssertionError("Docks downhill visual face and elevation labels missing")
