@@ -83,6 +83,11 @@ jobs:
           BEAST_EXPECT_PIPELINE_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || '' }}
           BEAST_EXPECT_BUILD_RUN_ID: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.id || '' }}
         run: python ci/playwright_physics_v2.py
+      - name: Test opt-in Arcade V2 controls and clip intent (art remains PENDING)
+        env:
+          BEAST_EXPECT_PIPELINE_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || '' }}
+          BEAST_EXPECT_BUILD_RUN_ID: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.id || '' }}
+        run: python ci/playwright_arcade_v2.py
       - name: Save public screenshots
         if: always()
         uses: actions/upload-artifact@v4
