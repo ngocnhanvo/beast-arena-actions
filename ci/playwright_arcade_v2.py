@@ -176,18 +176,31 @@ def main():
             before_jump = snap(page)["player"]["jump_events"]
             page.keyboard.down("f")
             page.keyboard.down("g")
-            chord = expect_state(
-                page, "F+G must jump without punch or kick",
-                f"s.player.jump_events > {before_jump} && s.player.vy > 0 && "
-                "s.human_attack_id === '' && "
-                "s.animation_clip_intent === 'jump_front'",
-                timeout=5000)
-            page.keyboard.up("g")
-            page.keyboard.up("f")
+            try:
+                # Godot jump_events is an AUTHORITATIVE persistent counter
+                # incremented by the real physics jump (not preview art).
+                # A fleeting vy>0 + jump-clip snapshot can be skipped by
+                # software WebGL render scheduling, even after a real jump.
+                # Never turn this into a PASS on key events alone.
+                try:
+                    chord = expect_state(
+                        page, "F+G must perform a real physical jump without attack",
+                        f"s.player.jump_events > {before_jump} && "
+                        "s.human_attack_id === ''",
+                        timeout=5000)
+                except Exception as exc:
+                    raise AssertionError(
+                        "F+G failed real jump_events gate; before=" +
+                        str(before_jump) + ", now=" + str(snap(page))) from exc
+            finally:
+                page.keyboard.up("g")
+                page.keyboard.up("f")
             report["cases"]["fg_jump"] = {
                 "jump_before": before_jump,
                 "jump_after": chord["player"]["jump_events"],
-                "attack_id": chord["human_attack_id"]}
+                "physical_jump_event": True,
+                "attack_id": chord["human_attack_id"],
+                "sampled_vy_after_jump_event": chord["player"]["vy"]}
             canvas.screenshot(path=str(OUT / "fg-jump-prototype.png"))
             if report["pages"]:
                 raise AssertionError("browser script errors: " + str(report["pages"][:5]))
@@ -197,7 +210,7 @@ def main():
             report["status"] = "FAIL"
             report["error"] = str(exc)
             report["last_snapshot"] = snap(page)
-            print("ARCADE V2 WEB FAIL: " + str(exc))
+            print("ARCADE V2 WEB FAIL: " + str(exc) + "; SNAPSHOT=" + str(report["last_snapshot"]))
             raise
         finally:
             (OUT / "result.json").write_text(
