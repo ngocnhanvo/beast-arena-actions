@@ -11,3 +11,10 @@ History: Godot/Pages #45803632632 SUCCESS, but compiled PRIVATE 0621ad... BEFORE
 Next: inspect newest CI run actual private SHA, Godot smoke result, Pages deployment, exact browser screenshot; fix failures. Owner autocheck:false approves visual quality, no artificial visual PASS. Remaining nine authored clip sets, foot pivots, other fighters, beast and advanced game features pending.
 
 Trạng thái: PARTIAL — chưa hoàn tất.
+
+## FINAL real post-deployment verification
+LibreSprite #45804294005 SUCCESS actual new 3/4 editable six-frame candidate. Build/Windows/Web/Pages #45804293992 SUCCESS on PRIVATE 9318d2c4eb5ebfb0b06fb603867f394c20089be4 and PUBLIC 9e349c2b672d45894efeed331d092a651f14ba6e. Godot native test JADE THREE-QUARTER PREVIEW PASS. Real Chromium #45804607930 SUCCESS: P1.5 dx210px, Physics V2 climb2.14m/descent2.41m and real floor angles, Arcade V2 attacks/runs, NEW canonical Jade 3/4 S animated clip/PixelView floor PASS. Screenshots artifact #15109780115.
+Historical build #45803632632 compiled PRE-image source 0621ad, not proof that new source was published. #45803665391 FAIL due unsupported Godot PackedByteArray.sha256_text in regression test; fixed PRIVATE 9318d2 using actual byte-array comparison, latest exact build supersedes this technical failure.
+Single user-facing game URL only: https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/. Owner artistic acceptance still pending. Only 1 of 10 original guard actions supplied (six frames, shoe pivots draft); nine other original fighter clips and full Beast Arena roadmap OPEN.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
