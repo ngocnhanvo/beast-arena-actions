@@ -697,3 +697,12 @@ User rejected the skating rear-facing animation. Real game W moves up world -Z w
 - A separately pinned LibreSprite CLI re-export of the NEW two ASE files is NOT yet evidenced. Prior source test belongs to former 1-clip asset; do not transfer its conclusion to new pair. Art aesthetic signoff remains owner-gated.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+## 2026-11-26 — Regression: equal native cel != equal visible fighter height
+
+- Real Godot source proof: old idle/run painted silhouette 70px; new W/S painted 64px inside same 80x80 RGBA cell. Fixed PRIVATE `sprite_foot_anchor.gd` with alpha-visible bbox and one non-jittering ratio; actor Sprite3D and PixelView now use same 1.09375x W/S multiplier, preserving ground-shoe alignment and unmodified physics.
+- Public `ci/playwright_jade_three_quarter.py` asserts while REAL W and S are moving the read-only telemetry `review_reference_body_height_px`, `review_walk_painted_height_px`, `review_effective_body_height_px` show <=1px mismatch after normalization, plus native 80px Cel and animation frame motion. No debug-only separate public game URL; internal query uses same document.
+- Godot/Pages run #45813542941 SUCCESS on PUBLIC 4ca521/PRIVATE 5c2eb9. New exact browser run #45813823212 must be checked for final PASS/FAIL. Never conflate old #45811584096 PASS with newly fixed PCK.
+- Owner `autocheck:false`: technical size match isn't aesthetic approval.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
