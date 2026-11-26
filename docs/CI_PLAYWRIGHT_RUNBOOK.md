@@ -661,3 +661,13 @@ User rejected the skating rear-facing animation. Real game W moves up world -Z w
 - ALWAYS retain owner art status `PENDING_ART`: W/S front whole-body idle placeholder, A/D only two genuine side walk poses and two side run poses each. Full 10 independent 80px animation source still missing.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+
+## 2026-11-26 — Reusable four-fighter guard stance source profile contract
+
+- Owner reference: idle/walk/run all keep fists raised. ONE engine profile and ten clips per fighter, no runtime limb displacement and no unique animation scripts for Jade/ally/rival. PRIVATE profile catalog `experiments/physics_v2/art/fighters/animation_profiles.json`; Web export `include_filter` must retain `art/fighters/*.json` or every character silently loses guard intent/profile.
+- Public `build.yml` mandatory `tests/guard_animation_profiles_smoke.gd`; profile data 4 fighters/10 named clips, W/S distinct but front-facing, 80px tagged spritesheet min frames, feet, actual native Sprite3D rendering. Browser `ci/playwright_arcade_v2.py` requires `animation_profile_count=4`, Jade ID and `guard` stance, new guard-clip intents, physical W/S A+A/D+D F/G/F+G. This is *technical only*.
+- [Public #45790727518](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45790727518) **FAIL** on `GUARD-203`/native 80px despite correct JSON dimensions; numeric Array equality between JSON Variant and GDScript integer literal was broken. Fix PRIVATE `d2f3b4fc...` verifies parsed dimension elements numerically. Fresh exact CI/Pages/Web required. Previous browser [#45786635605](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45786635605) FAIL due PhysicsV2 10s wait predicate; do NOT claim new Chromium success without its real log.
+- All four source/status `PENDING_ART_GUARD_FRAMES` until new original hand-drawn high-guard keyframes exist. Under `autocheck:false`, no visual acceptance loops; owner manually compares hand height, alternation, contact and natural stride against provided reference.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
