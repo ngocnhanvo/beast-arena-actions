@@ -149,7 +149,7 @@ def main():
             # Real held key triggers a single authoritative attack after the
             # 7-tick F/G chord buffer; observe combat source, not just glyphs.
             expect_state(page, "stop after right sprint",
-                         "abs(s.player.vx) < 0.2 && s.human_attack_id === ''",
+                         "Math.abs(s.player.vx) < 0.2 && s.human_attack_id === ''",
                          timeout=5000)
             page.keyboard.down("f")
             punch = expect_state(
