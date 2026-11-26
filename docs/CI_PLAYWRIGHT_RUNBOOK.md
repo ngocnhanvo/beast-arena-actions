@@ -789,3 +789,12 @@ User rejected the skating rear-facing animation. Real game W moves up world -Z w
 - [Latest Godot/Web/Windows/Pages #45829650691](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45829650691) **SUCCESS**, compiled exact a58d8dd and deployed the corrected HUD. [Latest Chromium #45830012021](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45830012021) **still IN PROGRESS** when checkpoint written. Read final browser verdict and screenshot artifact before claiming latest E2E PASS. Previous #45828568096 still proves actual run-content behavior, which was unchanged by HUD.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+## 2026-11-26 — Owner six-pose NEW Jade running: E2E + LibreSprite
+
+- Check PRIVATE source `jade_run_owner_six_12.png` 480×160 transparent native 80×80: right frame indices [0,1,2,3,4,5], left indices [6,7,8,9,10,11] are whole-body mirrored, NOT concatenated legacy 4×20 rows; source provenance and editable `.aseprite` both available.
+- REAL pinned LibreSprite #45837312555 attempt2 PASS all four candidate sources (walk115ms, new run85ms) with exact export/source PNG equality. First attempt FAIL from bad test-only fixed 100ms assumption. Keep per-clip declared frame duration, source foot sidecars remain owner draft.
+- Native Godot/Pages #45837312371 PASS private SHA6c89df6, PUBLIC fa5714e. New browser must check real movement 6.51m/s both A+A/D+D, exact 6×2 Sprite3D atlas indices, six cycling phases in a bounded 850ms sample, stable painted 70px, 8 walks, idle, Physics V2 and Arcade, and screenshot artifact. Do not block indefinitely waiting for a specific frame while player can hit a real wall; art is displacement-based and stops legitimately when physical movement stops.
+- Initial browser #45837687033 failed after Physics/Arcade PASS because old per-index 2s wait let left-going player reach obstacle and stop. Public `ci/playwright_jade_three_quarter.py` now samples within 850ms, still demands all six phases; exact next build #45839072298 pending at first checkpoint. No new public URL and no automatic owner aesthetics approval.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
