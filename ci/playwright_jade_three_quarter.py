@@ -239,8 +239,8 @@ def main():
                     "() => {const s=window.__beastPhysicsDebug;"
                     "return s?.review_run_active === true "
                     "&& s?.sprint_requested === true "
-                    "&& s?.human_sprite_hframes === 4 "
-                    "&& s?.human_sprite_vframes === 20 "
+                    "&& s?.human_sprite_hframes === 6 "
+                    "&& s?.human_sprite_vframes === 2 "
                     "&& s?.review_run_source_pose_count === 6 "
                     "&& s?.review_preview_action === 'run_right' "
                     "&& s?.review_run_source_is_native_80px === true "
@@ -250,28 +250,25 @@ def main():
                     "() => window.__beastPhysicsDebug?.review_preview_frame > 0",
                     timeout=3000, polling=45)
                 run_state = state(page)
-                # Six distinct existing whole-body original source cels,
-                # all RIGHT-facing (original atlas column 2); no runtime
-                # cutting/pasting gloves or disjoint running legs.
+                # Six NEW owner-designed whole-body right-facing source
+                # cels in 480x160; never the old mixed legacy 4x20 atlas.
                 source_index = int(run_state.get("review_run_source_frame", -1))
                 if source_index != int(run_state.get("human_sprite_frame", -1)):
                     raise AssertionError("Right run visual frame != source atlas cell")
-                if (source_index % 4 != 2 or source_index // 4
-                        not in (1, 2, 3, 4, 5, 19)):
+                if source_index not in range(0, 6):
                     raise AssertionError(
-                        "D+D did not animate the original full-body six-pose "
-                        f"Jade run source: cell={source_index}")
+                        "D+D MUST render new owner-designed six-pose right row: "
+                        f"cell={source_index}")
                 canvas.screenshot(path=str(OUT / "canonical-guard-run-right.png"))
                 if (run_state.get("review_run_art_status") !=
-                        "REUSED_ORIGINAL_SIX_WHOLE_BODY_RUN_POSES_OWNER_REVIEW_PENDING"):
+                        "OWNER_NEW_SIX_RUN_POSE_DESIGN_REVIEW_PENDING"):
                     raise AssertionError(
                         "Sprint must use distinct ORIGINAL side-running whole-body "
                         "frames, not W/S short steps or invented final authored 8-tag")
             finally:
                 page.keyboard.up("d")
-            # Repeat for A+A. Original atlas has an actual LEFT-facing
-            # six-pose sequence in column 1. Validate real left sprint,
-            # not a flipped D+D animation or an old 2-frame walk fallback.
+            # A+A must render the OWNER-designed mirrored WHOLE-body
+            # left-facing row (indices 6..11), not the legacy 4x20 sprite.
             page.wait_for_timeout(450)
             page.keyboard.press("r")
             page.wait_for_function(
@@ -288,8 +285,8 @@ def main():
                     "() => {const s=window.__beastPhysicsDebug;"
                     "return s?.review_run_active===true "
                     "&& s?.sprint_requested===true "
-                    "&& s?.human_sprite_hframes===4 "
-                    "&& s?.human_sprite_vframes===20 "
+                    "&& s?.human_sprite_hframes===6 "
+                    "&& s?.human_sprite_vframes===2 "
                     "&& s?.review_run_source_pose_count===6 "
                     "&& s?.review_preview_action==='run_left' "
                     "&& s?.review_run_source_is_native_80px===true "
@@ -301,11 +298,11 @@ def main():
                 left_idx = int(left_run.get("review_run_source_frame", -1))
                 if left_idx != int(left_run.get("human_sprite_frame", -1)):
                     raise AssertionError("Left run visual frame != source atlas cell")
-                if left_idx % 4 != 1 or left_idx // 4 not in (1, 2, 3, 4, 5, 19):
+                if left_idx not in range(6, 12):
                     raise AssertionError(
-                        f"A+A must use original LEFT running pose: {left_idx}")
+                        f"A+A must render new owner-designed LEFT row: {left_idx}")
                 if left_run.get("review_run_art_status") != (
-                        "REUSED_ORIGINAL_SIX_WHOLE_BODY_RUN_POSES_OWNER_REVIEW_PENDING"):
+                        "OWNER_NEW_SIX_RUN_POSE_DESIGN_REVIEW_PENDING"):
                     raise AssertionError("Left run is not genuine source pilot")
                 canvas.screenshot(path=str(OUT / "canonical-guard-run-left.png"))
             finally:
@@ -342,9 +339,9 @@ def main():
                 "foot_pivot_px": 75,
                 "full_source_status": "PENDING_ART",
             })
-            print("ONE CANONICAL /physics-v2/ JADE NATIVE RUN SIX-POSE PASS: "
-                  "real A+A / D+D and six original full-body 80px poses EACH; "
-                  "eight walking directions and anchored idle inhale unchanged; "
+            print("ONE CANONICAL /physics-v2/ JADE OWNER DESIGN SIX-POSE PASS: "
+                  "real A+A/D+D with new transparent 480x160 6+6 RGBA source; "
+                  "both full-body row indices validated, eight walks and idle intact; "
                   "owner visual review pending")
         except Exception as exc:
             result["status"] = "FAIL"
