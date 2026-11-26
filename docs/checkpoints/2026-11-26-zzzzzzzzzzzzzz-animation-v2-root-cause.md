@@ -32,3 +32,11 @@ Owner explicitly REJECTED current Jade run as very poor after artificial hand/fo
 **BLOCKED_ART_SOURCE:** no six+ original independently drawn full-body run frames for Jade in editable timeline; no Aseprite tags, durations or true foot pivots. Next implement a real authored multi-frame front run set matching approved 80px idle; get owner to approve frame-by-frame contact sheet and motion loop; then author walk and left/right, jump/J/K and import tagged export as Godot SpriteFrames with a single pose/pivot feeding BOTH PixelView and Sprite3D. Do not fake art by shifting pixel fragments; do not silently replace current Web preview with unaccepted pose art. Full roadmap (beast/combat/map tools) remains OPEN.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+## Latest exact source and pipeline audit/Pages proof
+- [GitHub Actions #45774098969](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45774098969) all jobs **SUCCESS**: PRIVATE actually compiled `537db569a5e2d882e28e17333da5b8ee0a83cdda`, PUBLIC `693bdbfc75f2c5fcd7f5d69cd567cebbe3c2743d`. New workflow step and GitHub step summary preserve **PENDING_ART** warning separately from Godot technical PASS. Log says `"status": "PENDING_ART"`, `jade_human: no complete editable animation source + exported clips`, `"visual_accepted": false`; Web/Windows+Pages technically succeeded.
+- The 4x20 legacy graphics are still the ones deployed; all owner complaints about motion remain unresolved. Do NOT claim new visually improved sprites merely because Pages refreshed with source audit files.
+- Auto browser [#45773861575](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45773861575) was running on previous Public pipeline, and new browser [#45774341434](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45774341434) was running for latest pipeline, at evidence entry. Must inspect exact final conclusions, not reuse prior tests.
+- Next: author actual six+ full-body 80px Jade run frames in editable source, Aseprite tag JSON/slice export, strict gate, native Godot SpriteFrames data/pose bridge for both rendering paths, then owner visual test. Full roadmap open.
+
+**Trạng thái: PARTIAL — chưa hoàn tất** (tech CI/Pages PASS, art authoring BLOCKED, owner graphics FAIL).
