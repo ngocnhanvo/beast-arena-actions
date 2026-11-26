@@ -211,10 +211,24 @@ def main():
                     + str(report["moss_visible_floor_fraction"]))
 
             page.keyboard.down("d")
-            page.wait_for_timeout(950)
+            page.wait_for_timeout(700)
+            running_visual = snap(page)
+            report["physics_driven_run_art"] = {
+                "gait": running_visual.get("human_visual_gait"),
+                "frame": running_visual.get("human_sprite_frame"),
+                "velocity_x": running_visual.get("player", {}).get("vx")}
+            if (running_visual.get("human_visual_gait") != "run" or
+                    running_visual.get("human_sprite_frame", -1) // 4 not in (3, 4) or
+                    running_visual.get("player", {}).get("vx", 0.0) < 2.5):
+                raise AssertionError("running sprite did not track real physical speed: " +
+                                     str(report["physics_driven_run_art"]))
+            page.wait_for_timeout(250)
             page.keyboard.up("d")
             page.wait_for_timeout(250)
             moved = snap(page)
+            if moved.get("human_visual_gait") != "idle":
+                raise AssertionError("human kept running after physical motor stopped")
+            report["physics_driven_run_art_pass"] = True
             report["movement"] = moved
             report["player_dx"] = round(moved["player"]["x"]-first["player"]["x"], 3)
             if report["player_dx"] <= 0.8:
