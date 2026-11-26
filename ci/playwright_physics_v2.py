@@ -302,22 +302,46 @@ def main():
                     not approved_rear.get("human_approved_motion_set")):
                 raise AssertionError("W must use original full-body approved Jade: " + str(approved_rear))
             canvas.screenshot(path=str(OUT / "moss-jade-approved-rear-motion.png"))
-            # The old 2-pose cadence made both feet twitch in place. Sample
-            # ACTUAL 3D movement while holding W, not an animation timer.
-            observed_phases = set()
-            stride_begin = approved_rear.get("human_ground_stride_m", 0.0)
-            for _ in range(22):
-                page.wait_for_timeout(65)
-                gait_snapshot = snap(page)
-                if gait_snapshot.get("human_visual_gait") == "run":
-                    if gait_snapshot.get("human_sprite_frame", 0) % 4 != 3:
-                        raise AssertionError("W lost the rear facing during running")
-                    observed_phases.add(gait_snapshot.get("human_gait_phase"))
-            stride_end = snap(page).get("human_ground_stride_m", 0.0)
-            if len(observed_phases) < 4 or stride_end <= stride_begin + 0.9:
+            # Capture every rendered GAME frame INSIDE Chromium during a
+            # short W stride, instead of 22 expensive Python↔browser polling
+            # round trips. The previous test accidentally held W until the
+            # player ran off the near 3D stage, reporting only airborne poses.
+            page.evaluate("""() => {
+                window.__beastWFootSamples = [];
+                window.__beastWFootSampling = true;
+                function sample() {
+                    const s = window.__beastPhysicsDebug;
+                    if (s && s.human_approved_motion_set) {
+                        window.__beastWFootSamples.push({
+                            phase: s.human_gait_phase,
+                            row: Math.floor(s.human_sprite_frame / 4),
+                            facing: s.human_sprite_frame % 4,
+                            gait: s.human_visual_gait,
+                            stride: s.human_ground_stride_m
+                        });
+                    }
+                    if (window.__beastWFootSampling &&
+                        window.__beastWFootSamples.length < 240)
+                        requestAnimationFrame(sample);
+                }
+                requestAnimationFrame(sample);
+            }""")
+            page.wait_for_timeout(850)
+            gait_samples = page.evaluate("""() => {
+                window.__beastWFootSampling = false;
+                return window.__beastWFootSamples || [];
+            }""")
+            grounded_samples = [item for item in gait_samples if item.get("gait") == "run"]
+            observed_phases = {item.get("phase") for item in grounded_samples}
+            if any(item.get("facing") != 3 for item in grounded_samples):
+                raise AssertionError("W lost rear facing while running")
+            stride_begin = grounded_samples[0]["stride"] if grounded_samples else 0.0
+            stride_end = grounded_samples[-1]["stride"] if grounded_samples else 0.0
+            if len(observed_phases) != 4 or stride_end - stride_begin <= 0.9:
                 raise AssertionError(
                     "W did not alternate four distance-driven foot phases: "
                     + str({"phases": sorted(observed_phases),
+                           "grounded_samples": len(grounded_samples),
                            "distance": stride_end - stride_begin}))
             # While facing rear, J and K must render full illustrated bodies
             # on their physical attack clock. Godot ART-23 verifies alpha,
