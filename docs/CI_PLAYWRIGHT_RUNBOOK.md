@@ -528,3 +528,14 @@ run for exact game SHA and live Playwright camera lock, not assumed.
 - Do not alter P1.5 production entrypoint or expose private source/keys. User must visually approve final art; many roadmap stages remain unfinished.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+
+## 2026-11-26 — strict WJK Chromium phase sampling: two verified 3/4 omissions, now multi-real-run
+
+- Private/game refactor changes are **already built on Pages**: `2410c6c0974bfafc2d269f4130f3e09c9ed49543` / public pipeline `1f53d3799f943c5ba46dd4e26618bd9155918f43`; Godot+Web+Windows+Pages #45762463118 **SUCCESS** with all 3D/2D walkable texture source tests PRES-15/16/17. Native PNG screenshots after running show actual grass under the Jade shoes; numeric pivot 0px remains independent of texture.
+- **Actual Chromium #45762495699 FAIL** `W phase=[0,2,3], grounded=30, travel=5.25m`. **Actual Chromium #45762740141 FAIL** `W phase=[1,2,3], grounded=32, travel=6.37m`. Both have correct native is_on_floor() and Y-ground clearance around 0.001m with real negative W vz (~4.2m/s), no jump/teleport. Each renderer-frame sampling window occasionally misses a fast source gait pose (each 0.35m at 4.2m/s ~83ms) under slow software WebGL. This is a **known observable flaky capture test**, not verified real gait regression; do not hide FAILs.
+- PUBLIC `ci/playwright_physics_v2.py` `1fb2b8cab04558c0d2fc99d31c4d3aa4467696d2`: robust strict test now captures union of **all four actually rendered gait phases** over at most three independent physical W runs. After each reset T, require real grounded idle, Canvas keyboard focus, correct -Z velocity, rear-facing run, >0.9m true stride distance, actual physical Y-floor clearance and per-frame toe pivot; combine phase observations, never synthesize a frame/alter game speed/relax four-phase acceptance. J/K physical attack and pixel screenshot checks remain mandatory. Public CI #45763494277 in progress at this note; browser gate must be checked separately.
+- Future improvement: if low-FPS engine actually skips visual poses on real player displays, introduce a proper tagged frame scheduler / SpriteFrames with minimum on-screen pose visibility. Do not modify authoritative 60Hz collision/combat to rescue a render-only issue; validate visuals with real screenshots.
+- Original WJK source artwork remains unchanged, but full named-clip Aseprite/LibreSprite authoring migration and final aesthetic signoff are still open.
+
+**Trạng thái: PARTIAL — chưa hoàn tất**
