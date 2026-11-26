@@ -19,6 +19,29 @@ def state(page):
     return page.evaluate("window.__beastPhysicsDebug || null")
 
 
+def verify_rendered_eight_cycle(game_state, direction):
+    # Frame selection inside _process is NOT proof that an actual canvas
+    # frame was drawn. The game records only RenderingServer.frame_post_draw
+    # callbacks with full-body pose indices, in chronological order.
+    history = game_state.get("review_run_drawn_phase_history", [])
+    mask = int(game_state.get("review_run_drawn_phase_mask", 0))
+    if (mask & 0xFF) != 0xFF:
+        raise AssertionError(
+            f"{direction} GPU post-draw mask is incomplete: {mask:#x}, "
+            f"history={history}, state={game_state}")
+    sequence = list(range(8))
+    if not any(history[i:i + 8] == sequence
+               for i in range(max(0, len(history) - 7))):
+        raise AssertionError(
+            f"{direction} did not DRAW all eight whole-body poses sequentially: "
+            f"{history}")
+    if not any(history[i:i + 2] == [7, 0]
+               for i in range(max(0, len(history) - 1))):
+        raise AssertionError(
+            f"{direction} actual GPU rendering skipped the 7 -> 0 seam: "
+            f"{history}")
+
+
 def main():
     result = {"single_review_url": URL, "status": "NOT_RUN"}
     with sync_playwright() as p:
@@ -249,11 +272,11 @@ def main():
                 page.wait_for_function(
                     "() => window.__beastPhysicsDebug?.review_preview_frame > 0",
                     timeout=3000, polling=45)
-                # Sample the LIVE gameplay frame stream for <=1850ms,
+                # Sample browser rAF up to 2400ms; REAL frame coverage is the
                 # source holds >=85ms plus two renders per pose. Holding
                 # left/right too long hits real stage collision,
                 # legitimately stops _gait_distance_m and freezes the pose.
-                # We still REQUIRE every phase 0..7 to actually appear.
+                # frame_post_draw mask/history, NOT a sparse rAF sampler.
                 right_phases = page.evaluate(
                     """() => new Promise(resolve => {
                       const observed = new Set();
@@ -262,17 +285,18 @@ def main():
                         const s = window.__beastPhysicsDebug;
                         if (s?.review_run_active && s?.sprint_requested)
                           observed.add(s.review_preview_frame);
-                        if (observed.size === 8 || performance.now() - start > 1850)
+                        if (observed.size === 8 || performance.now() - start > 2400)
                           resolve([...observed].sort((a,b)=>a-b));
                         else requestAnimationFrame(sample);
                       }
                       sample();
                     })""")
-                if right_phases != list(range(8)):
+                if len(right_phases) < 2:
                     raise AssertionError(
-                        f"D+D must play all EIGHT visible phases during real sprint, "
-                        f"observed={right_phases}, state={state(page)}")
+                        "D+D must visibly change body poses in browser rAF: "
+                        + str(right_phases))
                 run_state = state(page)
+                verify_rendered_eight_cycle(run_state, "D+D")
                 if (int(run_state.get("review_run_presented_phase_mask", 0))
                         & 0xFF) != 0xFF:
                     raise AssertionError(
@@ -330,17 +354,18 @@ def main():
                         const s = window.__beastPhysicsDebug;
                         if (s?.review_run_active && s?.sprint_requested)
                           observed.add(s.review_preview_frame);
-                        if (observed.size === 8 || performance.now() - start > 1850)
+                        if (observed.size === 8 || performance.now() - start > 2400)
                           resolve([...observed].sort((a,b)=>a-b));
                         else requestAnimationFrame(sample);
                       }
                       sample();
                     })""")
-                if left_phases != list(range(8)):
+                if len(left_phases) < 2:
                     raise AssertionError(
-                        f"A+A must play all EIGHT visible phases during real sprint, "
-                        f"observed={left_phases}, state={state(page)}")
+                        "A+A must visibly change body poses in browser rAF: "
+                        + str(left_phases))
                 left_run = state(page)
+                verify_rendered_eight_cycle(left_run, "A+A")
                 if (int(left_run.get("review_run_presented_phase_mask", 0))
                         & 0xFF) != 0xFF:
                     raise AssertionError(
@@ -378,6 +403,8 @@ def main():
                     "source_pose_count": run_state["review_run_source_pose_count"],
                     "observed_live_phases": right_phases,
                     "actual_sprite_pose_mask": run_state["review_run_presented_phase_mask"],
+                    "actual_gpu_drawn_pose_mask": run_state["review_run_drawn_phase_mask"],
+                    "actual_gpu_phase_history": run_state["review_run_drawn_phase_history"],
                     "source_action": run_state["review_preview_action"],
                 },
                 "left_run_preview": {
@@ -385,6 +412,8 @@ def main():
                     "source_frame": left_run["review_run_source_frame"],
                     "pose_count": left_run["review_run_source_pose_count"],
                     "observed_live_phases": left_phases,
+                    "actual_gpu_drawn_pose_mask": left_run["review_run_drawn_phase_mask"],
+                    "actual_gpu_phase_history": left_run["review_run_drawn_phase_history"],
                     "actual_sprite_pose_mask": left_run["review_run_presented_phase_mask"],
                     "velocity_x": left_run["player"]["vx"],
                     "source_action": left_run["review_preview_action"],
