@@ -496,6 +496,26 @@ def main():
                 raise AssertionError("T restart failed to reset authoritative 2v2 HP/timer/AI")
             report["round_restart_pass"] = True
 
+            # The authored jump row must be VISIBLE during a real Godot
+            # jump in the fixed 2D pixel view. Pose art is never the source
+            # of jump height/landing; screenshot is a separate QA gate.
+            page.keyboard.press("F5")
+            page.wait_for_timeout(180)
+            page.keyboard.press("Space")
+            page.wait_for_function(
+                "() => {const s=window.__beastPhysicsDebug;"
+                "return s && s.pixel_projection_mode === true"
+                " && s.player && !s.player.grounded"
+                " && Math.floor(s.human_sprite_frame / 4) === 5;}",
+                timeout=2600, polling=45)
+            original_jump = snap(page)
+            report["original_human_jump_pose"] = {
+                "visual_row": original_jump["human_sprite_frame"] // 4,
+                "world_y": original_jump["player"]["y"],
+                "physical_vy": original_jump["player"]["vy"]}
+            canvas.screenshot(path=str(OUT / "moss-original-human-airborne-pose.png"))
+            report["original_human_jump_pose_pass"] = True
+
             # A player can open the image-first version directly by URL
             # rather than discovering F5. It must boot the SAME tested PCK.
             direct_url = URL + "&pixel=1"
