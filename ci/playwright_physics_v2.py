@@ -326,8 +326,8 @@ def main():
             }""")
             if not canvas.evaluate("element => document.activeElement === element"):
                 raise AssertionError("Canvas lost keyboard focus after native T map reset")
-            # Start sampling BEFORE pressing W, and collect actual Godot
-            # frame telemetry in Chromium, not a delayed Python round-trip.
+            # Start sampling BEFORE pressing W and capture Godot's genuine
+            # world travel, front-facing pixel cell and shoe contact.
             w_sampler_js = """() => {
                 window.__beastWFootSamples = [];
                 window.__beastWFootSampling = true;
@@ -411,88 +411,20 @@ def main():
                            "player": snap(page).get("player")}))
             total_distance_m = first_distance_m
             w_sample_passes = 1
-            # WebGL/SwiftShader may render far below the fixed 60Hz motor:
-            # each actual contact pose lasts ~83ms and an individual
-            # requestAnimationFrame window can genuinely MISS a fast pose.
-            # Two real browser runs previously observed [0,2,3] and [1,2,3].
-            # Require the union of ALL FOUR *actually rendered* phases
-            # over at most 3 independently MOVING W runs. Each retry
-            # resets through the game's existing T action and must prove
-            # physical floor contact, real travel and correct shoe pivot.
-            # Never synthesize a pose, reduce speed or relax 4/4 coverage.
-            for retry in range(2):
-                if observed_phases == {0, 1, 2, 3}:
-                    break
-                page.keyboard.up("w")
-                page.keyboard.press("t")
-                page.wait_for_function(
-                    "() => {const s=window.__beastPhysicsDebug; "
-                    "return s && s.hero_art_approved_enabled && "
-                    "s.player && s.player.grounded && "
-                    "Math.abs(s.human_physical_ground_clearance_m)<0.25 && "
-                    "s.human_visual_gait==='idle';}",
-                    timeout=11000, polling=70)
-                canvas.evaluate("""element => {
-                    element.setAttribute('tabindex', '0');
-                    element.focus();
-                }""")
-                if not canvas.evaluate(
-                        "element => document.activeElement === element"):
-                    raise AssertionError(
-                        "W retry lost Godot canvas input focus")
-                # Offset the second capture relative to WebGL's frame
-                # cadence; the source and true physical motor are identical.
-                page.wait_for_timeout(95 + 110 * retry)
-                page.evaluate(w_sampler_js)
-                page.keyboard.down("w")
-                page.wait_for_function(
-                    "() => {const s=window.__beastPhysicsDebug; "
-                    "return s && s.player.grounded && "
-                    "s.player.vz < -0.25 && "
-                    "s.human_visual_gait==='run' && "
-                    "s.human_sprite_frame % 4 === 0;}",
-                    timeout=9000, polling=70)
-                page.wait_for_function(
-                    "() => {const s=window.__beastPhysicsDebug; "
-                    "return s && s.player && s.player.grounded && "
-                    "s.player.z < -7.5;}",
-                    timeout=10000, polling=70)
-                more = page.evaluate("""() => {
-                    window.__beastWFootSampling = false;
-                    return window.__beastWFootSamples || [];
-                }""")
-                more_grounded = [item for item in more
-                                 if item.get("gait") == "run"
-                                 and item.get("grounded")]
-                if not more_grounded:
-                    raise AssertionError(
-                        "W retry never sampled real grounded movement")
-                if any(item.get("facing") != 0 for item in more_grounded):
-                    raise AssertionError("W retry lost front-facing projection")
-                extra_distance_m = (more_grounded[-1]["stride"]
-                                    - more_grounded[0]["stride"])
-                if extra_distance_m <= 0.9:
-                    raise AssertionError(
-                        "W retry did not actually travel on native ground: "
-                        + str(extra_distance_m))
-                total_distance_m += extra_distance_m
-                w_sample_passes += 1
-                observed_phases.update(item.get("phase")
-                                       for item in more_grounded)
-                grounded_samples.extend(more_grounded)
-            if observed_phases != {0, 1, 2, 3}:
+            # VERIFIED atlas contract: SOURCE rows 1..4 are SIDE profiles,
+            # not front W/S. We deliberately keep the single full-body
+            # original FRONT pose (row0,col0) on W/S instead of falsely
+            # "passing" a patchwork four-phase front gait. Physics still
+            # moves >0.9m on the actual grounded XZ stage.
+            w_sample_passes = 1
+            if any(item.get("row") != 0 or item.get("phase") != 0
+                   or item.get("facing") != 0 for item in grounded_samples):
                 raise AssertionError(
-                    "W did not render ALL four physical-distance foot poses "
-                    "across up to three REAL grounded W runs: "
-                    + str({"phases": sorted(observed_phases),
-                           "runs": w_sample_passes,
-                           "grounded_samples": len(grounded_samples),
-                           "travel_m": round(total_distance_m, 3),
-                           "sampled_foot_rows": [
-                               (item["phase"], item["row"], round(item["stride"], 2),
-                                round(item["clearance_m"], 3))
-                               for item in grounded_samples[:80]],
-                           "last_state": snap(page).get("player")}))
+                    "W showed a RIGHT/LEFT side pose disguised as FRONT: " +
+                    str([(v.get("phase"), v.get("row"), v.get("facing"))
+                         for v in grounded_samples[:35]]))
+            # The source-art auditor must remain PENDING_ART until whole
+            # independently drawn forward walk frames are supplied.
             bad_anchors = [x for x in grounded_samples
                            if abs(float(x.get("offset_y", 99))
                                   + float(x.get("pad", 99))) > 0.1
@@ -619,7 +551,8 @@ def main():
             report["jade_wjk_physics_sprite_regression"] = {
                 "walkable_grass_visible_j": round(j_grass, 3),
                 "walkable_grass_visible_k": round(k_grass, 3),
-                "w_unique_run_phases": sorted(observed_phases),
+                "w_front_pose_phases": sorted(observed_phases),
+                "front_walk_art_ready": False,
                 "travel_stride_m": round(total_distance_m, 3),
                 "real_w_capture_runs": w_sample_passes,
                 "grounded_samples": len(grounded_samples),
