@@ -38,30 +38,38 @@ jobs:
         run: bash ci/setup_libresprite.sh
       - name: Batch round-trip synthetic editable layered ASE source
         run: python ci/libresprite_roundtrip_smoke.py
-      - name: Check PRIVATE game animation source (never upload or print art)
+      - name: Detect PRIVATE source access
+        id: source-access
         env:
-          GAME_READ_TOKEN: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
+          HAS_READ_TOKEN: ${{ secrets.BEAST_ARENA_READ_TOKEN != '' }}
+        run: |
+          echo "available=$HAS_READ_TOKEN" >> "$GITHUB_OUTPUT"
+          if [[ "$HAS_READ_TOKEN" != "true" ]]; then
+            echo "::warning::Private source unavailable; exporter not run, toolchain test still valid."
+          fi
+      - name: Checkout PRIVATE source via GitHub Actions credentials
+        if: steps.source-access.outputs.available == 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: ngocnhanvo/beast-arena
+          ref: main
+          token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
+          persist-credentials: false
+          path: private-game
+          fetch-depth: 1
+      - name: Check PRIVATE game animation source (never upload or print art)
+        if: steps.source-access.outputs.available == 'true'
         shell: bash
         run: |
           set -euo pipefail
-          if [[ -z "$GAME_READ_TOKEN" ]]; then
-            echo "::warning::No BEAST_ARENA_READ_TOKEN; toolchain tested but private source not audited."
-            echo "PRIVATE SOURCE: BLOCKED_TOKEN; LibreSprite CLI test still ran." >> "$GITHUB_STEP_SUMMARY"
-            exit 0
-          fi
-          echo "::add-mask::$GAME_READ_TOKEN"
-          git -c credential.helper= clone -q --depth 1 \
-            "https://x-access-token:${GAME_READ_TOKEN}@github.com/ngocnhanvo/beast-arena.git" \
-            "$RUNNER_TEMP/beast-game"
-          # No ZIP/artifacts/screenshots of PRIVATE source may be uploaded.
-          cd "$RUNNER_TEMP/beast-game"
+          cd "$GITHUB_WORKSPACE/private-game"
           python3 tools/animation_source_audit.py --json-output "$RUNNER_TEMP/animation_source_audit.json"
           echo "PRIVATE SOURCE SHA: $(git rev-parse HEAD)"
-          # EXERCISE the actual private exporter end-to-end with ORIGINAL
-          # test-only 58 frames and explicit foot metadata. Nothing uploaded.
+          # Exercise actual PRIVATE importer with 58 TEST-ONLY cels/tags
+          # without ever exposing the private images in public artifacts.
           cd "$GITHUB_WORKSPACE"
-          python3 ci/libresprite_full_export_smoke.py --game "$RUNNER_TEMP/beast-game" --binary libresprite
-          cd "$RUNNER_TEMP/beast-game"
+          python3 ci/libresprite_full_export_smoke.py --game "$GITHUB_WORKSPACE/private-game" --binary libresprite
+          cd "$GITHUB_WORKSPACE/private-game"
           set +e
           python3 tools/libresprite_export.py --fighter jade_human --binary libresprite \
             --output-dir "$RUNNER_TEMP/private-guard-review"
