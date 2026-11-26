@@ -22,12 +22,12 @@ def snap(page):
 
 
 def expect_state(page, description, predicate, timeout=4000):
+    # Predicates are hard-coded at call sites in this trusted test file.
+    # Avoid dynamic Function/eval, which can be forbidden by page CSP.
     page.wait_for_function(
-        """(predicate) => {
-            const s = window.__beastPhysicsDebug;
-            return !!s && Function("s", "return (" + predicate + ")")(s);
-        }""",
-        arg=predicate, timeout=timeout, polling=40)
+        "() => { const s = window.__beastPhysicsDebug; return !!s && (" +
+        predicate + "); }",
+        timeout=timeout, polling=40)
     current = snap(page)
     if not current:
         raise AssertionError(description + ": debug state absent")
