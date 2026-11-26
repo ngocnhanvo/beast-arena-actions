@@ -22,3 +22,10 @@ User approved the short-step stance but observed that Jade becomes SMALLER speci
 - Owner autocheck:false retains sole aesthetic signoff. Full ten-tag editable art source, eight other clips and visual approval remain PENDING_ART; not scope of the body-size fix.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+## Terminal browser verification — 2026-11-26
+- [Real Chromium #45813823212](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45813823212) **SUCCESS**, PUBLIC pipeline 4ca52126f2d6ddd914ae0f23c2ac3eeede7bc70e, deployed PRIVATE 5c2eb9b810bb0430a853d94d803e629488b05b30 from #45813542941. All test steps PASS: main P1.5, Physics V2 climb2.31m/descent2.39m, Arcade V2 controls, canonical real W/S preview with added painted-body-size parity assertions. Artifact #15113429395 contains new screenshots.
+- Native Godot logs verify alpha-painted W/S=64px, old baseline idle/run=70px, corrected uniform scale=1.09375 in both directions. Public E2E checks effective height equals baseline within 1px during true input, in addition to source PCK SHA, physical input and PixelView floor.
+- The bug fix is TECHNICALLY DONE and deployed at ONLY https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/; owner aesthetic confirmation still pending under autocheck:false. Full ten-tag fighter library/other Beast features are separately PENDING_ART.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
