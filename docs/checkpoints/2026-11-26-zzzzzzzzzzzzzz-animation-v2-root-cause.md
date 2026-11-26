@@ -47,3 +47,10 @@ Owner explicitly REJECTED current Jade run as very poor after artificial hand/fo
 - This further motivates V2: deterministic one-place AnimationPose resolved from simulation state and fed consistently to native Sprite3D and PixelView, instead of independent row/clock sampling. The core ART BLOCKER remains zero authored editable full-body clips and owner's explicit visual FAIL; `autocheck:false` manual visual review still applies.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+## Verified real Chromium after new PENDING_ART inventory
+- [Exact Chromium #45774341434](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45774341434) **SUCCESS** for [build/Pages #45774098969](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45774098969), PUBLIC pipeline SHA `693bdbfc75f2c5fcd7f5d69cd567cebbe3c2743d`. Browser P1.5 dx217.0px, Physics V2 real climb2.17m, descent2.43m, angles>=10deg, dx11.91m. The source audit on the same build separately reported **PENDING_ART**, `visual_accepted:false` (no editable true clips). This is a **technical regression PASS**, not an animation signoff.
+- Earlier browser [#45773861575](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45773861575) is retained as a genuine FAIL for an old 180ms J debug-snapshot race; new PUBLIC E2E fix `a7df35a...` is already committed, but [new build #45774607358](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45774607358) was QUEUED/incomplete when checked, so do not claim its result.
+- Never revert source-audit warning when CI is green. Owner still judges legacy 80px patch-composited animation **FAIL**. True original editable source and V2 importer are not implemented.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
