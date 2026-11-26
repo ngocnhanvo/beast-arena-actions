@@ -239,8 +239,12 @@ def main():
                     "() => {const s=window.__beastPhysicsDebug;"
                     "return s?.review_run_active === true "
                     "&& s?.sprint_requested === true "
-                    "&& s?.human_sprite_hframes === 6 "
-                    "&& s?.review_run_distance_per_frame_m > 0.5 "
+                    "&& s?.human_sprite_hframes === 4 "
+                    "&& s?.human_sprite_vframes === 20 "
+                    "&& s?.review_run_source_pose_count === 6 "
+                    "&& s?.review_preview_action === 'run_right' "
+                    "&& s?.review_run_source_is_native_80px === true "
+                    "&& s?.review_run_distance_per_frame_m >= 0.40 "
                     "&& s?.player?.vx > 5.5;}", timeout=8000, polling=45)
                 page.wait_for_function(
                     "() => window.__beastPhysicsDebug?.review_preview_frame > 0",
@@ -248,8 +252,10 @@ def main():
                 run_state = state(page)
                 canvas.screenshot(path=str(OUT / "canonical-guard-run-right.png"))
                 if (run_state.get("review_run_art_status") !=
-                        "REUSED_WALK_ART_PENDING_RUN"):
-                    raise AssertionError("Sprint pilot must not claim distinct run poses")
+                        "REUSED_ORIGINAL_SIX_WHOLE_BODY_RUN_POSES_OWNER_REVIEW_PENDING"):
+                    raise AssertionError(
+                        "Sprint must use distinct ORIGINAL side-running whole-body "
+                        "frames, not W/S short steps or invented final authored 8-tag")
             finally:
                 page.keyboard.up("d")
             result.update({
@@ -268,15 +274,18 @@ def main():
                     "stride_m": run_state["review_run_distance_per_frame_m"],
                     "velocity_x": run_state["player"]["vx"],
                     "source_status": run_state["review_run_art_status"],
+                    "source_frame": run_state["review_run_source_frame"],
+                    "source_pose_count": run_state["review_run_source_pose_count"],
+                    "source_action": run_state["review_preview_action"],
                 },
                 "punch_art": "PENDING_ART_FRONT_PUNCH",
                 "kick_art": "PENDING_ART_INDEPENDENT_KICK",
                 "foot_pivot_px": 75,
                 "full_source_status": "PENDING_ART",
             })
-            print("ONE CANONICAL /physics-v2/ JADE 8-DIRECTION PACE PASS: "
-                  "W/S=0.30m/cel, lateral=0.38m/cel, diagonals=0.35m/cel; "
-                  "motor preserved, 6x80px cels, PixelView visible; "
+            print("ONE CANONICAL /physics-v2/ JADE NATIVE RUN SIX-POSE PASS: "
+                  "real D+D and six original full-body 80px frame indices; "
+                  "eight walking directions and anchored idle inhale unchanged; "
                   "owner visual review pending")
         except Exception as exc:
             result["status"] = "FAIL"
