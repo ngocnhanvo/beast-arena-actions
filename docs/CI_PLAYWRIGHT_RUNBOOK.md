@@ -496,3 +496,11 @@ run for exact game SHA and live Playwright camera lock, not assumed.
 - **Play:** https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/?pixel=1&art=approved ; hold W for rear movement, F7 toggles original classic vs approved illustration, F5 toggles 2D/3D. Root P1.5 unchanged.
 
 **Trạng thái: PARTIAL — chưa hoàn tất**
+
+
+### 2026-11-26 — WJK browser false-negative due Web test running off stage (verified)
+- **Corrected-source Godot/Pages** [#45757152728](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45757152728) **PASS** compiling PRIVATE `52751133013b5ad1cc59fb4163c73f8cf101180c`. Real logs show `APPROVED JADE WJK PASS`, full-body J/K on all four facings, four unique run phases, preserved physics/combat/slopes, exports Web/Windows and Pages success.
+- Auto browser [#45757397328](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45757397328) **FAIL** with `AssertionError: W did not alternate four distance-driven foot phases: {'phases': [], 'distance': 11.90024876594544}`. P1.5 browser PASS; `moss-jade-approved-rear-motion.png` screenshot successfully captured, user-facing hand-painted Jade rendering visible. **Verified cause:** new Python→Chromium 22× `snap(page)` loop held W long enough that the real 3D player crossed almost 12m and fell off the compact stage, so later snapshots all showed `gait=airborne`. This is test-induced extra motion, not evidence of no alternating steps.
+- **E2E-only fix PUBLIC `a49a07a549b3eb09215a52a5e65bcefce0800c9b`:** collect every `requestAnimationFrame` debug state inside Chromium during an 850ms W stride, then require ALL 4 phases, correct rear facing and >0.9m native `move_and_slide()` ground distance. No physics speed, hitbox, gravity, stage bounds or source art changed. New public [Godot/Pages #45757669329](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45757669329) **PASS**; automatically triggered Chromium [#45757885478](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45757885478) **QUEUED** when checkpoint written, must be checked before Browser PASS claim.
+- First two earlier failures remain documented: corrupt PNG IDAT base64 corrected with matched Git blob hash, and ART-24 fixture tried running before landing. All addressed with strict tests retained.
+**Trạng thái: PARTIAL — chưa hoàn tất**
