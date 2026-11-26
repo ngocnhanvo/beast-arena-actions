@@ -1,0 +1,23 @@
+# 2026-11-26 — Jade run eight-frame hand counter-swing retouch (legs locked)
+
+## Owner feedback
+On actual /physics-v2/ game, owner accepted the 8-frame leg rhythm but rejected uneven running hand motion. Do not change the legs, run speed, camera, animation timing, eight walking directions, or other clips. The actual release source remains native 80px cels and one canonical review URL.
+
+## Source modifications (PRIVATE)
+- Original editable Jade 8x2 atlas `experiments/physics_v2/art/drafts/jade_run_eight_16.png` retains 8 RIGHT + 8 full-body mirrored LEFT, with source ASE/PNG re-exported.
+- Repainted near-side bent guarded arm in complete-source native RIGHT frames indices **2,3,4,5**, yielding a continuous arm swing back→front→back paired (0,7), (1,6), (2,5), (3,4); mirrored entirety to LEFT (8..15), not a runtime limb animation system.
+- Original accepted leg pixels archived in `jade_run_eight_16_before_arm_retouch.png`. Strict invariant: **all eight RIGHT lower-body blocks y55..79 are bit-for-bit equal** to prior approved leg cycle; all eight LEFT whole-body mirrors. Frame order 0..7, existing foot y74, stride 0.50m/pose, run source duration85ms and 2 GPU draw holds unchanged.
+- Updated `jade_run_eight_{right,left}.aseprite`, `jade_run_eight_{right,left}.png` and source metadata `jade_run_eight_16.json`. `art/fighters/animation_profiles.json` records source arm pairing and immutable-leg baseline. `tests/three_quarter_preview_smoke.gd` asserts precise lower-body source parity and the intended changed 2,3,4,5 arm regions.
+- No updates to physics/engine character animation core. Existing prior 8-pose source retained via archived PNG and Git history for rollback.
+
+## Public verification in progress
+- Public documentation triggered actual `Godot CI` run **#45862343065**, `LibreSprite Art Toolchain` **#45862342943** (PUBLIC SHA 5e030612b2f5a98a9bef1682c6fa46d87da29d4b). Check final jobs, actual PRIVATE source checkout SHA, native smoke and exact editable ASE/PNG roundtrip.
+- Once Pages deploy succeeds, check automatically-triggered exact Chromium E2E. Requires right/left A+A/D+D post-draw 8-frame sequence/wrap, eight walking directions, P1.5 and physics. Avoid reusing old #45859142995 PASS: that covered pre-arm-retouch source.
+- Review on *one* URL only: https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/ . `autocheck:false`: owner must judge actual arm balancing; never auto-approve artistic quality.
+
+## Open work
+- Sprite upper-body quality/leg-counterphase **PENDING_OWNER_REVIEW**, this is a first native retouch, not visually accepted.
+- Idle authored breathing, punch and kick independent source art still PENDING_ART in wider roadmap.
+- Check actual run results and update this checkpoint plus engineering log with evidence. If owner dislikes arm pose, **revise original full-cel editable ASE art** without a cropped-limb runtime hack.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
