@@ -110,3 +110,13 @@ NEXT: source HEAD/run check, improve original human animation and stage art, add
 - **Next:** inspect Chromium #45730411190; check `physics-v2/result.json` and PNG itself, repair from real screenshot/log if FAIL. Do NOT claim cyan art screenshot PASS merely because guard event counter >0 or prior browser PASS. Update private matching checkpoint. This is still visual-first Nekketsu-like original asset prototype, root P1.5 unchanged, V5 not started.
 
 **Trạng thái: PARTIAL — chưa hoàn tất**
+
+
+## 2026-11-26 — Cyan block art ACTUALLY visible; new four-style skyline QA requested
+
+- Confirmed [Build+Pages #45730152150](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45730152150) SUCCESS on private `f94dbe484068ad891b1620e306ecc6193d1e1a00`, public pipeline `b62c92265db0fd62afe558d51d96feab4cf32a27`. [Chromium #45730411190](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45730411190) SUCCESS. Real screenshot ZIP downloaded; `physics-v2/result.json.real_guard_contact.visible_cyan_pixels=1495`, blocks=1, active cyan shield=1, actual player HP=97; `moss-cyan-guard-contact.png` inspected and shows prominent cyan pixel shield at real player location. Previous 0.20sec frame captured zero saturated cyan pixels; new separate 0.55sec block visual passes. Source remains 3D-authoritative, no sprite-hit damage.
+- Public `web-e2e.yml` publication gate `7dadcfd` passes real deploy branch (#45729838736 build+Pages, #45730089391 E2E SUCCESS). Scheduled cache no-deploy E2E is guarded but still awaits a natural cached schedule to confirm job skip.
+- **NEW UNVERIFIED game art source:** private `scripts/pixel_view.gd` `d571d7fa74e5d841f306c23cbfafa8a76b8089a4` now draws **four original distinct skyline landmarks per stage** instead of repeating one clone: shrine/gate/trees/pagoda vs warehouse/crane/tanks/containers. It changes pixel graphics only; no third-party art, collision or 60Hz match logic changed. It must be compiled and screenshot tested on BOTH Moss+Docks.
+- This PUBLIC docs commit is the intentional new Godot/Pages/Chromium build trigger. **Do not claim new skyline deployed or approved until exact private SHA, Godot import, Pages and Chromium screenshots are checked.** Keep P1.5 separate and V5 beast deferred.
+
+**Trạng thái: PARTIAL — chưa hoàn tất**
