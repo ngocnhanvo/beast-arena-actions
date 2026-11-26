@@ -813,3 +813,8 @@ User rejected the skating rear-facing animation. Real game W moves up world -Z w
 - PRIVATE commits 98f495/34a170/56f2d0/092586, PUBLIC test `77c1aa8b1d9c1230e0c14d3986912b17207abf64`; Godot/Web/Windows/Pages #45846134771 triggered. **Check terminal build and subsequent Chromium results** before claiming E2E PASS. Original source PNG and editable Aseprite unchanged; pinned LibreSprite #45837312555 attempt2 PASS. One user URL https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/; autocheck:false owner visuals and full ten-tag art still pending.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+## 2026-11-26 — Real rAF sprint loop vs internal Sprite3D phase mask
+- Prior #45846453321 Jade E2E: selected pose mask 0x3F but browser rAF observed only [1,2,3,5] left. Treat rAF and actual selected phase as distinct evidence. Earlier [0,2,3,4,5] right. Pages build PASS alone is insufficient.
+- PRIVATE presentation now requires each source pose's 85ms duration plus >=2 rendered passes, preserving authoring/projection/physics and 5→0 wrap. PUBLIC Jade browser gate samples up to 1850ms, still demanding all six phases on A+A AND D+D, no test skip. Initial full build #45848128995; next retrieve exact Chromium and screenshots.
+- `autocheck:false` means art visual approval belongs to owner at the single canonical /physics-v2/ link; source still 6 pilot frames and missing full independent 8+ source, punch/kick clips.
