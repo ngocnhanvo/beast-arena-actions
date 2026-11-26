@@ -709,24 +709,50 @@ def main():
             if moved["player"]["vx"] > 5.0:
                 raise AssertionError("3D horizontal motor exceeded configured speed")
             canvas.screenshot(path=str(OUT / "moss-moving.png"))
-            page.keyboard.press("j")
-            page.wait_for_timeout(180)
-            attack_visual = snap(page)
+            # Observe ONE genuine 60Hz J attack rather than sampling at an
+            # arbitrary +180ms (Chromium #45773861575 captured gait=attack,
+            # sprite row7, but attack_frame=0 on a render/physics boundary).
+            # This strict fixture never writes gameplay state or retries an
+            # input merely to force PASS. A single real keyboard.down is held
+            # until Godot reports its own active attack frame.
+            canvas.evaluate("""element => {
+                element.setAttribute('tabindex', '0');
+                element.focus();
+            }""")
+            page.evaluate("window.__beastMainLightAttack = null")
+            page.keyboard.down("j")
+            try:
+                page.wait_for_function(
+                    """() => {
+                        const s = window.__beastPhysicsDebug;
+                        const row = s ? Math.floor(s.human_sprite_frame / 4) : -1;
+                        if (!s || s.human_visual_gait !== 'attack' ||
+                            !(s.human_attack_frame > 0 && s.human_attack_frame < 16) ||
+                            !(row === 7 || row === 8)) {
+                            return false;
+                        }
+                        window.__beastMainLightAttack = {
+                            human_visual_gait: s.human_visual_gait,
+                            human_attack_frame: s.human_attack_frame,
+                            human_sprite_frame: s.human_sprite_frame,
+                            source_sha: s.source_sha,
+                            pipeline_sha: s.pipeline_sha
+                        };
+                        return true;
+                    }""",
+                    timeout=3500, polling=20)
+                attack_visual = page.evaluate(
+                    "() => window.__beastMainLightAttack")
+            finally:
+                page.keyboard.up("j")
             report["human_attack_visual"] = attack_visual
-            # Combat owns the 60Hz strike timeline. The old
-            # human_visual_action preview is intentionally not authoritative:
-            # it can outlive a hitbox/recovery and was removed from genuine
-            # attacks. Assert the PHYSICAL clock and the corresponding art.
-            if (attack_visual.get("human_visual_gait") != "attack" or
-                    not 1 <= attack_visual.get("human_attack_frame", -1) < 16):
+            if (not attack_visual or
+                    attack_visual.get("human_visual_gait") != "attack" or
+                    not 1 <= attack_visual.get("human_attack_frame", -1) < 16 or
+                    attack_visual.get("human_sprite_frame", -1) // 4 not in (7, 8)):
                 raise AssertionError(
-                    "J did not begin the authoritative 60Hz light attack: "
-                    + str({
-                        "gait": attack_visual.get("human_visual_gait"),
-                        "frame": attack_visual.get("human_attack_frame"),
-                        "sprite": attack_visual.get("human_sprite_frame")}))
-            if attack_visual.get("human_sprite_frame", -1) // 4 not in (7, 8):
-                raise AssertionError("physical attack art not on original punch rows")
+                    "J did not enter real authoritative attack/visual row: " +
+                    str(attack_visual))
             canvas.screenshot(path=str(OUT / "moss-light-preview.png"))
             # The selected pose follows the physical attack clock; 3D
             # hit volume and damage are independently asserted by Godot.
