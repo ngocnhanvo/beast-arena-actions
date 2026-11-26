@@ -544,6 +544,23 @@ def main():
             canvas.screenshot(path=str(OUT / "moss-direct-pixel-url.png"))
             report["pixel_direct_url_pass"] = True
 
+            # Visual-first acceptance: capture the original FIXED-HORIZON
+            # 2D gameplay while actual CharacterBody3D speed drives run
+            # frames. Earlier moss-running-real-speed.png was recorded in
+            # the deliberate 3D comparison mode and looked obliquely tilted.
+            page.keyboard.down("d")
+            try:
+                page.wait_for_timeout(700)
+                running_2d = snap(page)
+                if (not running_2d.get("pixel_projection_mode") or
+                        running_2d.get("human_visual_gait") != "run" or
+                        running_2d.get("human_sprite_frame", -1) // 4 not in (3, 4)):
+                    raise AssertionError("F5 original pixel art failed to animate true 2D running")
+                canvas.screenshot(path=str(OUT / "moss-running-horizontal-pixel-2d.png"))
+                report["original_2d_running_art_pass"] = True
+            finally:
+                page.keyboard.up("d")
+
             # Real defensive contact, not merely pressing G on an empty
             # arena. Keep the original 2D view ON, face the approaching
             # rivals, and capture a live CYAN spark while 3D HP resolves.
