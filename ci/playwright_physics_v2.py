@@ -382,12 +382,16 @@ def main():
                     not approved_rear.get("human_approved_motion_set")):
                 raise AssertionError("W must use original full-body approved Jade: " + str(approved_rear))
             canvas.screenshot(path=str(OUT / "moss-jade-approved-rear-motion.png"))
-            # Browser software-WebGL draws at lower FPS than the 60Hz
-            # motor; a 480ms screenshot sampler missed the very brief
-            # contact phase 0 while actual W travelled 3.29m grounded.
-            # Observe >2 full 4-phase stride cycles with 1050ms extra
-            # while player stays inside the 26m-deep Moss stage.
-            page.wait_for_timeout(1050)
+            # Sample a known REAL physical travel distance rather than
+            # holding W for a fixed wall-clock delay. Software WebGL can
+            # process 1.05 wall seconds as >3 actual physics seconds and
+            # run past Moss's -13m floor boundary during slow polling.
+            # Stop near z=-7.5m, safely INSIDE the native -13m edge.
+            page.wait_for_function(
+                "() => {const s=window.__beastPhysicsDebug; "
+                "return s && s.player && s.player.grounded && "
+                "s.player.z < -7.5;}",
+                timeout=10000, polling=70)
             gait_samples = page.evaluate("""() => {
                 window.__beastWFootSampling = false;
                 return window.__beastWFootSamples || [];
@@ -448,7 +452,11 @@ def main():
                     "s.human_visual_gait==='run' && "
                     "s.human_sprite_frame % 4 === 3;}",
                     timeout=9000, polling=70)
-                page.wait_for_timeout(1050)
+                page.wait_for_function(
+                    "() => {const s=window.__beastPhysicsDebug; "
+                    "return s && s.player && s.player.grounded && "
+                    "s.player.z < -7.5;}",
+                    timeout=10000, polling=70)
                 more = page.evaluate("""() => {
                     window.__beastWFootSampling = false;
                     return window.__beastWFootSamples || [];
@@ -493,8 +501,40 @@ def main():
                 raise AssertionError(
                     "Jade W foot pivot is NOT on native physical ground: "
                     + str(bad_anchors[:5]))
+            # NEW independent J/K fixture. The long W gait-sampling
+            # experiment must NOT leak a near-edge or airborne player
+            # into the punching test (prior real Chrome z=-13.469 on a
+            # -13m floor). Reset to native grounded spawn, face rear with
+            # a short genuine W motion, then stop before J/K. Never
+            # rewrite physical world position or fake the facing in JS.
+            page.keyboard.up("w")
+            page.keyboard.press("t")
+            page.wait_for_function(
+                "() => {const s=window.__beastPhysicsDebug; "
+                "return s && s.hero_art_approved_enabled && "
+                "s.player && s.player.grounded && "
+                "Math.abs(s.human_physical_ground_clearance_m)<0.25 && "
+                "s.human_visual_gait==='idle';}",
+                timeout=11000, polling=70)
+            canvas.evaluate("""element => {
+                element.setAttribute('tabindex', '0');
+                element.focus();
+            }""")
+            page.keyboard.down("w")
+            page.wait_for_function(
+                "() => {const s=window.__beastPhysicsDebug; "
+                "return s && s.player && s.player.grounded && "
+                "s.player.vz < -0.25 && s.human_sprite_frame % 4 === 3;}",
+                timeout=9000, polling=70)
             page.keyboard.up("w")
             page.wait_for_timeout(140)
+            strike_start = snap(page)
+            if (not strike_start["player"]["grounded"] or
+                    abs(strike_start["human_physical_ground_clearance_m"]) > 0.25 or
+                    strike_start["player"]["z"] <= -7.5):
+                raise AssertionError(
+                    "J/K fixture must start on safe REAL grounded rear-facing terrain: "
+                    + str(strike_start["player"]))
             # While facing rear, J and K must render full illustrated bodies
             # on their physical attack clock. Godot ART-23 verifies alpha,
             # height and planted feet for all 4 directions.
