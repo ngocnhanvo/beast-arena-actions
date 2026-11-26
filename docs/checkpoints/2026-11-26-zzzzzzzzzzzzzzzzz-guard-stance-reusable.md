@@ -22,3 +22,10 @@ Owner requested every fighter keep raised fists in standing, walking and running
 3. Source independent original editable human-fighter Aseprite full-body stance frames with arms up for every idle/walk/run keyframe, including 2 different front-facing W/S loops; satisfy 10 clips and per-frame foot slice. Source audit remains `PENDING_ART` until authentic source and owner signoff. Do NOT silently publish old graphic behavior as fixed.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+## 2026-11-26 — Additional reusable source-profile static preflight
+- Public `ci/check_guard_profiles.py` and `.github/workflows/build.yml` now validate the PRIVATE per-fighter JSON source *before compiling*: four required unique IDs, ten unique guard clip tags with W/S front-facing, minimum frames, each real fighter original reference asset, `PENDING_ART` flag when editable sources absent, and Web PCK `include_filter` containing both `art/fighters/*.json` and `art/export/*.json`. A malformed catalog or missing Web export inclusion must fail even if Editor/Godot alone would run.
+- Public pipeline HEAD `1e0557bc5b2ad57efa6bb596ca8a89d027a540e7` includes this new static guard gate and the mandatory real Godot 4-fighter guard test; associated [GitHub Actions #45791697419](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45791697419) was QUEUED when recorded. Earlier [#45791646913](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45791646913) was running after the JSON-size comparison fix, but without the latest public preflight step. Check final run/job logs, compiled PRIVATE SHA, Pages deploy and exact Chromium separately before claiming PASS.
+- Correctness status is at most `TECHNICAL_PENDING` until both gates pass. Original raised-hand whole-body guard-walk art is still absent for all four fighters; owner review `autocheck:false` has NOT occurred.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
