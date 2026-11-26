@@ -131,3 +131,13 @@ NEXT: source HEAD/run check, improve original human animation and stage art, add
 - Next user-visual acceptance, richer original human poses/props/editor, grab/throw/combos and obstacle-aware team AI; benchmark mobile hardware. Keep root P1.5 separate; do not begin V5 beast art until human map gameplay approved.
 
 **Trạng thái: PARTIAL — chưa hoàn tất**
+
+
+## 2026-11-26 — BUILD REQUEST for original physics-driven human animation slice
+
+- Current last proven human stage was Godot+Pages #45730978934 / Chromium #45731247515 PASS. NEW PRIVATE `character.gd` `f68a706` removes input-driven fake walk frames, now uses true CharacterBody3D XZ velocity to select human original walk (rows 1/2) versus fast run (rows 3/4); actual `facing_xz` keeps combat orientation; attack pose windup/active/retraction follows true 60Hz `BeastAttackData` startup/active/recovery independently of VFX/collision.
+- Private `visual_smoke.gd` `cf81123` asserts actual physics-speed art and precise 60Hz light/heavy pose rows, `demo.gd` `f13b069` exposes debug gait, PUBLIC browser `ci/playwright_physics_v2.py` `0f0d017` checks D-hold real running atlas frames and idle on braking.
+- THIS PUBLIC docs change triggers actual Public Godot+Web+Windows+Pages build after these Private changes. Need review full run log, exact private SHA, all headless tests including original atlas and 2v2; then strict browser E2E and screenshots. **Current change is not yet a proven live build.** Preserve original P1.5 and defer beasts.
+- NEXT: fix real CI trace if new test fails, then inspect Web movement / human animation visual comparison, update both docs/checkpoints and runbook to PASS/FAIL with evidence.
+
+**Trạng thái: PARTIAL — chưa hoàn tất**
