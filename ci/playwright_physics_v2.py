@@ -298,13 +298,52 @@ def main():
             approved_rear = snap(page)
             if (approved_rear.get("human_sprite_frame", -1) % 4 != 3 or
                     approved_rear.get("human_visual_gait") not in ("walk", "run") or
-                    approved_rear.get("hero_atlas_frame_size") != 80):
-                raise AssertionError(
-                    "Approved Jade did not show a genuine back-facing moving pose: "
-                    + str({"frame": approved_rear.get("human_sprite_frame"),
-                           "gait": approved_rear.get("human_visual_gait")}))
+                    approved_rear.get("hero_atlas_frame_size") != 80 or
+                    not approved_rear.get("human_approved_motion_set")):
+                raise AssertionError("W must use original full-body approved Jade: " + str(approved_rear))
             canvas.screenshot(path=str(OUT / "moss-jade-approved-rear-motion.png"))
+            # The old 2-pose cadence made both feet twitch in place. Sample
+            # ACTUAL 3D movement while holding W, not an animation timer.
+            observed_phases = set()
+            stride_begin = approved_rear.get("human_ground_stride_m", 0.0)
+            for _ in range(22):
+                page.wait_for_timeout(65)
+                gait_snapshot = snap(page)
+                if gait_snapshot.get("human_visual_gait") == "run":
+                    if gait_snapshot.get("human_sprite_frame", 0) % 4 != 3:
+                        raise AssertionError("W lost the rear facing during running")
+                    observed_phases.add(gait_snapshot.get("human_gait_phase"))
+            stride_end = snap(page).get("human_ground_stride_m", 0.0)
+            if len(observed_phases) < 4 or stride_end <= stride_begin + 0.9:
+                raise AssertionError(
+                    "W did not alternate four distance-driven foot phases: "
+                    + str({"phases": sorted(observed_phases),
+                           "distance": stride_end - stride_begin}))
+            # While facing rear, J and K must render full illustrated bodies
+            # on their physical attack clock. Godot ART-23 verifies alpha,
+            # height and planted feet for all 4 directions.
+            page.keyboard.press("j")
+            page.wait_for_timeout(55)
+            light_visual = snap(page)
+            if (light_visual.get("human_visual_gait") != "attack" or
+                    light_visual.get("human_sprite_frame", -1) // 4 not in (7, 8)):
+                raise AssertionError("J failed to show complete rear light punch art: " + str(light_visual))
+            canvas.screenshot(path=str(OUT / "moss-jade-approved-W-J.png"))
             page.keyboard.up("w")
+            page.wait_for_timeout(550)  # finish J recovery before K input
+            page.keyboard.press("k")
+            page.wait_for_timeout(55)
+            heavy_visual = snap(page)
+            if (heavy_visual.get("human_visual_gait") != "attack" or
+                    heavy_visual.get("human_sprite_frame", -1) // 4 not in (9, 10)):
+                raise AssertionError("K failed to show complete rear heavy punch art: " + str(heavy_visual))
+            canvas.screenshot(path=str(OUT / "moss-jade-approved-W-K.png"))
+            report["jade_wjk_physics_sprite_regression"] = {
+                "w_unique_run_phases": sorted(observed_phases),
+                "travel_stride_m": round(stride_end - stride_begin, 3),
+                "j_attack_row": light_visual["human_sprite_frame"] // 4,
+                "k_attack_row": heavy_visual["human_sprite_frame"] // 4,
+                "physical_hp_unchanged": heavy_visual.get("combat_hp") == hero_before.get("combat_hp")}
             # This fixture only verifies a TRUE moving rear-facing pose.
             # Do not require instant idle on W release: the real Godot
             # character can coast/slip with slope/gravity and remain
