@@ -671,3 +671,12 @@ User rejected the skating rear-facing animation. Real game W moves up world -Z w
 - All four source/status `PENDING_ART_GUARD_FRAMES` until new original hand-drawn high-guard keyframes exist. Under `autocheck:false`, no visual acceptance loops; owner manually compares hand height, alternation, contact and natural stride against provided reference.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+
+## FINAL 2026-11-26 — four-fighter guard source E2E proof
+
+- Corrected profile JSON parser `pixel_size` int/float variant bug (prior #45790727518 FAIL); exact [Godot/Windows/Web/Pages #45791697419](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45791697419) SUCCESS, PRIVATE compiled `5abb1a1f418e30b28ea5492fce8324d9ae66fc19`, PUBLIC `1e0557bc5b2ad57efa6bb596ca8a89d027a540e7`. Mandatory Python static guard catalog/PCK audit and Godot four-fighter 10-clip native 80px import both PASS; all four source statuses remain PENDING_ART.
+- [Chromium #45792314363](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45792314363) **SUCCESS on same build**: P1.5 two maps dx210px, true Physics V2 climb2.27m/descent2.33m, four guard profiles loaded from deployed Web PCK, W/S front, A+A/D+D, F/G/F+G physical controls. Screenshot artifact #15103546473. Do not replace this exact provenance with older stale E2E results.
+- User `autocheck:false`; full-body raised-guard animation sprites actually still absent, so technical pass != sprite quality; continue at `docs/checkpoints/2026-11-26-zzzzzzzzzzzzzzzzz-guard-stance-reusable.md`.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
