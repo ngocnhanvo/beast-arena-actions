@@ -45,12 +45,12 @@ def make_editable(path: Path, frame_count: int = 4,
                     struct.pack("<HHBH", first, last, 0, 0) + b"\\0"*6 +
                     bytes((25, 158, 150, 0)) + word_string(name))
             parts.append(chunk(0x2018, b"".join(tags_bytes)))
-        color = (20 + 25 * frame, 90 + 20 * frame, 170 - 19 * frame, 255)
+        color = (20 + 25 * (frame % 4), 90 + 20 * (frame % 4), 170 - 19 * (frame % 4), 255)
         rgba = bytearray(80 * 80 * 4)
         for y in range(80):
             for x in range(80):
                 # A distinct full pixel cell per frame, not any Jade source.
-                if 8 + frame <= x < 68 + frame and 8 <= y < 72:
+                if 8 + (frame % 9) <= x < 68 + (frame % 9) and 8 <= y < 72:
                     rgba[(y * 80 + x) * 4:(y * 80 + x + 1) * 4] = bytes(color)
         cel = (struct.pack("<HhhBHh", 0, 0, 0, 255, 2, 0) +
                b"\0"*5 + struct.pack("<HH", 80, 80) +
