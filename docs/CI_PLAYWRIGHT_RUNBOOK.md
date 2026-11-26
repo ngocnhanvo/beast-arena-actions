@@ -806,3 +806,10 @@ User rejected the skating rear-facing animation. Real game W moves up world -Z w
 - Build #45844347100 SUCCESS, PRIVATE compiled 0dd6, Pages OK. Browser #45844648520 must be read before PASS, and strict real A+A/D+D six live phases remain compulsory. No disabling game tests, no alternate URLs.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+## 2026-11-26 15:09 — Slow-WebGL six-run-pose regression and renderer fix
+- Previous Chromium #45844648520 on Pages #45844347100: P1.5 PASS, Physics V2 PASS (climb2.21m/down2.54m), Arcade V2 PASS; Jade D+D strict six-phase check FAIL `rAF=[0,2,3,4,5]` (missing pose1). In-game source genuinely 6×2 native80, velocity6.479m/s, body70px, on floor. Physical-distance-to-frame direct `floor(metres/0.50)` can leap painted body poses under low WebGL FPS; rAF-only collection can also miss a transient frame.
+- Fixed **game** in PRIVATE `animation_intent.gd`+`character.gd`: maintain a displayed sequence phase separately from 60Hz distance, advance no more than one next full-body pose per render tick, reset on direction/gait switch; no motor, map, collision, walk or source sprite changes. `review_run_presented_phase_mask` records actual Sprite3D frame selections. Native simulated distance steps `0,2,5,7,11,14` require displayed phases `0,1,2,3,4,5`; PUBLIC `ci/playwright_jade_three_quarter.py` now asserts 0x3F actually selected both A+A and D+D and still demands rAF observations of all six. No weakened checks.
+- PRIVATE commits 98f495/34a170/56f2d0/092586, PUBLIC test `77c1aa8b1d9c1230e0c14d3986912b17207abf64`; Godot/Web/Windows/Pages #45846134771 triggered. **Check terminal build and subsequent Chromium results** before claiming E2E PASS. Original source PNG and editable Aseprite unchanged; pinned LibreSprite #45837312555 attempt2 PASS. One user URL https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/; autocheck:false owner visuals and full ten-tag art still pending.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
