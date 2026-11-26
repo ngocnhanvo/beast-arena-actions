@@ -1,0 +1,80 @@
+name: Beast Arena - LibreSprite Art Toolchain
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/libresprite-art.yml"
+      - "ci/setup_libresprite.sh"
+      - "ci/libresprite_roundtrip_smoke.py"
+      - "docs/LIBRESPRITE_RUNBOOK.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: beast-arena-libresprite-toolchain
+  cancel-in-progress: false
+
+jobs:
+  install-and-validate:
+    name: Install pinned LibreSprite and round-trip editable source
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - name: Checkout PUBLIC toolchain
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Pillow for test-only pixel fidelity
+        run: python -m pip install "Pillow==11.3.0"
+      - name: Install official pinned LibreSprite 1.3 Linux binary
+        shell: bash
+        run: bash ci/setup_libresprite.sh
+      - name: Batch round-trip synthetic editable layered ASE source
+        run: python ci/libresprite_roundtrip_smoke.py
+      - name: Check PRIVATE game animation source (never upload or print art)
+        env:
+          GAME_READ_TOKEN: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "$GAME_READ_TOKEN" ]]; then
+            echo "::warning::No BEAST_ARENA_READ_TOKEN; toolchain tested but private source not audited."
+            echo "PRIVATE SOURCE: BLOCKED_TOKEN; LibreSprite CLI test still ran." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          echo "::add-mask::$GAME_READ_TOKEN"
+          git -c credential.helper= clone -q --depth 1 \
+            "https://x-access-token:${GAME_READ_TOKEN}@github.com/ngocnhanvo/beast-arena.git" \
+            "$RUNNER_TEMP/beast-game"
+          # No ZIP/artifacts/screenshots of PRIVATE source may be uploaded.
+          cd "$RUNNER_TEMP/beast-game"
+          python3 tools/animation_source_audit.py --json-output "$RUNNER_TEMP/animation_source_audit.json"
+          echo "PRIVATE SOURCE SHA: $(git rev-parse HEAD)"
+          set +e
+          python3 tools/libresprite_export.py --fighter jade_human --binary libresprite \
+            --output-dir "$RUNNER_TEMP/private-guard-review"
+          RESULT=$?
+          set -e
+          case "$RESULT" in
+            0)
+              echo "PRIVATE EDITABLE SOURCE: STRUCTURE_READY_OWNER_REVIEW_PENDING; no public artifacts." >> "$GITHUB_STEP_SUMMARY"
+              ;;
+            2)
+              echo "PRIVATE EDITABLE SOURCE: PENDING_ART; no valid 10-clip source/foot sidecar; no fake files generated." >> "$GITHUB_STEP_SUMMARY"
+              ;;
+            *)
+              echo "::error::A real private editable animation exists but LibreSprite failed to export it."
+              exit 1
+              ;;
+          esac
+      - name: Summary
+        if: always()
+        run: |
+          echo "Art toolchain tests only check exporter/metadata correctness." >> "$GITHUB_STEP_SUMMARY"
+          echo "Owner visual acceptance stays manual (autocheck=false)." >> "$GITHUB_STEP_SUMMARY"
