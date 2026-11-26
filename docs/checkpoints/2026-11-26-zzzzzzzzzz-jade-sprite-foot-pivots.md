@@ -54,3 +54,12 @@
 - This latest source and W/J/K *VISUAL* gate are **not yet verified on a NEW deployed Web build**. Must trigger next PUBLIC CI with exact PRIVATE SHA, inspect actual Godot PRES-15, Pages and Chrome PNGs and only then assert visual improvement. Owner has not accepted final artwork or whole roadmap.
 
 **Trạng thái: PARTIAL — chưa hoàn tất**
+
+
+## BOTH foot and walkable-floor visual gates now PASS — source data-driven follow-up (2026-11-26)
+- Actual PUBLIC build [#45761478440](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45761478440) SUCCESS on PRIVATE `a066c55138ab1640fdc02fc45954f85d2fb003d8`, PUBLIC `5e44ab5146a40130c26ef202c574f4316fe43801`: Godot ART-25, PRES-15, full original physics/combat, Web+Windows and Pages PASS.
+- REAL Chromium [#45761680082](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45761680082) SUCCESS with strict expected build/pipeline, artifact [15090520425](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45761680082/artifacts/15090520425). Downloaded and inspected `moss-jade-approved-W-J.png` and `-W-K.png`. `result.json.status=PASS`, `jade_wjk_physics_sprite_regression={walkable_grass_visible_j:0.936,walkable_grass_visible_k:0.936,w_unique_run_phases:[0,1,2,3],travel_stride_m:8.47,grounded_samples:33,foot_anchor_max_error_px:0.0,j_attack_row:8,k_attack_row:9,physical_hp_unchanged:true}`; Moss climb2.231m, Docks descent2.37m, P1.5 smoke also PASS. Actual side-by-side screenshot `/mnt/data/beast-arena-jade-wjk-ground-before-after.png` locally verified.
+- **Latest PRIVATE new source since this PASS:** `fac487fd99d3ab0452e297243c7ef2b2e7007213` adds resource metadata `BeastPhysicsMap.floor_texture_walkable_start_y_px` and records 64 in Moss / 80 in Docks .tres; `pixel_view.gd` now reads the map Inspector data rather than hardcoded map names, and `pixel_projection_smoke.gd` adds strict PRES-16 dynamic metadata acceptance. This addresses the owner's recurring concern that every new sprite/map requires brittle hardcoded logic.
+- **This PUBLIC checkpoint push intentionally triggers a FRESH Godot+Pages+Chromium pipeline to validate latest PRIVATE exact SHA `fac487fd99d3ab0452e297243c7ef2b2e7007213`. Do not call that new data-driven map release PASS until run IDs/logs and screenshots are observed.** The previous fixed screenshots remain genuinely PASS on earlier source. Original source PNG/user style unchanged; all other long-term animation editor authoring and user aesthetic approval still OPEN.
+
+**Trạng thái: PARTIAL — chưa hoàn tất**
