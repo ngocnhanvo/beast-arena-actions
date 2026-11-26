@@ -104,6 +104,8 @@ jobs:
           if [[ "$STATUS" == "PENDING_ART" ]]; then
             echo "::warning::Jade full-body authored animation source is missing. Godot build PASS cannot close the visual defect."
           fi
+      - name: Audit four reusable fighter guard profiles and Web PCK asset inclusion
+        run: python3 pipeline/ci/check_guard_profiles.py game
       - name: Record source commit (SHA only)
         id: source-sha
         shell: bash
