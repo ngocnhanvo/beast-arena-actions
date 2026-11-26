@@ -40,3 +40,10 @@ Owner explicitly REJECTED current Jade run as very poor after artificial hand/fo
 - Next: author actual six+ full-body 80px Jade run frames in editable source, Aseprite tag JSON/slice export, strict gate, native Godot SpriteFrames data/pose bridge for both rendering paths, then owner visual test. Full roadmap open.
 
 **Trạng thái: PARTIAL — chưa hoàn tất** (tech CI/Pages PASS, art authoring BLOCKED, owner graphics FAIL).
+
+## 2026-11-26 — Technical Chromium J snapshot boundary, NOT art approval
+- Real [Chromium #45773861575](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45773861575) **FAIL**: P1.5 genuinely passed dx213.5, but later Physics V2 script pressed J momentarily, slept fixed 180ms, observed `human_visual_gait='attack'`, sprite index30 (light punch row7), `human_attack_frame=0`. This is a timing-sensitive mismatch between debug/render and 60Hz simulation snapshots; it does **not** by itself demonstrate that the player never attacked, nor that animation visually improved. Preserve this failure history.
+- Public `ci/playwright_physics_v2.py` [commit `a7df35a34d39bd3da40c5ce7f5417d8eca9263aa`](https://github.com/ngocnhanvo/beast-arena-actions/commit/a7df35a34d39bd3da40c5ce7f5417d8eca9263aa) changes this ONE technical fixture: focus real canvas, hold one real J keydown, poll Godot's authoritative attack_frame>0 and actual row7/8, capture that state synchronously in the page, release in finally. **No fake gameplay state, retries to force PASS, new graphics, or physics edits**. Normal Public build [#45774607358](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45774607358) was still pending when recorded; new Chromium run not verified, so DO NOT claim new E2E PASS.
+- This further motivates V2: deterministic one-place AnimationPose resolved from simulation state and fed consistently to native Sprite3D and PixelView, instead of independent row/clock sampling. The core ART BLOCKER remains zero authored editable full-body clips and owner's explicit visual FAIL; `autocheck:false` manual visual review still applies.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
