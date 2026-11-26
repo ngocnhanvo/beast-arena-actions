@@ -32,3 +32,15 @@
 **Required result of this PUBLIC push-triggered CI:** actual Godot import, PRES-13/PRES-14, original 80f art and physics/2v2 tests PASS; Web+Windows export+Pages; automatic Chromium checking source+build SHA and actual PNGs. Record run IDs/screenshots after completion. If blocked/fail, inspect full job log then fix before claiming PASS.
 
 **Trạng thái: PARTIAL — chưa hoàn tất**
+
+
+## 2026-11-26 — Verified after PRES-13 recovery: 64px humans + anchored ground art on real Chromium
+
+- **Exact PRIVATE compiled game:** `7a661ab099cca2b13753614bb456d8413c9d2ffb`; **PUBLIC pipeline:** `100b417a41c42028853506e79cac036604c86db8`.
+- [Actual Godot 4.7.2, Web + Windows export, Pages #45745650475](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45745650475) **SUCCESS**: `PRES-13` reverified with Moss 66/Docks 78 world-space floor anchors after 3.0m authored spacing, `PRES-14` requires 64px pixel-view fighter cell; original 60Hz combat, V4 chains/guard, two real 3D ramps and P1.5 regression still pass.
+- [Actual published Chromium #45745833887](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45745833887) **SUCCESS**, strict linked build/source. Parsed `physics-v2/result.json` **PASS**: Moss visible 32 original ground details / 468 floor strips, Docks visible 30 / 576; physically uphill +2.19m and downhill -2.50m; F6 Jade Scarf real pixel screenshot comparison `changed_visible_pixels=10894` with same HP/map, true G guard snapshot PASS.
+- [Screenshots artifact ID 15082749502](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45745833887/artifacts/15082749502) downloaded; directly inspected actual `moss-jade-scarf-concept.png`: sprite visibly larger/clearer, ground has new small moss tuft/stone accents on actual slope and plains without changing far horizontal skyline or collider silhouettes. User's visual art approval is still **OPEN**; this proves rendered feature not final aesthetic quality.
+- First failed run #45745395296 `PRES-13` Moss 57 anchors <60 remains documented; subsequent fix `84a6bd89` not weakened acceptance and full browser pass is proof.
+- **New independent SOURCE still UNVERIFIED:** later `jade_concept_atlas.gd` original painted image-generated 80-cell draft and `P` compare mode currently undergoing its OWN strict CI from PRIVATE later HEAD (do not attribute it to #45745833887). Next verify new source, P-mode headless decode and Chromium screenshot before claiming high-detail sprite mode delivered.
+
+**Trạng thái: PARTIAL — chưa hoàn tất**
