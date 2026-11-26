@@ -560,3 +560,12 @@ For this native-80px Jade artwork revision, user is the visual signoff gate, NOT
 ## 2026-11-26 — user-facing W and S MUST use same front sprite
 
 User rejected the skating rear-facing animation. Real game W moves up world -Z with physical combat facing unchanged, but chooses front sprite column0, identical to S/down at the same gait phase. The approved native 80px atlas now composites alternating shoe/leg poses from original right/left contact artwork. ART-27 covers four distinct shoe bands and front face preservation; Public Playwright `ci/playwright_physics_v2.py` requires physically grounded -Z stride with visible front-facing sprite (`%4==0`), not stale back-facing 3. The browser screenshot name is now `moss-jade-approved-up-front-motion.png`. Existing strict technical CI can compile/publish; `autocheck:false` explicitly reserves artistic acceptance for owner visual check, no self-directed screenshot style loops or automatic aesthetic PASS. Preserve build vs Pages vs Chromium and owner verdict separately.
+
+
+## 2026-11-26 — exact Web evidence for W front-facing while physically moving -Z
+
+- Source `96274aff...`, public `daaae873...`; Godot/Pages #45768105863 PASS, real Chromium #45768366561 PASS with expected source+build IDs, P1.5 dx220.5 and PhysV2 climb2.15m/descent2.37m. Browser screenshot artifact #15092424367 created. Older browser #45768153673 checked older pipeline/build; do not conflate.
+- Physical W/up stays -Z but visual sprite facing0; S/down shares facing0. ART-27 checks four native source shoe-strip phases and preserves front face. Technical browser success is not owner artistic review.
+- Owner explicitly set `autocheck:false`; do not self-loop stylistic screenshot acceptance. Await manual animation review and produce proper 80px authored frames if current native compositing still slides.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**

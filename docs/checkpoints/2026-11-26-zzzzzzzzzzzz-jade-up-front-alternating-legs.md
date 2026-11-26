@@ -22,3 +22,12 @@ Prior successful Pages [#45766825513](https://github.com/ngocnhanvo/beast-arena-
 - Owner preview: https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/?pixel=1&art=approved . W up and S down must both show front face and foot phases; test at own pace.
 
 **Trạng thái: PARTIAL — chưa hoàn tất (technical Pages PASS; owner art approval pending).**
+
+## 2026-11-26 — Latest actual Chromium result for front-facing W
+- Exact PRIVATE compiled `96274aff26ad0e433709f6d1b25e7283664f7682`, PUBLIC pipeline `daaae873bccce6cf950df12adee10b87b447b84e`.
+- [Godot/Windows/Web/Pages #45768105863](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45768105863) **SUCCESS**: preflight, import/test/export, Pages deploy all completed.
+- [Actual Chromium #45768366561](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45768366561) **SUCCESS**, expected pipeline `daaae873...` and expected build run ID `45768105863` shown in job log. P1.5 browser dx 220.5px PASS; Physics V2 native uphill2.15m, downhill2.37m, angles >=10deg, horizontal dx9.83m PASS. [Screenshot artifact #15092424367](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45768366561/artifacts/15092424367) produced. Earlier Chromium #45768153673 also succeeded but used previous pipeline `ac640f...` and build #45767939805, so prefer newest exact pair.
+- Browser asserts real W velocity -Z on ground with visual front-facing index0, four rendered shoe phases and unaffected physical combat; **technical PASS != appearance approved**. `autocheck: false`: no extra style-review automation, manual user signoff required. Original user screenshot of back-facing skating is obsolete for this new build, but current gait naturalness is still unverified by owner.
+- Next: owner opens https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/?pixel=1&art=approved and checks W/S front facing, alternation of stepping, side A/D, Space/J/K and F5. If unacceptable, replace temporary composites with native 80px individually authored, editable animation source.
+
+**Trạng thái: PARTIAL — chưa hoàn tất (technical build/browser complete, owner art signoff and full roadmap open).**
