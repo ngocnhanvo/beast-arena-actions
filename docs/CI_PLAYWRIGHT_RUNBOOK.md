@@ -651,3 +651,13 @@ User rejected the skating rear-facing animation. Real game W moves up world -Z w
 - Exact build [#45785263338](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45785263338) SUCCESS, compiled PRIVATE `d6ae5c26...` with PUBLIC `1142c019...`. Actual browser [#45785507440](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45785507440) must be read for verdict. Source code and runbook checkpoint `docs/checkpoints/2026-11-26-zzzzzzzzzzzzzzzz-jade-verified-direction-cells.md`.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+
+## 2026-11-26 — Browser chord snapshot can miss an actual 60Hz jump; keep strict persistent physics gate
+
+- Technical source correction (actual mixed-direction Jade PNG): [new Build+Pages #45785263338](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45785263338) PASS, but its [browser #45785507440](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45785507440) FAIL after REAL P1.5 dx217px and Physics V2 climb2.15m/descent2.46m/dx11.91m passed. Failure occurs ONLY in opt-in Arcade V2 F+G test; fixture demanded simultaneously `jump_events > before`, momentary `vy > 0`, no attack and `animation_clip_intent == jump_front`, then timed out. That snapshot alone does not prove physics never jumped; it may have missed airborne interval or input chord. No unverified attribution to the atlas fix.
+- PUBLIC Playwright `ci/playwright_arcade_v2.py` [`badde0f3bec9b1c5bcf7fecd35d9a4ca88664e61`](https://github.com/ngocnhanvo/beast-arena-actions/commit/badde0f3bec9b1c5bcf7fecd35d9a4ca88664e61) now requires actual persistent authoritative `jump_events` increment and empty attack id; keeps real Chromium F/G keydown, always keyup in finally, prints complete Godot debug state on failure. No JS injection of gameplay, fake animation or retries to force PASS. This is a technical test fix only; not aesthetic auto review (`autocheck:false`).
+- Exact second [Godot/Web/Windows/Pages #45786335073](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45786335073) PASS (PRIVATE checkout `d89ec256a0559bd5d606505470e1d0602d947d50`, PUBLIC pipeline `badde0f3bec9b1c5bcf7fecd35d9a4ca88664e61`; code SHA `d6ae5c26...`). New real browser [#45786635605](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45786635605) IN PROGRESS at writing; inspect outcome before claiming exact E2E PASS.
+- ALWAYS retain owner art status `PENDING_ART`: W/S front whole-body idle placeholder, A/D only two genuine side walk poses and two side run poses each. Full 10 independent 80px animation source still missing.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
