@@ -85,6 +85,7 @@ def main() -> None:
                str(source), "--sheet", str(sheet), "--data", str(meta),
                "--format", "json-array"]
         process = subprocess.run(cmd, env=env, capture_output=True, text=True,
+                                 encoding="utf-8", errors="replace",
                                  timeout=100, check=False)
         if process.returncode != 0:
             raise RuntimeError("LibreSprite round-trip CLI failed: " +
