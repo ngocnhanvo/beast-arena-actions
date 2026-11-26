@@ -586,3 +586,12 @@ User rejected the skating rear-facing animation. Real game W moves up world -Z w
 - Owner autonomy: `autocheck:false`. Existing Chromium E2E checks engine functionality, not taste. Owner inspects real native 80px arm/leg counter-swing manually after publication; no art approval recorded.
 
 **Trạng thái: PARTIAL — chưa hoàn tất** (new browser verdict and owner art approval pending).
+
+## FINAL scoped technical verification 2026-11-26 — real Godot/Pages/Chromium PASS
+- EXACT PRIVATE built source `32b514546e6d2dec8d20381bd0cdcc204d1ce6f0`, PUBLIC pipeline and real browser test `5c68ec7c1d16996a526b7d49d18fb3e6b75f53ad`. Later commits are docs-only and do not affect compiled game.
+- [Build/Web/Windows/GitHub Pages #45770958180](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45770958180) **SUCCESS**: full Godot import/tests, ART-28 four source-native opposing arm poses independently for left/right and unchanged face, ART-29 four slow-walk phases, anchored shoes, exports and real Pages deploy.
+- [EXACT real Chromium #45771214382](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45771214382) **SUCCESS**, expected pipeline `5c68ec7...` and expected build run `45770958180`. Browser P1.5 dx213.5px PASS, V2 physical ramp climb2.15m, descent2.43m, contact angles >=10deg, real dx12.55m PASS. J/K now confirmed via real focused Chromium held keydown + authoritative attack state. [Screenshot artifact #15094660972](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45771214382/artifacts/15094660972) exists.
+- Preserve real earlier Chromium #45770517662 **FAIL** after 55ms J press/late snapshot returned idle; no proof of broken combat. PUBLIC `5c68ec7` corrected test real keydown/state acquisition with no game physics/combat/art changes. New exact browser pass supersedes old technical failure for that fixture, NOT the manual artistic check.
+- **USER `autocheck: false`**: no autonomous appearance approval. Owner must play https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/?pixel=1&art=approved and decide if the 80px left/right arm swing counter to shoe contacts looks natural W/S and if F5 views remain clean. This remains a native-pixel compositing preview, not authentic full hand-authored four-way Aseprite animation. Overall game roadmap remains open.
+
+**Trạng thái: PARTIAL — chưa hoàn tất** (technical build/E2E PASS; owner graphic signoff + full roadmap not completed).
