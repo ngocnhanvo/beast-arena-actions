@@ -249,6 +249,17 @@ def main():
                 page.wait_for_function(
                     "() => window.__beastPhysicsDebug?.review_preview_frame > 0",
                     timeout=3000, polling=45)
+                # Read actual LIVE rendered pose-cycle, not just one
+                # frame index or six pixel-different stored cels. Every
+                # 6-frame phase must appear on real D+D world movement.
+                right_phases = []
+                for phase in range(6):
+                    page.wait_for_function(
+                        "(n) => window.__beastPhysicsDebug?.review_run_active "
+                        "=== true && window.__beastPhysicsDebug?."
+                        "review_preview_frame === n",
+                        arg=phase, timeout=2000, polling=25)
+                    right_phases.append(phase)
                 run_state = state(page)
                 # Six NEW owner-designed whole-body right-facing source
                 # cels in 480x160; never the old mixed legacy 4x20 atlas.
@@ -294,6 +305,14 @@ def main():
                 page.wait_for_function(
                     "() => window.__beastPhysicsDebug?.review_preview_frame > 0",
                     timeout=3000, polling=45)
+                left_phases = []
+                for phase in range(6):
+                    page.wait_for_function(
+                        "(n) => window.__beastPhysicsDebug?.review_run_active "
+                        "=== true && window.__beastPhysicsDebug?."
+                        "review_preview_frame === n",
+                        arg=phase, timeout=2000, polling=25)
+                    left_phases.append(phase)
                 left_run = state(page)
                 left_idx = int(left_run.get("review_run_source_frame", -1))
                 if left_idx != int(left_run.get("human_sprite_frame", -1)):
@@ -325,12 +344,14 @@ def main():
                     "source_status": run_state["review_run_art_status"],
                     "source_frame": run_state["review_run_source_frame"],
                     "source_pose_count": run_state["review_run_source_pose_count"],
+                    "observed_live_phases": right_phases,
                     "source_action": run_state["review_preview_action"],
                 },
                 "left_run_preview": {
                     "frame": left_run["review_preview_frame"],
                     "source_frame": left_run["review_run_source_frame"],
                     "pose_count": left_run["review_run_source_pose_count"],
+                    "observed_live_phases": left_phases,
                     "velocity_x": left_run["player"]["vx"],
                     "source_action": left_run["review_preview_action"],
                 },
