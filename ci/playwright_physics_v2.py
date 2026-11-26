@@ -289,23 +289,19 @@ def main():
                 "active": True, "atlas_cell_px": 80,
                 "visible_changed_pixels": approved_pixel_difference,
                 "physical_hp_unchanged": True, "physical_map_unchanged": True}
-            # The old APPROVED PNG repeated one rear standing image for
-            # walk/run and even KO. Make W traverse the true physical Z
-            # axis and prove the actual Canvas uses a back-direction frame.
-            # More precise per-cell pose uniqueness is enforced in ART-22.
-            page.keyboard.down("w")
-            page.wait_for_timeout(450)
-            approved_rear = snap(page)
-            if (approved_rear.get("human_sprite_frame", -1) % 4 != 3 or
-                    approved_rear.get("human_visual_gait") not in ("walk", "run") or
-                    approved_rear.get("hero_atlas_frame_size") != 80 or
-                    not approved_rear.get("human_approved_motion_set")):
-                raise AssertionError("W must use original full-body approved Jade: " + str(approved_rear))
-            canvas.screenshot(path=str(OUT / "moss-jade-approved-rear-motion.png"))
-            # Capture every rendered GAME frame INSIDE Chromium during a
-            # short W stride, instead of 22 expensive Python↔browser polling
-            # round trips. The previous test accidentally held W until the
-            # player ran off the near 3D stage, reporting only airborne poses.
+            # Isolate the original WJK art test on a REAL grounded stage.
+            # Previous attempts sampled W after unrelated movement and
+            # accumulated 0 grounded frames on the native motor. Never
+            # replace real-contact proof with an input-only screenshot.
+            page.keyboard.press("t")
+            page.wait_for_function(
+                "() => {const s=window.__beastPhysicsDebug; "
+                "return s && s.hero_art_approved_enabled && s.player && "
+                "s.player.grounded && "
+                "Math.abs(s.human_physical_ground_clearance_m) < 0.25;}",
+                timeout=8000, polling=70)
+            # Start sampling BEFORE pressing W, and collect actual Godot
+            # frame telemetry in Chromium, not a delayed Python round-trip.
             page.evaluate("""() => {
                 window.__beastWFootSamples = [];
                 window.__beastWFootSampling = true;
@@ -317,7 +313,11 @@ def main():
                             row: Math.floor(s.human_sprite_frame / 4),
                             facing: s.human_sprite_frame % 4,
                             gait: s.human_visual_gait,
-                            stride: s.human_ground_stride_m
+                            stride: s.human_ground_stride_m,
+                            grounded: s.player.grounded,
+                            clearance_m: s.human_physical_ground_clearance_m,
+                            pad: s.human_sprite_foot_padding_px,
+                            offset_y: s.human_sprite_offset_y
                         });
                     }
                     if (window.__beastWFootSampling &&
@@ -326,12 +326,24 @@ def main():
                 }
                 requestAnimationFrame(sample);
             }""")
-            page.wait_for_timeout(850)
+            page.keyboard.down("w")
+            page.wait_for_timeout(450)
+            approved_rear = snap(page)
+            if (approved_rear.get("human_sprite_frame", -1) % 4 != 3 or
+                    approved_rear.get("human_visual_gait") not in ("walk", "run") or
+                    approved_rear.get("hero_atlas_frame_size") != 80 or
+                    not approved_rear.get("human_approved_motion_set")):
+                raise AssertionError("W must use original full-body approved Jade: " + str(approved_rear))
+            canvas.screenshot(path=str(OUT / "moss-jade-approved-rear-motion.png"))
+            # Enough real-world travel to span all four foot phases,
+            # while avoiding the invalid run-off-the-stage fixture.
+            page.wait_for_timeout(550)
             gait_samples = page.evaluate("""() => {
                 window.__beastWFootSampling = false;
                 return window.__beastWFootSamples || [];
             }""")
-            grounded_samples = [item for item in gait_samples if item.get("gait") == "run"]
+            grounded_samples = [item for item in gait_samples
+                                if item.get("gait") == "run" and item.get("grounded")]
             observed_phases = {item.get("phase") for item in grounded_samples}
             if any(item.get("facing") != 3 for item in grounded_samples):
                 raise AssertionError("W lost rear facing while running")
@@ -342,7 +354,18 @@ def main():
                     "W did not alternate four distance-driven foot phases: "
                     + str({"phases": sorted(observed_phases),
                            "grounded_samples": len(grounded_samples),
-                           "distance": stride_end - stride_begin}))
+                           "distance": stride_end - stride_begin,
+                           "last_state": snap(page).get("player")}))
+            bad_anchors = [x for x in grounded_samples
+                           if abs(float(x.get("offset_y", 99))
+                                  + float(x.get("pad", 99))) > 0.1
+                           or abs(float(x.get("clearance_m", 99))) > 0.25]
+            if bad_anchors:
+                raise AssertionError(
+                    "Jade W foot pivot is NOT on native physical ground: "
+                    + str(bad_anchors[:5]))
+            page.keyboard.up("w")
+            page.wait_for_timeout(140)
             # While facing rear, J and K must render full illustrated bodies
             # on their physical attack clock. Godot ART-23 verifies alpha,
             # height and planted feet for all 4 directions.
@@ -353,7 +376,6 @@ def main():
                     light_visual.get("human_sprite_frame", -1) // 4 not in (7, 8)):
                 raise AssertionError("J failed to show complete rear light punch art: " + str(light_visual))
             canvas.screenshot(path=str(OUT / "moss-jade-approved-W-J.png"))
-            page.keyboard.up("w")
             page.wait_for_timeout(550)  # finish J recovery before K input
             page.keyboard.press("k")
             page.wait_for_timeout(55)
@@ -365,6 +387,10 @@ def main():
             report["jade_wjk_physics_sprite_regression"] = {
                 "w_unique_run_phases": sorted(observed_phases),
                 "travel_stride_m": round(stride_end - stride_begin, 3),
+                "grounded_samples": len(grounded_samples),
+                "foot_anchor_max_error_px": round(max(
+                    (abs(float(x["offset_y"]) + float(x["pad"]))
+                     for x in grounded_samples), default=0.0), 3),
                 "j_attack_row": light_visual["human_sprite_frame"] // 4,
                 "k_attack_row": heavy_visual["human_sprite_frame"] // 4,
                 "physical_hp_unchanged": heavy_visual.get("combat_hp") == hero_before.get("combat_hp")}
