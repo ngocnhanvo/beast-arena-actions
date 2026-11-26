@@ -772,3 +772,11 @@ User rejected the skating rear-facing animation. Real game W moves up world -Z w
 - Need next: author original editable fully posed Jade idle ≥4, run_left/run_right ≥8 each, punch ≥4 and kick ≥5; per-frame guard/scarf/foot pivots; enable the existing generic profile importer; run strict LibreSprite source audit and actual Web E2E before owner acceptance. Never crop/shift limbs to synthesize them.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+## 2026-11-26 — Six native original running body cells instead of W/S short-shuffle
+
+- The owner supplied 6-frame running reference and explicitly requested integration into source/game, NOT outputting image. Direct inspection of the actual original Jade RGBA 4×20 atlas found 6 existing full-body running cells per side at native 80px, rows 1,3,4,5,19,2, col LEFT1/RIGHT2. No composing hands/legs or falsifying source authorship.
+- Actor `run_review` sourced from per-fighter manifest has six unique native originals each direction, size normalization 70px, per-frame shoe pivot and 0.50m/frame at real 6.51m/s. Walk W/S/A/D/diagonal unchanged. Native CI #45827898517 PASS source hashes and exports. Initial build #45827624972 failed only a TEST API mismatch, correctly repaired.
+- Playwright now requires BOTH A+A / D+D native run frames, actually moving at sprint speed, source orientation and screenshots on SAME `/physics-v2/` URL; final #45828107215/#45828220564 pending terminal proof. Final strict eight-frame run library separately PENDING_ART; owner autocheck:false decides visuals.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
