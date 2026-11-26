@@ -31,9 +31,10 @@ jobs:
           python -m pip install "playwright==1.56.0" "Pillow==11.3.0"
           python -m playwright install --with-deps chromium
       - name: Capture actual WebGL Jade run motion
-        env:
-          EXPECTED_GAME_SOURCE_SHA: efe38067a00c9ff76d313f462062b5120ce8576d
-          EXPECTED_BUILD_RUN_ID: '45862343065'
+        # Diagnose the CURRENT canonical Pages build. The public pipeline
+        # can rebuild unmodified art from a newer PRIVATE docs-only SHA;
+        # recording source_sha and build_run_id in report is more trustworthy
+        # than pinning an old docs-only commit.
         run: python ci/playwright_jade_motion_diagnostic.py
       - name: Upload actual canvas frame and video evidence
         if: always()
