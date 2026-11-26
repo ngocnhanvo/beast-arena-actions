@@ -99,3 +99,14 @@ NEXT: source HEAD/run check, improve original human animation and stage art, add
 - **Not complete:** visual user signoff and original fighter animation polishing, map/foreground variety, advanced combo/grab/throw and obstacle-aware AI, robust editor, mobile performance, P1.5 root migration and V5 original beast transformation remain. Use private matching checkpoint as authoritative; do not trigger beast early.
 
 **Trạng thái: PARTIAL — chưa hoàn tất**
+
+
+## 2026-11-26 — Fix scheduled-cache browser false FAIL; stronger live cyan shield screenshot proof
+
+- **Evidence:** Scheduled public CI #45728104476 SUCCESS but its `Publish Web game to GitHub Pages (PUBLIC)` job SKIPPED (source+Pages successful cache hit). Follow-up browser #45728174303 FAIL after P1.5 PASS, with exact `STALE_PAGES: loaded PCK run 45694618558 instead of triggering build 45728104476`. This was a false E2E deployment assumption, not a gameplay regression; unchanged PCK was not redeployed and cannot carry new run ID.
+- **Fix:** `.github/workflows/web-e2e.yml` commit `7dadcfd01c4630d3bbf3166398d15142e368b726`: new `publication-gate` queries GitHub run jobs under read-only `actions:read`; only release E2E when the exact triggering Pages job concluded SUCCESS. If Pages is SKIPPED, downstream `browser-smoke` job is SKIPPED with notice. Missing/failed job status causes gate FAILURE rather than silently asserting PASS. Direct manual browser dispatch stays supported. Existing exact pipeline-SHA/build-run-ID test remains STRICT for real deployments.
+- **Verified LIVE success branch:** GitHub build+Pages #45729838736 SUCCESS; new downstream browser #45730089391 SUCCESS. `publication-gate` job log explicitly shows `Pages deployed by triggering run 45729838736`; no test bypass on actual deploy. **Skipped branch NOT YET directly verified**; next scheduled no-change run is its required gate.
+- **Pixel art visual QA upgrade:** PRIVATE source `f94dbe484068ad891b1620e306ecc6193d1e1a00` extends truly blocked-hit cyan shield artwork to 0.55s (normal amber contact 0.20s), original brighter shield border/spokes, and a new active-cyan-only diagnostics counter. Godot import/tests, export and Pages #45730152150 SUCCESS, PUBLIC `ci/playwright_physics_v2.py` commit `b62c92265db0fd62afe558d51d96feab4cf32a27` requires at least 40 cyan-looking pixels in actual PNG `moss-cyan-guard-contact.png` while real blocking happens; prior screenshot did NOT actually capture color despite counters.
+- **Next:** inspect Chromium #45730411190; check `physics-v2/result.json` and PNG itself, repair from real screenshot/log if FAIL. Do NOT claim cyan art screenshot PASS merely because guard event counter >0 or prior browser PASS. Update private matching checkpoint. This is still visual-first Nekketsu-like original asset prototype, root P1.5 unchanged, V5 not started.
+
+**Trạng thái: PARTIAL — chưa hoàn tất**
