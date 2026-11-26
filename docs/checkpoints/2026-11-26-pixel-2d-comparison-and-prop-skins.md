@@ -151,3 +151,15 @@ NEXT: source HEAD/run check, improve original human animation and stage art, add
 - Other milestones still open: human frame art quality, map foreground/scene editor, physical grab/throw/combos, obstacle navigation, performance and user approval; V5 beast deferred.
 
 **Trạng thái: PARTIAL — chưa hoàn tất**
+
+
+## 2026-11-26 — 64 distinct human poses and physics-speed animation verified in real Web
+
+- EXACT PRIVATE game source built `191842e4948d6f0a5a864a4c2c5815b240b2fd03`; PUBLIC pipeline `156e6d86c2fa7914ef5224dca77e437e73a3dbac`. Godot+Web+Windows+Pages [#45734392214](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45734392214) **SUCCESS** incl. four imported 80-cell original human SVG atlases, 64 changed jump/knockdown/getup/KO cells and strict `visual_smoke.gd` pose geometry gate plus real 60Hz combat, physics, slope, maps, AI, guard/round tests.
+- Real Chromium [#45734623244](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45734623244) **SUCCESS**, actual ZIP screenshots + JSON downloaded and inspected: `status=PASS`, `physics_driven_run_art_pass=true` (actual physical vx≈4.2, original running row3), `original_human_jump_pose_pass=true` (row5 at physically airborne Y=0.855m), both Moss 468 and Docks 576 floor spans with 4 fighters, 2v2 hit/HP/AI, fixed camera, T reset and P1.5 legacy route all PASS.
+- Test-timing repairs based on actual FAIL: first #45732537827/#45732600754 `ART-10` tried to verify gait before spawned body had landed, private test `82b94b` waits actual Godot contact. Browser #45733022775 prematurely demanded idle at fixed 250ms while real motor retained inertia; script `1198ce3` waits for both true speed<0.20 and displayed idle. Later Chrome pass verifies.
+- Intermittent #45733685336 and #45734022726 `visible_cyan_pixels=0` were screenshot timing (0.55-second spark had expired), despite real front blocks and HP. Private capture opt-in `?e2e=1&capture_guard=1` holds only the artwork frame of a genuinely resolved block, keeping combat independent and normal playing duration intact; Godot unit tests verify opt-in semantics. Chrome #45734623244 screenshot now **1501 vivid cyan pixels**, true front block=1, HP=97. Real game without `capture_guard` retains natural VFX duration.
+- **UNVERIFIED NEXT visual evidence:** PUBLIC `ci/playwright_physics_v2.py` `a8f49cc` adds *actual F5 horizontal 2D running screenshot* `moss-running-horizontal-pixel-2d.png` after observing older screenshot `moss-running-real-speed.png` was taken in intentionally oblique 3D comparison mode. Public build #45735133772 was running when documented. Confirm Godot+Pages+Chromium and inspect original 2D snapshot before marking screenshot PASS. Keep root P1.5 unchanged.
+- User art quality acceptance still OPEN; human grab/throw/combos, editor foreground, obstacle AI, mobile FPS and V5 beast transformation still pending. `PARTIAL` not full game completion.
+
+**Trạng thái: PARTIAL — chưa hoàn tất**
