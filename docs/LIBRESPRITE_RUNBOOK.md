@@ -55,3 +55,11 @@ python3 tools/libresprite_export.py --fighter jade_human \
 - [#45797269317](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45797269317) **SUCCESS**, same tests with secure private `actions/checkout` rather than PAT in git command, PRIVATE SHA `fda05cf6698338ab7ecbee2bcdf23ff6b2bc01d7`; true SOURCE status `PENDING_ART`. Later PRIVATE manifest/old exporter synchronization commits need new exact source verification after this run.
 
 **Trạng thái: PARTIAL — chưa hoàn tất** (LibreSprite CLI and 58-frame code pipeline PASS; authentic 10-clip guard artwork, private committed ASE and owner aesthetic approval not done).
+
+## 2026-11-26 — Jade user-designed six-pose running candidate (not full final art)
+
+The owner requested replacing the visibly incorrect old mixed 4×20 run with the newly designed six whole-body Jade poses *inside the canonical game*. PRIVATE `art/drafts/jade_run_owner_six_12.png` is a native transparent 6×2 atlas, right=frames 0..5, left=6..11 mirrored as **whole body**. Its editable sources are `jade_run_owner_six_right.aseprite`, `jade_run_owner_six_left.aseprite`, matching single-row PNGs and `.foot.json` draft pivots. `candidates.json` now registers both source tags, in addition to unchanged W/S walk candidates. The raw 2172×724 AI design included black/gray stage effects, removed by chroma-guided foreground extraction; no limbs were manipulated. Final owner aesthetic verdict remains PENDING_ART.
+
+Native Godot, Pages export, Chromium and a REAL pinned LibreSprite CLI source re-export are distinct verification gates. `tests/draft_animation_sources_smoke.py --binary libresprite` must round-trip both six-frame editable sources to identical transparent PNG/frames and validate each tag/foot sidecar. This public runbook commit triggers the LibreSprite art workflow; record the resulting run SHA/status in the next checkpoint. Six review poses are not the strict 8+ separate-frame running minimum; the full ten-tag fighter catalog, strike art and owner `autocheck:false` approval remain pending.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
