@@ -42,6 +42,22 @@ def floor_tile_diversity(image_path: Path):
         return {"visible_color_groups": strong, "dominant_color_fraction": round(dominant, 4)}
 
 
+def walkable_moss_green_fraction(image_path: Path) -> float:
+    # At 1200x800 exported Godot canvas resolution this small unoccupied
+    # ground patch is BEHIND Jade after holding W, not on the physical
+    # retaining wall. The old `map_moss.svg` sampled the first 64px
+    # GREY WALL source band here, making grounded W/J/K look suspended.
+    # Real floor must look grass-green at this playable world Z.
+    with Image.open(image_path).convert("RGB") as img:
+        w, h = img.size
+        region = img.crop((int(w * 0.45), int(h * 0.63),
+                           int(w * 0.50), int(h * 0.68)))
+        pixels = list(region.getdata())
+        green = sum(1 for red, g, blue in pixels
+                    if g > red + 23 and g > blue + 9)
+        return green / max(1, len(pixels))
+
+
 def visible_cyan_guard_pixels(image_path: Path) -> int:
     # Require actual WebGL2 screenshot evidence, not just a gameplay
     # telemetry counter. Palette is intentionally high-saturation aqua;
@@ -421,7 +437,23 @@ def main():
                     heavy_visual.get("human_sprite_frame", -1) // 4 not in (9, 10)):
                 raise AssertionError("K failed to show complete rear heavy punch art: " + str(heavy_visual))
             canvas.screenshot(path=str(OUT / "moss-jade-approved-W-K.png"))
+            # A visual test, not only physics telemetry: the back half
+            # of the playable XZ plane must display actual GRASS, not the
+            # first 64px vertical retaining WALL painted as floor tiles.
+            # Otherwise feet look like they float in front of a wall even
+            # when is_on_floor() and PNG shoe pivot are both correct.
+            j_grass = walkable_moss_green_fraction(
+                OUT / "moss-jade-approved-W-J.png")
+            k_grass = walkable_moss_green_fraction(
+                OUT / "moss-jade-approved-W-K.png")
+            if min(j_grass, k_grass) < 0.40:
+                raise AssertionError(
+                    "W/J/K rear depth still shows wall instead of real walkable grass: "
+                    + str({"j_green_fraction": round(j_grass, 3),
+                           "k_green_fraction": round(k_grass, 3)}))
             report["jade_wjk_physics_sprite_regression"] = {
+                "walkable_grass_visible_j": round(j_grass, 3),
+                "walkable_grass_visible_k": round(k_grass, 3),
                 "w_unique_run_phases": sorted(observed_phases),
                 "travel_stride_m": round(stride_end - stride_begin, 3),
                 "grounded_samples": len(grounded_samples),
