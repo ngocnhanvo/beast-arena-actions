@@ -141,3 +141,13 @@ NEXT: source HEAD/run check, improve original human animation and stage art, add
 - NEXT: fix real CI trace if new test fails, then inspect Web movement / human animation visual comparison, update both docs/checkpoints and runbook to PASS/FAIL with evidence.
 
 **Trạng thái: PARTIAL — chưa hoàn tất**
+
+
+## 2026-11-26 — ART-10 headless failure diagnosed, fixture-ground-contact fix on next CI
+
+- NEW run [#45732537827](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45732537827) and [#45732600754](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45732600754) **FAIL** specifically in `Test original pixel art 2.5D camera and stage UV alignment`; log `ERROR: ART-10: fast real physical travel must show authored running poses`. All import/previous physical upstream tests before that step PASS. Pages was SKIPPED, so prior verified Web/P1.5 remains intact.
+- Verified test setup issue: spawned physical actors start 0.12m above floor and initial fixture waited one physics frame. At ART-10 synthetic speed check, `is_on_floor()` was false; animation correctly preferred airborne row 5. PRIVATE source test fix `82b94b198133cf18cce326f1ef2e5446c48a3cad` now releases movement input, waits 20 actual physics ticks, **asserts actual floor contact**, THEN checks physical velocity-based run/walk/idle rows. It retains original attack startup/active/recovery assertions and does not weaken speed constraints.
+- NEW PUBLIC docs push triggers Godot+Pages+Chromium against updated private source. Check actual source SHA in import logs and test results; if failure persists read exact `ART-10/ART-11` trace and fix rooted problem. Do not call this run PASS until E2E screenshots with real running animation.
+- Other milestones still open: human frame art quality, map foreground/scene editor, physical grab/throw/combos, obstacle navigation, performance and user approval; V5 beast deferred.
+
+**Trạng thái: PARTIAL — chưa hoàn tất**
