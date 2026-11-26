@@ -20,3 +20,12 @@ Owner accepts the short-step Jade guard W/S gait and the 64→70px visible-heigh
 - Owner can inspect exclusively at https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/ after verifying deployed SHA.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+## 2026-11-26 — 8-way Playwright attempt-2 failure diagnostic and isolated retry
+
+- Initial exact Chromium run [#45815615697](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45815615697): attempt 1 FAIL in old Physics V2 test when first J input had no observed attack; attempt 2 PASS for main game, Physics V2, Arcade V2. **New 8-way Jade test still FAILED before S+A**, after successfully capturing W/S/A/D/W+A/W+D screenshots.
+- Retrieved real attempt-2 artifact #15116556189 (`jade-34/result.json`): at terminal timeout the player was `x=-40.10, z=28.92, y=-2111.74, grounded=false, human_visual_gait=airborne`. E2E had held the S+A input while waiting 15 seconds for a condition that did not become true, leaving the playable stage; this is NOT evidence that the first 6 directions or 3D native clip rendering failed. Exact cause of missing S+A predicate is not proven. Repeated A/D taps may cause true double-tap sprint (16 physics ticks) and is a *hypothesis*, not a verified root cause.
+- Public `ci/playwright_jade_three_quarter.py` committed fix `5d1462b086ee1f8b2867d18cf8c87ffce05fa3c9`: give >16 ticks (340ms) between keys, teleport via existing `R` to actual safe ground before every one of 8 cases, assert player grounded/near stage/velocity stopped/no sprint, lower direction predicate timeout to 5s, print failing label and full read-only Godot telemetry on failure. No game source/physics/visual changes; no test bypass.
+- New real pipeline [#45817043378](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45817043378) is pending at checkpoint update, must verify matching PRIVATE `0d2d2bdfbccd3a331062aaeb7ee402774b3ecba0`, new PUBLIC `5d1462b086ee1f8b2867d18cf8c87ffce05fa3c9`, native PASS, Pages PASS, then fresh Chromium run and 8 actual inputs. Owner link stays unchanged.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
