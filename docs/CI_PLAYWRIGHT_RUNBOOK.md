@@ -753,3 +753,10 @@ User rejected the skating rear-facing animation. Real game W moves up world -Z w
 - One owner URL ONLY https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/ . Scoped technical work is **PASS**. Do not claim overall game finished or art VISUAL_ACCEPTED; owner `autocheck:false` still reviews visual feel, complete ten-tag authored library still PENDING_ART. New evidence supersedes earlier "Chromium pending" within same checkpoint.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+## 2026-11-26 — Differentiate command PASS from genuine strike sprite movement
+- Original Jade FRONT punch cells rows 7..10 are painted via copies of idle, and kick is heavy-punch alias. Playwright F/G success is gameplay proof only. Whole-body breathing and real sprint guards now previewed but they are not independent artist-authored keyframes. Explicit debug ART_PENDING statuses prevent false marketing.
+- New public browser test checks two distinct timed idle scales, real W/S walking and A/D diagonals, plus real doubletap D run from 6×80px original guard source and screenshot, on same /physics-v2/ URL.
+- [Godot/Pages #45823598975](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45823598975) PASS; browser [#45823930933](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45823930933) pending at initial checkpoint. Source authenticity remains PENDING_ART for punch/kick and dedicated run/idle. Never cut-and-paste gloves/legs.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
