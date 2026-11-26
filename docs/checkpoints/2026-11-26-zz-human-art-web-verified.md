@@ -16,3 +16,10 @@
 - Remaining: final NES-like original visual polish and user approval, new human combos/grab/throw, map props/editor UX, AI navigation, cross-device FPS, production P1.5 parity/migration, original V5 beast abilities **not yet started**. Preserve true 3D-only physics authority and original artwork. After each change rerun public build + strict screenshot QA and document exact SHA.
 
 **Trạng thái: PARTIAL — chưa hoàn tất**
+
+## Follow-up 2026-11-26 — artist reference links (no CI config/runtime change)
+- PRIVATE source now documents a user-provided NES Kunio sheet `https://spritedatabase.net/file/19088` (567x454), and companion Stages `https://spritedatabase.net/file/19107` (1064x1474), in `docs/art/NEKKETSU_SPRITE_REFERENCE_2026-11-26.md`.
+- Reference only; no third-party sheets imported into private game, public Pages or release artifacts. Maintain original artwork and native physics. Game rightsholders' redistribution/commercial permissions must be independently secured before any direct use.
+- Latest actual runtime baseline remains PRIVATE source `191842e4948d6f0a5a864a4c2c5815b240b2fd03`, build+Pages #45735133772 PASS, Chromium #45735342337 PASS; docs-only changes NOT deployed/tested as a new game revision.
+- NEXT: create original visual improvements, run strict build/Pages/real Chromium screenshots with exact SHA, get user art approval before V5.
+**Trạng thái: PARTIAL — chưa hoàn tất**
