@@ -298,8 +298,18 @@ def main():
                 "() => {const s=window.__beastPhysicsDebug; "
                 "return s && s.hero_art_approved_enabled && s.player && "
                 "s.player.grounded && "
-                "Math.abs(s.human_physical_ground_clearance_m) < 0.25;}",
-                timeout=8000, polling=70)
+                "Math.abs(s.human_physical_ground_clearance_m) < 0.25 && "
+                "s.human_visual_gait === 'idle';}",
+                timeout=11000, polling=70)
+            # Explicit canvas focus survives Godot's map reload on T.
+            # A focused keyboard input is a real WebGL input contract,
+            # not a fake telemetry command or simulated game movement.
+            canvas.evaluate("""element => {
+                element.setAttribute('tabindex', '0');
+                element.focus();
+            }""")
+            if not canvas.evaluate("element => document.activeElement === element"):
+                raise AssertionError("Canvas lost keyboard focus after native T map reset")
             # Start sampling BEFORE pressing W, and collect actual Godot
             # frame telemetry in Chromium, not a delayed Python round-trip.
             page.evaluate("""() => {
@@ -326,8 +336,28 @@ def main():
                 }
                 requestAnimationFrame(sample);
             }""")
+            gait_started = snap(page)
+            start_tick = gait_started["tick"]
             page.keyboard.down("w")
-            page.wait_for_timeout(450)
+            try:
+                page.wait_for_function(
+                    "() => {const s=window.__beastPhysicsDebug; "
+                    "return s && s.human_approved_motion_set && "
+                    "s.player.grounded && s.player.vz < -0.25 && "
+                    "s.human_sprite_frame % 4 === 3 && "
+                    "['run','walk'].includes(s.human_visual_gait);}",
+                    timeout=9000, polling=70)
+            except Exception as exc:
+                diagnose = snap(page)
+                raise AssertionError(
+                    "W did not move the grounded player after canvas focus: "
+                    + str({"tick_advance": diagnose.get("tick", 0) - start_tick,
+                           "player": diagnose.get("player"),
+                           "gait": diagnose.get("human_visual_gait"),
+                           "frame": diagnose.get("human_sprite_frame"),
+                           "focus": canvas.evaluate(
+                               "element => document.activeElement === element")})
+                    ) from exc
             approved_rear = snap(page)
             if (approved_rear.get("human_sprite_frame", -1) % 4 != 3 or
                     approved_rear.get("human_visual_gait") not in ("walk", "run") or
@@ -337,7 +367,7 @@ def main():
             canvas.screenshot(path=str(OUT / "moss-jade-approved-rear-motion.png"))
             # Enough real-world travel to span all four foot phases,
             # while avoiding the invalid run-off-the-stage fixture.
-            page.wait_for_timeout(550)
+            page.wait_for_timeout(480)
             gait_samples = page.evaluate("""() => {
                 window.__beastWFootSampling = false;
                 return window.__beastWFootSamples || [];
