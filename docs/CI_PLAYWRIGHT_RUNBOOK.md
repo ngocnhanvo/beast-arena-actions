@@ -414,3 +414,14 @@ run for exact game SHA and live Playwright camera lock, not assumed.
 - User art quality acceptance still OPEN; human grab/throw/combos, editor foreground, obstacle AI, mobile FPS and V5 beast transformation still pending. `PARTIAL` not full game completion.
 
 **Trạng thái: PARTIAL — chưa hoàn tất**
+
+
+## 2026-11-26 — V4 visual timeline: stale E2E assumption confirmed
+
+- **Actual new combo source built & Pages:** private `0af48c861537b1f8dd1bc6ff7d791a588cf0c62c`, public pipeline `8a151d2ad42968549344ebc2999f163f725a984e`, build+Pages [#45742050996](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45742050996) **SUCCESS**. Godot log explicitly `COMBO V4 PASS`, `VISUAL SPIKE PASS`, both Web+Windows export success.
+- **New Chrome failure #45742273520:** P1.5 PASS `dx=210.0` but V2 failed `AssertionError: J did not start the original light attack visual preview`. **Verified cause (source+assertion):** the authoritatively timed physical attack now clears old optional `human_visual_action` preview to avoid stale art past recovery; obsolete E2E was asserting preview string rather than true attack frame/pose. This is a **test expectation mismatch**, not evidence of broken 3D hitbox or map geometry. Do not ignore the failure.
+- **Fix PUBLIC** `ci/playwright_physics_v2.py` commit `95281046c042f9ce214aee716590ef8ae59494e5`: require genuine `human_visual_gait == "attack"`, positive physical 60Hz `human_attack_frame`, and original sprite row 7/8. Keep the early-press and pixel screenshot requirements. Test method must not require a deprecated art preview flag.
+- **Revalidation target:** [#45742647411](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45742647411) Godot+Pages, then automatically spawned Chromium run matching exact pipeline/source/build IDs. Verify both actual statuses/logs/artifacts before labeling PASS. A separate PRIVATE physical-up/down backdrop skyline fix is underway and needs its OWN later build/visual acceptance.
+- **Regression lesson:** A reference implementation's presentation debug field can be deleted/changed while fixed-tick combat stays correct. Read `human_attack_frame` + rendered row, not a display-only preview flag, for strict Web E2E. Human art approval and V5 are still open.
+
+**Trạng thái: PARTIAL — chưa hoàn tất**
