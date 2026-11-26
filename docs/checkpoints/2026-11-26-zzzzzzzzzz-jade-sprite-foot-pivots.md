@@ -1,0 +1,27 @@
+# Beast Arena — sprite foot-pivot management and W/J/K ground-contact recovery (2026-11-26)
+
+## Owner's fresh evidence
+- User supplied actual gameplay screenshot `image(7).png`: approved Jade appears visibly above the green physical floor while running. Earlier actual Chromium #45757885478 screenshot also showed Jade above the rendered shoe shadow. This is a **real graphic bug**, not a successful-looking Actions screenshot.
+- Inspecting the new WJK art confirms rear RUN cells have last opaque art row 69–71 within an 80px frame (9–10 invisible bottom pixels), while the approved source idle has last opaque row 76 (3px). Previously both renderer paths assumed the bottom of 80px *PNG rectangle* was the visible shoe contact and never corrected per-frame padding. WJK changes therefore shifted shoes by 6–10px even when real character was grounded.
+- **Distinguish physical airborne:** Some browser screenshots show a much larger shadow gap than 10px; these may reflect a genuinely airborne CharacterBody3D, not solely wrong art. Never hide real jumping. New browser contract now tests `player.grounded` and world `y-height_at(x)` from real physics before asserting the artist foot-pivot, and will expose a genuine movement bug rather than silently report success.
+
+## Source changes
+- PRIVATE `experiments/physics_v2/scripts/sprite_foot_anchor.gd` commit `80a24b8`: centralized, lazily cached **alpha-derived foot offset** per sprite frame (columns/rows/frame), capped diagnostics for implausible margins. Pure visual; world/physics/HP/combat untouched.
+- PRIVATE `character.gd` `0fa8f8b`: grounded approved Jade now sets `Sprite3D.offset.y=-padding` (Godot 3D +Y is UP), not world Y or collider. Jump row5 / real airborne stays unchanged.
+- PRIVATE `pixel_view.gd` `1b1952d`: use the same anchor in CanvasItem coordinates (+Y DOWN). Shoes now derive from physical actor foot, not untrimmed 80px PNG boundary. Future art poses cannot require custom per-key camera/map offsets.
+- PRIVATE `visual_smoke.gd` `0d493fd`: ART-25 checks **40 frames across four directions** (idle, four gait, both J/K windup/contact, guard) for sane source padding, exact shared 2D and 3D foot-pivot geometry, and actual approved rear-run Sprite3D offset. Earlier ART-23/24, Godot physics, 60Hz combat unchanged.
+- PRIVATE `demo.gd` `a55620b`: opt-in Web E2E telemetry exposes source frame pad, rendered Sprite3D offset, real `is_on_floor` and actual vertical clearance vs native stage height.
+- PRIVATE docs `docs/art/SPRITE_ATLAS_PIPELINE_STANDARD.md` commit `bbed804`, audit tool `tools/sprite_atlas_audit.py` `30f5bd5`: **Aseprite** editable frame tags and per-frame slice pivots / JSON export; prefer Godot built-in `SpriteFrames` / `AnimatedSprite3D` for authored animation, no unknown plugin installed or copyrighted NES assets imported. Current prototype still uses 4x20 atlas; source checker reports bottom transparent padding and exports JSON. This establishes the planned migration contract.
+- PUBLIC `ci/playwright_physics_v2.py` `aed5cda`: reset to **true grounded spawn** (T) before W art test; sample real physical W movement from the start (not 450ms after hold), assert 4 run phases, actual >=0.9m horizontal travel, real grounded Y, and 3D offset+PNG margin match. Releases W before J/K to prevent unintended falling off map; captures real screenshots. **This is stricter visual/physical acceptance, not a fake UI state.**
+
+## Evidence and blockers
+- Last prior CI [Godot + Pages #45757669329](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45757669329) PASS BUT real Chromium [#45757885478](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45757885478) **FAIL** `W did not alternate four distance-driven foot phases: {'phases': [], 'grounded_samples': 0, 'distance': 0.0}`. The old snapshot actually put the player airborne after extended W; no final visual approval.
+- New PUBLIC push `aed5cda` triggered build [#45758868968](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45758868968) with PRIVATE source expected `a55620b` (verify complete run SHA from actual log and successful Pages). **CI and new Chromium NOT yet signed off** when this checkpoint was created.
+- Do NOT claim screenshot fully fixed until actual run and PNG inspection. A sprite margin correction fixes image alignment **only when grounded**; a legitimate airborne/terrain support bug must be diagnosed and repaired in the physics foundation under architectural contract, not hidden by forcing image to shadow.
+
+## Next
+1. Confirm Godot ART-25 and all old tests, Web+Windows export and Pages on exact source.
+2. Follow auto-triggered Chromium run; inspect `result.json` actual W sample including `player.grounded`, `human_physical_ground_clearance_m`, pad/offset, and W/J/K real screenshots. If still airborne after T & W, inspect world support/colliders then repair actual physics with tests; do not delete the assertion.
+3. After PASS and visual QA, migrate hero animation selection from anonymous 4x20 rows toward Aseprite tagged `SpriteFrames` with per-frame slice pivots; run same pipeline on added poses. The approved Jade artwork and source PNG stay original. Full art approval and rest of game roadmap remain open.
+
+**Trạng thái: PARTIAL — chưa hoàn tất**
