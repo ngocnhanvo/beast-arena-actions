@@ -58,6 +58,7 @@ def main():
                 raise AssertionError("Stale Pages PCK for canonical preview")
             if not (start.get("single_link_review") is True
                     and start.get("review_preview_loaded") is True
+                    and start.get("review_preview_clips") == 2
                     and start.get("review_preview_view") == "three_quarter_right"
                     and start.get("animation_source_ready") is False
                     and start.get("pixel_projection_mode") is True
@@ -68,37 +69,54 @@ def main():
             if canvas.count() == 0:
                 canvas = page.locator("canvas").first
             canvas.click(force=True)
-            page.keyboard.down("s")
-            page.wait_for_function(
-                "() => {let s=window.__beastPhysicsDebug;"
-                "return s && s.review_preview_active && s.review_preview_frame >= 0 "
-                "&& s.human_sprite_hframes === 6 && s.player.vz > 0.35 "
-                "&& s.animation_clip_intent === 'walk_down_guard_front';}",
-                timeout=12000, polling=50)
-            page.wait_for_function(
-                "() => window.__beastPhysicsDebug?.review_preview_frame > 0",
-                timeout=12000, polling=40)
-            middle = state(page)
-            if middle.get("hero_atlas_frame_size") != 80:
-                raise AssertionError("Review frame not native 80px")
-            canvas.screenshot(path=str(OUT / "canonical-three-quarter-walk.png"))
-            page.keyboard.up("s")
-            page.wait_for_function(
-                "() => !window.__beastPhysicsDebug?.review_preview_active",
-                timeout=12000, polling=80)
+            checked = {}
+            # BOTH directions are owner-requested. Native motor and visible
+            # Sprite3D frame must follow actual W/S input on the SAME URL.
+            for key, direction, tag, filename in [
+                    ("s", "walk_down", "walk_down_guard_front", "walk-S"),
+                    ("w", "walk_up", "walk_up_guard_front", "walk-W")]:
+                page.keyboard.down(key)
+                try:
+                    vel = "s.player.vz > 0.35" if key == "s" else "s.player.vz < -0.35"
+                    page.wait_for_function(
+                        "() => {const s=window.__beastPhysicsDebug;"
+                        "return s && s.review_preview_active "
+                        "&& s.human_sprite_hframes === 6 "
+                        "&& s.review_preview_action === '" + direction + "' "
+                        "&& s.animation_clip_intent === '" + tag + "' "
+                        "&& " + vel + ";}",
+                        timeout=15000, polling=50)
+                    page.wait_for_function(
+                        "() => window.__beastPhysicsDebug?.review_preview_frame > 0",
+                        timeout=15000, polling=40)
+                    middle = state(page)
+                    if middle.get("hero_atlas_frame_size") != 80:
+                        raise AssertionError(key.upper() + " preview isn't native 80px")
+                    checked[key.upper()] = {
+                        "clip": middle.get("animation_clip_intent"),
+                        "native_cel_index": middle.get("review_preview_frame"),
+                        "physical_vz": middle.get("player", {}).get("vz"),
+                    }
+                    canvas.screenshot(path=str(OUT / ("canonical-" + filename + ".png")))
+                finally:
+                    page.keyboard.up(key)
+                page.wait_for_function(
+                    "() => !window.__beastPhysicsDebug?.review_preview_active",
+                    timeout=12000, polling=80)
+            if set(checked) != {"S", "W"}:
+                raise AssertionError("Both W and S must be verified")
             result.update({
                 "status": "PASS_TECHNICAL_OWNER_ART_PENDING",
                 "source_sha": start.get("source_sha"),
                 "pipeline_sha": start.get("pipeline_sha"),
                 "build_run_id": start.get("build_run_id"),
-                "clip": "walk_down_guard_front",
-                "animated_frame": middle.get("review_preview_frame"),
+                "short_step_guard_directions": checked,
                 "foot_pivot_px": 75,
                 "full_source_status": "PENDING_ART",
             })
-            print("ONE CANONICAL /physics-v2/ JADE 3/4 PREVIEW PASS: "
-                  "real S movement, 6 native 80px cels, PixelView floor, "
-                  "full ten-clip owner signoff pending")
+            print("ONE CANONICAL /physics-v2/ JADE CLOSE-STEP GUARD PASS: "
+                  "real W AND S movements, 2 native 6x80px Sprite3D sources, "
+                  "PixelView floor; owner visual review still pending")
         except Exception as exc:
             result["status"] = "FAIL"
             result["error"] = str(exc)
@@ -106,6 +124,7 @@ def main():
             raise
         finally:
             page.keyboard.up("s")
+            page.keyboard.up("w")
             (OUT / "result.json").write_text(
                 json.dumps(result, ensure_ascii=False, indent=2))
             browser.close()
