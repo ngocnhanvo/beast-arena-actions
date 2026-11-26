@@ -27,3 +27,11 @@ Replace visually broken six-pose last-to-first leg reversal with eight full-body
 4. Owner reviews one canonical /physics-v2/ game link; update two repo checkpoint + engineering log.
 
 Trạng thái: PARTIAL — chưa hoàn tất.
+
+## 2026-11-26 — Actual WebGL failure and post-draw renderer correction
+- Prior newest build/Pages #45856928823 succeeded on PRIVATE d486f06e and PUBLIC 4cd8373. Pinned REAL LibreSprite #45856928793 SUCCESS for both 8-cel left/right ASE sources and all existing walk candidates.
+- Chromium E2E #45857553417 FAILED the actual run gate (not a compile issue): D+D rAF captured only [2,4,6] while _process selection mask=127 (0..6), real 8x2 atlas, ~6.48m/s physical sprint, 70px body, eight walks/P1.5/Physics/Arcade PASS. This proves the old internal selected mask is not enough to establish drawn WebGL frames.
+- Runtime fix PRIVATE b074b377 / 37766233: track actual RenderingServer.frame_post_draw callbacks for each Sprite3D full-body pose; require >=2 genuine drawn frames before advancing source-timed 85ms running phase; record drawn mask and chronological 64-entry history. Reset on action changes. No movement/collider/pivot/map/attack changes.
+- PUBLIC test 6b43d5d: must see actual GPU post-draw mask=0xFF and complete ordered [0,1,2,3,4,5,6,7] + wrap [7,0] both A+A/D+D; rAF sampled frames are diagnostic (may under-sample engine draws), not sole proof. Exact source/build SHA retained, strict P1.5/Physics/Arcade/walking gates unchanged.
+- New full build #45858816783 queued at checkpoint; require terminal Godot/Web/Pages and exact Chromium before technical PASS. Owner autocheck:false must still assess anatomical 4+4 leg symmetry and overall look; source 8+8 uniquely drawn pilot is not yet art accepted.
+**Trạng thái: PARTIAL — chưa hoàn tất.**
