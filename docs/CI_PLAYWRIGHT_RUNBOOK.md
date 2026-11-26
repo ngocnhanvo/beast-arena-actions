@@ -724,3 +724,13 @@ User rejected the skating rear-facing animation. Real game W moves up world -Z w
 - New real pipeline [#45817043378](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45817043378) is pending at checkpoint update, must verify matching PRIVATE `0d2d2bdfbccd3a331062aaeb7ee402774b3ecba0`, new PUBLIC `5d1462b086ee1f8b2867d18cf8c87ffce05fa3c9`, native PASS, Pages PASS, then fresh Chromium run and 8 actual inputs. Owner link stays unchanged.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+## Final verified evidence — 2026-11-26
+
+- [Godot/Windows/Web/Pages #45817043378](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45817043378) **SUCCESS**; compiled PRIVATE SHA `d56c61d9539303cf50c81972e5c134883f896140`, pipeline PUBLIC SHA `5d1462b086ee1f8b2867d18cf8c87ffce05fa3c9`. Native 8-compass-direction art test PASS.
+- [Real Chromium #45817369199](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45817369199) **SUCCESS**, ALL four tests PASS (P1.5 dx220.5; Physics V2 up2.23m/down2.33m; Arcade V2 combat and run; Jade W/S/A/D/W+A/W+D/S+A/S+D). Exact build run ID and source SHA verified in live PCK.
+- [Screenshot artifact #15115119696](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45817369199/artifacts/15115119696) has nine Jade screenshots (idle + eight directions), `jade-34/result.json` with `PASS_TECHNICAL_OWNER_ART_PENDING`, 8 unique physical X/Z velocity directions (cardinals ±4.2m/s, diagonals ±2.97m/s), correct `walk_left_guard`, `walk_right_guard`, `walk_up_guard_front`, `walk_down_guard_front` semantic intents; two W/S original sources selected and full-cel mirror flags correct; all normalized painted fighter heights = 70px.
+- Prior browser #45815615697 FAILED (attempt1 old J keyboard flake, attempt2 eight-way test held S+A until Jade wandered off the map). This is documented, not erased. Public test-only fix 5d1462 adds real stage-R reset and >16 tick doubletap separation between each of 8 directional probes, without weakening game/physics assertions. New complete exact build/E2E succeeded.
+- ONLY owner game link: https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/ . Eight walking inputs now technically implemented and deployed. Original 8 unique directional art sets and full ten-tag fighter archive remain PENDING_ART, owner visual signoff must be manual under `autocheck:false`.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
