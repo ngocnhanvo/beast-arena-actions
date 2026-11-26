@@ -42,6 +42,16 @@ def floor_tile_diversity(image_path: Path):
         return {"visible_color_groups": strong, "dominant_color_fraction": round(dominant, 4)}
 
 
+def visible_cyan_guard_pixels(image_path: Path) -> int:
+    # Require actual WebGL2 screenshot evidence, not just a gameplay
+    # telemetry counter. Palette is intentionally high-saturation aqua;
+    # ordinary Moss stage/human colors have zero matching pixels.
+    with Image.open(image_path).convert("RGB") as image:
+        return sum(1 for red, green, blue in image.getdata()
+                   if red <= 165 and green >= 215 and blue >= 210
+                   and blue > red + 45)
+
+
 URL = "https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/?e2e=1"
 OUT = Path("playwright-report/physics-v2")
 OUT.mkdir(parents=True, exist_ok=True)
@@ -505,7 +515,7 @@ def main():
                 page.keyboard.press("c")
                 page.wait_for_function(
                     "() => { const s = window.__beastPhysicsDebug; return s"
-                    " && s.pixel_guard_fx_total > 0 && s.pixel_hit_fx_active > 0"
+                    " && s.pixel_guard_fx_total > 0 && s.pixel_guard_fx_active > 0"
                     " && s.pixel_projection_mode === true; }",
                     timeout=20000, polling=45)
                 guard_contact = snap(page)
@@ -515,12 +525,20 @@ def main():
                     "total_fx": guard_contact.get("pixel_hit_fx_total"),
                     "real_contacts": guard_contact.get("combat_completed_hits"),
                     "active_fx": guard_contact.get("pixel_hit_fx_active"),
+                    "active_cyan_guards": guard_contact.get("pixel_guard_fx_active"),
                     "player_hp": guard_contact.get("combat_hp", {}).get("player")}
                 if (report["real_guard_contact"]["blocks"] < 1 or
                         report["real_guard_contact"]["guard_fx_total"] < 1 or
-                        report["real_guard_contact"]["active_fx"] < 1):
+                        report["real_guard_contact"]["active_cyan_guards"] < 1):
                     raise AssertionError("G guard is not generating live 3D-block cyan FX")
-                canvas.screenshot(path=str(OUT / "moss-cyan-guard-contact.png"))
+                screenshot_path = OUT / "moss-cyan-guard-contact.png"
+                canvas.screenshot(path=str(screenshot_path))
+                cyan_pixels = visible_cyan_guard_pixels(screenshot_path)
+                report["real_guard_contact"]["visible_cyan_pixels"] = cyan_pixels
+                if cyan_pixels < 40:
+                    raise AssertionError(
+                        "Cyan shield missing from ACTUAL Chromium screenshot (%d matching pixels); "
+                        "guard counter alone is not visual proof" % cyan_pixels)
                 report["real_guard_contact_screenshot_pass"] = True
             finally:
                 page.keyboard.up("g")
