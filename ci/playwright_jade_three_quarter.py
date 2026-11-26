@@ -249,17 +249,29 @@ def main():
                 page.wait_for_function(
                     "() => window.__beastPhysicsDebug?.review_preview_frame > 0",
                     timeout=3000, polling=45)
-                # Read actual LIVE rendered pose-cycle, not just one
-                # frame index or six pixel-different stored cels. Every
-                # 6-frame phase must appear on real D+D world movement.
-                right_phases = []
-                for phase in range(6):
-                    page.wait_for_function(
-                        "(n) => window.__beastPhysicsDebug?.review_run_active "
-                        "=== true && window.__beastPhysicsDebug?."
-                        "review_preview_frame === n",
-                        arg=phase, timeout=2000, polling=25)
-                    right_phases.append(phase)
+                # Sample the LIVE gameplay frame stream for <=850ms,
+                # rather than wait 2 seconds per numbered phase. Holding
+                # left/right for many seconds hits real stage collision,
+                # legitimately stops _gait_distance_m and freezes the pose.
+                # We still REQUIRE every phase 0..5 to actually appear.
+                right_phases = page.evaluate(
+                    """() => new Promise(resolve => {
+                      const observed = new Set();
+                      const start = performance.now();
+                      function sample() {
+                        const s = window.__beastPhysicsDebug;
+                        if (s?.review_run_active && s?.sprint_requested)
+                          observed.add(s.review_preview_frame);
+                        if (observed.size === 6 || performance.now() - start > 850)
+                          resolve([...observed].sort((a,b)=>a-b));
+                        else requestAnimationFrame(sample);
+                      }
+                      sample();
+                    })""")
+                if right_phases != list(range(6)):
+                    raise AssertionError(
+                        f"D+D must play all SIX visible phases during real sprint, "
+                        f"observed={right_phases}, state={state(page)}")
                 run_state = state(page)
                 # Six NEW owner-designed whole-body right-facing source
                 # cels in 480x160; never the old mixed legacy 4x20 atlas.
@@ -305,14 +317,24 @@ def main():
                 page.wait_for_function(
                     "() => window.__beastPhysicsDebug?.review_preview_frame > 0",
                     timeout=3000, polling=45)
-                left_phases = []
-                for phase in range(6):
-                    page.wait_for_function(
-                        "(n) => window.__beastPhysicsDebug?.review_run_active "
-                        "=== true && window.__beastPhysicsDebug?."
-                        "review_preview_frame === n",
-                        arg=phase, timeout=2000, polling=25)
-                    left_phases.append(phase)
+                left_phases = page.evaluate(
+                    """() => new Promise(resolve => {
+                      const observed = new Set();
+                      const start = performance.now();
+                      function sample() {
+                        const s = window.__beastPhysicsDebug;
+                        if (s?.review_run_active && s?.sprint_requested)
+                          observed.add(s.review_preview_frame);
+                        if (observed.size === 6 || performance.now() - start > 850)
+                          resolve([...observed].sort((a,b)=>a-b));
+                        else requestAnimationFrame(sample);
+                      }
+                      sample();
+                    })""")
+                if left_phases != list(range(6)):
+                    raise AssertionError(
+                        f"A+A must play all SIX visible phases during real sprint, "
+                        f"observed={left_phases}, state={state(page)}")
                 left_run = state(page)
                 left_idx = int(left_run.get("review_run_source_frame", -1))
                 if left_idx != int(left_run.get("human_sprite_frame", -1)):
