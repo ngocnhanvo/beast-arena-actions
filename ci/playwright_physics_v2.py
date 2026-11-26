@@ -289,6 +289,34 @@ def main():
                 "active": True, "atlas_cell_px": 80,
                 "visible_changed_pixels": approved_pixel_difference,
                 "physical_hp_unchanged": True, "physical_map_unchanged": True}
+            # The old APPROVED PNG repeated one rear standing image for
+            # walk/run and even KO. Make W traverse the true physical Z
+            # axis and prove the actual Canvas uses a back-direction frame.
+            # More precise per-cell pose uniqueness is enforced in ART-22.
+            page.keyboard.down("w")
+            page.wait_for_timeout(450)
+            approved_rear = snap(page)
+            if (approved_rear.get("human_sprite_frame", -1) % 4 != 3 or
+                    approved_rear.get("human_visual_gait") not in ("walk", "run") or
+                    approved_rear.get("hero_atlas_frame_size") != 80):
+                raise AssertionError(
+                    "Approved Jade did not show a genuine back-facing moving pose: "
+                    + str({"frame": approved_rear.get("human_sprite_frame"),
+                           "gait": approved_rear.get("human_visual_gait")}))
+            canvas.screenshot(path=str(OUT / "moss-jade-approved-rear-motion.png"))
+            page.keyboard.up("w")
+            page.wait_for_function(
+                "() => {const s=window.__beastPhysicsDebug; "
+                "return s && s.player && "
+                "Math.hypot(s.player.vx, s.player.vz) < 0.2 && "
+                "s.human_visual_gait === 'idle';}",
+                timeout=6000, polling=75)
+            report["user_approved_jade_rear_motion"] = {
+                "active": True,
+                "direction": approved_rear["human_sprite_frame"] % 4,
+                "pose_row": approved_rear["human_sprite_frame"] // 4,
+                "gait": approved_rear["human_visual_gait"],
+                "screenshot": "moss-jade-approved-rear-motion.png"}
             page.keyboard.press("F7")
             page.wait_for_function(
                 "() => window.__beastPhysicsDebug && window.__beastPhysicsDebug.hero_art_approved_enabled === false",
