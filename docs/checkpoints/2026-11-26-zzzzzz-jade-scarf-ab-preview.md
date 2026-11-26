@@ -18,3 +18,17 @@
 - Check art at physical 52px scale against existing stage color and enemy silhouettes; next author distinct full motions/frames and export original, editable PNG/LibreSprite sources, not just palette swaps. Then refine foreground/props, grab/throw, AI and eventually beast V5.
 
 **Trạng thái: PARTIAL — chưa hoàn tất**
+
+
+## 2026-11-26 — build trigger: original world-ground pixel details + 64px fighter art
+
+**TARGET PRIVATE SOURCE HEAD:** `7a661ab099cca2b13753614bb456d8413c9d2ffb`, functional deltas: `pixel_view.gd` adds world-height-linked Moss moss/stone + Night Docks plate rivets; F5 original sprite render rectangle now exact 64×64 pixels with feet anchored; `demo.gd` emits `pixel_floor_details`, `pixel_projection_smoke.gd` PRES-13 (>60 physical floor details both stages) and PRES-14 (64px fighter render).
+**PUBLIC E2E SOURCE:** `ci/playwright_physics_v2.py` `795154750a659058852bab259dd996e7911720f5` checks >=15 actually rendered original floor details in **both real Chromium 2D map screenshots**, retains F6 Jade Scarf screenshot comparison/physical state invariance, all 3D slopes/HP/AI/guard/round/camera and P1.5 old smoke.
+
+**History, do not hide the FAILURE:**
+- Previous Jade Scarf version: Godot/Pages [#45744769106](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45744769106) PASS; Chromium [#45744980035](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45744980035) PASS, exact source `cd04e33...`, user-facing original-art F6 A/B screenshot changed **8033 visible pixels**, same HP/map, artifact 15082292922. No user aesthetic approval yet.
+- First floor-detail/64px run [#45745395296](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45745395296) FAIL `PRES-13` and Pages SKIPPED: Moss 70m width, 3.4m spacing yields 57 markers, under 60-point gate. Verified root cause via real map `dimensions=Vector2(70,26)`. Fixed PRIVATE `84a6bd892156181b40a98c6b026ea0f46d425468`: 3.0m spacing => 66 on Moss, 78 Docks; preserve stricter test threshold instead of removing test.
+
+**Required result of this PUBLIC push-triggered CI:** actual Godot import, PRES-13/PRES-14, original 80f art and physics/2v2 tests PASS; Web+Windows export+Pages; automatic Chromium checking source+build SHA and actual PNGs. Record run IDs/screenshots after completion. If blocked/fail, inspect full job log then fix before claiming PASS.
+
+**Trạng thái: PARTIAL — chưa hoàn tất**
