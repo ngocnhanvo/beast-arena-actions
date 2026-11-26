@@ -226,6 +226,38 @@ def main():
             page.wait_for_function(
                 "() => window.__beastPhysicsDebug && window.__beastPhysicsDebug.hero_art_concept_enabled === false",
                 timeout=7000, polling=75)
+            # The separately authored, image-generated original 80-cell
+            # character atlas must also work in the ACTUAL Godot WebGL
+            # runtime. The P key swaps only art, never the authoritative
+            # 3D CharacterBody3D, combat state, HP or floor projection.
+            page.keyboard.press("p")
+            page.wait_for_function(
+                "() => window.__beastPhysicsDebug && window.__beastPhysicsDebug.hero_art_painted_enabled === true",
+                timeout=8000, polling=70)
+            painted_snapshot = snap(page)
+            if (painted_snapshot.get("combat_hp") != hero_before.get("combat_hp") or
+                    painted_snapshot.get("map_id") != hero_before.get("map_id") or
+                    not painted_snapshot.get("pixel_projection_mode")):
+                raise AssertionError("P high-detail character art changed physics/HP/level")
+            page.wait_for_timeout(160)
+            painted_path = OUT / "moss-jade-painted-concept.png"
+            canvas.screenshot(path=str(painted_path))
+            with (Image.open(OUT / "moss-nes-style-2d-start.png").convert("RGB") as
+                    baseline_image, Image.open(painted_path).convert("RGB") as painted_image):
+                if baseline_image.size != painted_image.size:
+                    raise AssertionError("P high-detail sprite altered Web viewport")
+                painted_pixels = sum(1 for old, new in zip(
+                    baseline_image.getdata(), painted_image.getdata()) if old != new)
+            if painted_pixels < 300:
+                raise AssertionError("Original WebP painted 80-frame Jade is invisible in Chromium: "
+                                     + str(painted_pixels))
+            report["original_jade_painted_art_comparison"] = {
+                "active": True, "changed_visible_pixels": painted_pixels,
+                "same_hp": True, "same_level": True}
+            page.keyboard.press("p")
+            page.wait_for_function(
+                "() => window.__beastPhysicsDebug && window.__beastPhysicsDebug.hero_art_painted_enabled === false",
+                timeout=8000, polling=70)
             page.keyboard.press("F5")
             page.wait_for_timeout(180)
             if snap(page).get("pixel_projection_mode"):
