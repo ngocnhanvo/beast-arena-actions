@@ -267,6 +267,45 @@ def main():
                         "frames, not W/S short steps or invented final authored 8-tag")
             finally:
                 page.keyboard.up("d")
+            # Repeat for A+A. Original atlas has an actual LEFT-facing
+            # six-pose sequence in column 1. Validate real left sprint,
+            # not a flipped D+D animation or an old 2-frame walk fallback.
+            page.wait_for_timeout(450)
+            page.keyboard.press("r")
+            page.wait_for_function(
+                "() => {const s=window.__beastPhysicsDebug;"
+                "return s?.player?.grounded && Math.abs(s.player.vx)<0.25 "
+                "&& !s.sprint_requested;}", timeout=12000)
+            page.keyboard.down("a")
+            page.wait_for_timeout(90)
+            page.keyboard.up("a")
+            page.wait_for_timeout(85)
+            page.keyboard.down("a")
+            try:
+                page.wait_for_function(
+                    "() => {const s=window.__beastPhysicsDebug;"
+                    "return s?.review_run_active===true "
+                    "&& s?.sprint_requested===true "
+                    "&& s?.human_sprite_hframes===4 "
+                    "&& s?.human_sprite_vframes===20 "
+                    "&& s?.review_run_source_pose_count===6 "
+                    "&& s?.review_preview_action==='run_left' "
+                    "&& s?.review_run_source_is_native_80px===true "
+                    "&& s?.player?.vx < -5.5;}", timeout=8000, polling=45)
+                page.wait_for_function(
+                    "() => window.__beastPhysicsDebug?.review_preview_frame > 0",
+                    timeout=3000, polling=45)
+                left_run = state(page)
+                left_idx = int(left_run.get("review_run_source_frame", -1))
+                if left_idx % 4 != 1 or left_idx // 4 not in (1, 2, 3, 4, 5, 19):
+                    raise AssertionError(
+                        f"A+A must use original LEFT running pose: {left_idx}")
+                if left_run.get("review_run_art_status") != (
+                        "REUSED_ORIGINAL_SIX_WHOLE_BODY_RUN_POSES_OWNER_REVIEW_PENDING"):
+                    raise AssertionError("Left run is not genuine source pilot")
+                canvas.screenshot(path=str(OUT / "canonical-guard-run-left.png"))
+            finally:
+                page.keyboard.up("a")
             result.update({
                 "status": "PASS_TECHNICAL_OWNER_ART_PENDING",
                 "source_sha": start.get("source_sha"),
@@ -287,13 +326,20 @@ def main():
                     "source_pose_count": run_state["review_run_source_pose_count"],
                     "source_action": run_state["review_preview_action"],
                 },
+                "left_run_preview": {
+                    "frame": left_run["review_preview_frame"],
+                    "source_frame": left_run["review_run_source_frame"],
+                    "pose_count": left_run["review_run_source_pose_count"],
+                    "velocity_x": left_run["player"]["vx"],
+                    "source_action": left_run["review_preview_action"],
+                },
                 "punch_art": "PENDING_ART_FRONT_PUNCH",
                 "kick_art": "PENDING_ART_INDEPENDENT_KICK",
                 "foot_pivot_px": 75,
                 "full_source_status": "PENDING_ART",
             })
             print("ONE CANONICAL /physics-v2/ JADE NATIVE RUN SIX-POSE PASS: "
-                  "real D+D and six original full-body 80px frame indices; "
+                  "real A+A / D+D and six original full-body 80px poses EACH; "
                   "eight walking directions and anchored idle inhale unchanged; "
                   "owner visual review pending")
         except Exception as exc:
