@@ -222,7 +222,7 @@ def main():
                 raise AssertionError("All eight compass directions must be checked")
             # Sprint previously reverted to the original legacy 2-frame
             # side source (and FRONT could freeze). Verify REAL doubletap
-            # D stays six native whole-body guard cels and faster physics.
+            # D uses eight native whole-body running poses (4+4 half cycles).
             page.wait_for_timeout(450)
             page.keyboard.press("r")
             page.wait_for_function(
@@ -239,9 +239,9 @@ def main():
                     "() => {const s=window.__beastPhysicsDebug;"
                     "return s?.review_run_active === true "
                     "&& s?.sprint_requested === true "
-                    "&& s?.human_sprite_hframes === 6 "
+                    "&& s?.human_sprite_hframes === 8 "
                     "&& s?.human_sprite_vframes === 2 "
-                    "&& s?.review_run_source_pose_count === 6 "
+                    "&& s?.review_run_source_pose_count === 8 "
                     "&& s?.review_preview_action === 'run_right' "
                     "&& s?.review_run_source_is_native_80px === true "
                     "&& s?.review_run_distance_per_frame_m >= 0.40 "
@@ -262,34 +262,34 @@ def main():
                         const s = window.__beastPhysicsDebug;
                         if (s?.review_run_active && s?.sprint_requested)
                           observed.add(s.review_preview_frame);
-                        if (observed.size === 6 || performance.now() - start > 1850)
+                        if (observed.size === 8 || performance.now() - start > 1850)
                           resolve([...observed].sort((a,b)=>a-b));
                         else requestAnimationFrame(sample);
                       }
                       sample();
                     })""")
-                if right_phases != list(range(6)):
+                if right_phases != list(range(8)):
                     raise AssertionError(
-                        f"D+D must play all SIX visible phases during real sprint, "
+                        f"D+D must play all EIGHT visible phases during real sprint, "
                         f"observed={right_phases}, state={state(page)}")
                 run_state = state(page)
                 if (int(run_state.get("review_run_presented_phase_mask", 0))
-                        & 0x3F) != 0x3F:
+                        & 0xFF) != 0xFF:
                     raise AssertionError(
                         "D+D game renderer did not select every real "
                         "whole-body leg phase: " + str(run_state))
-                # Six NEW owner-designed whole-body right-facing source
+                # Eight NEW owner-designed whole-body right-facing source
                 # cels in 480x160; never the old mixed legacy 4x20 atlas.
                 source_index = int(run_state.get("review_run_source_frame", -1))
                 if source_index != int(run_state.get("human_sprite_frame", -1)):
                     raise AssertionError("Right run visual frame != source atlas cell")
-                if source_index not in range(0, 6):
+                if source_index not in range(0, 8):
                     raise AssertionError(
-                        "D+D MUST render new owner-designed six-pose right row: "
+                        "D+D MUST render new owner-designed eight-pose right row: "
                         f"cell={source_index}")
                 canvas.screenshot(path=str(OUT / "canonical-guard-run-right.png"))
                 if (run_state.get("review_run_art_status") !=
-                        "OWNER_NEW_SIX_RUN_POSE_DESIGN_REVIEW_PENDING"):
+                        "OWNER_NEW_EIGHT_RUN_4PLUS4_REVIEW_PENDING"):
                     raise AssertionError(
                         "Sprint must use distinct ORIGINAL side-running whole-body "
                         "frames, not W/S short steps or invented final authored 8-tag")
@@ -313,9 +313,9 @@ def main():
                     "() => {const s=window.__beastPhysicsDebug;"
                     "return s?.review_run_active===true "
                     "&& s?.sprint_requested===true "
-                    "&& s?.human_sprite_hframes===6 "
+                    "&& s?.human_sprite_hframes===8 "
                     "&& s?.human_sprite_vframes===2 "
-                    "&& s?.review_run_source_pose_count===6 "
+                    "&& s?.review_run_source_pose_count===8 "
                     "&& s?.review_preview_action==='run_left' "
                     "&& s?.review_run_source_is_native_80px===true "
                     "&& s?.player?.vx < -5.5;}", timeout=8000, polling=45)
@@ -330,30 +330,30 @@ def main():
                         const s = window.__beastPhysicsDebug;
                         if (s?.review_run_active && s?.sprint_requested)
                           observed.add(s.review_preview_frame);
-                        if (observed.size === 6 || performance.now() - start > 1850)
+                        if (observed.size === 8 || performance.now() - start > 1850)
                           resolve([...observed].sort((a,b)=>a-b));
                         else requestAnimationFrame(sample);
                       }
                       sample();
                     })""")
-                if left_phases != list(range(6)):
+                if left_phases != list(range(8)):
                     raise AssertionError(
-                        f"A+A must play all SIX visible phases during real sprint, "
+                        f"A+A must play all EIGHT visible phases during real sprint, "
                         f"observed={left_phases}, state={state(page)}")
                 left_run = state(page)
                 if (int(left_run.get("review_run_presented_phase_mask", 0))
-                        & 0x3F) != 0x3F:
+                        & 0xFF) != 0xFF:
                     raise AssertionError(
-                        "A+A game renderer did not select all six "
+                        "A+A game renderer did not select all eight "
                         "authored running poses: " + str(left_run))
                 left_idx = int(left_run.get("review_run_source_frame", -1))
                 if left_idx != int(left_run.get("human_sprite_frame", -1)):
                     raise AssertionError("Left run visual frame != source atlas cell")
-                if left_idx not in range(6, 12):
+                if left_idx not in range(8, 16):
                     raise AssertionError(
                         f"A+A must render new owner-designed LEFT row: {left_idx}")
                 if left_run.get("review_run_art_status") != (
-                        "OWNER_NEW_SIX_RUN_POSE_DESIGN_REVIEW_PENDING"):
+                        "OWNER_NEW_EIGHT_RUN_4PLUS4_REVIEW_PENDING"):
                     raise AssertionError("Left run is not genuine source pilot")
                 canvas.screenshot(path=str(OUT / "canonical-guard-run-left.png"))
             finally:
@@ -394,7 +394,7 @@ def main():
                 "foot_pivot_px": 75,
                 "full_source_status": "PENDING_ART",
             })
-            print("ONE CANONICAL /physics-v2/ JADE OWNER DESIGN SIX-POSE PASS: "
+            print("ONE CANONICAL /physics-v2/ JADE OWNER DESIGN EIGHT-POSE PASS: "
                   "real A+A/D+D with new transparent 480x160 6+6 RGBA source; "
                   "both full-body row indices validated, eight walks and idle intact; "
                   "owner visual review pending")
