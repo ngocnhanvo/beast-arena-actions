@@ -70,31 +70,49 @@ def main():
                 canvas = page.locator("canvas").first
             canvas.click(force=True)
             checked = {}
-            # BOTH directions are owner-requested. Native motor and visible
-            # Sprite3D frame must follow actual W/S input on the SAME URL.
-            for key, direction, tag, filename in [
-                    ("s", "walk_down", "walk_down_guard_front", "walk-S"),
-                    ("w", "walk_up", "walk_up_guard_front", "walk-W")]:
-                page.keyboard.down(key)
+            # One canonical page, eight physical compass movements. Side
+            # frames reuse the WHOLE original body via horizontal mirroring;
+            # diagonals select W/S source based on Z, with left mirror.
+            # Never claim eight independently drawn sources.
+            directions = [
+                (("w",), "W", "walk_up", "walk_up", "walk_up_guard_front",
+                 False, "s.player.vz < -0.35"),
+                (("s",), "S", "walk_down", "walk_down", "walk_down_guard_front",
+                 False, "s.player.vz > 0.35"),
+                (("a",), "A", "walk_down", "walk_left", "walk_left_guard",
+                 True, "s.player.vx < -0.35"),
+                (("d",), "D", "walk_down", "walk_right", "walk_right_guard",
+                 False, "s.player.vx > 0.35"),
+                (("w", "a"), "W+A", "walk_up", "walk_left", "walk_left_guard",
+                 True, "s.player.vx < -0.35 && s.player.vz < -0.35"),
+                (("w", "d"), "W+D", "walk_up", "walk_right", "walk_right_guard",
+                 False, "s.player.vx > 0.35 && s.player.vz < -0.35"),
+                (("s", "a"), "S+A", "walk_down", "walk_left", "walk_left_guard",
+                 True, "s.player.vx < -0.35 && s.player.vz > 0.35"),
+                (("s", "d"), "S+D", "walk_down", "walk_right", "walk_right_guard",
+                 False, "s.player.vx > 0.35 && s.player.vz > 0.35"),
+            ]
+            for keys, label, source, semantic, tag, mirrored, velocity in directions:
+                for key in keys:
+                    page.keyboard.down(key)
                 try:
-                    vel = "s.player.vz > 0.35" if key == "s" else "s.player.vz < -0.35"
-                    page.wait_for_function(
+                    script = (
                         "() => {const s=window.__beastPhysicsDebug;"
                         "return s && s.review_preview_active "
                         "&& s.human_sprite_hframes === 6 "
-                        "&& s.review_preview_action === '" + direction + "' "
+                        "&& s.review_preview_action === '" + source + "' "
+                        "&& s.review_direction_action === '" + semantic + "' "
                         "&& s.animation_clip_intent === '" + tag + "' "
-                        "&& " + vel + ";}",
-                        timeout=15000, polling=50)
+                        "&& s.review_preview_flip_h === " + str(mirrored).lower()
+                        + " && " + velocity + ";}"
+                    )
+                    page.wait_for_function(script, timeout=15000, polling=50)
                     page.wait_for_function(
                         "() => window.__beastPhysicsDebug?.review_preview_frame > 0",
-                        timeout=15000, polling=40)
+                        timeout=15000, polling=50)
                     middle = state(page)
                     if middle.get("hero_atlas_frame_size") != 80:
-                        raise AssertionError(key.upper() + " preview isn't native 80px")
-                    # User visual bug: old and new 80px cells had DIFFERENT
-                    # painted silhouette heights. Their figure heights must
-                    # agree to <=1 screen pixel while W/S is actually moving.
+                        raise AssertionError(label + " preview isn't native 80px")
                     reference = middle.get("review_reference_body_height_px", 0)
                     painted = middle.get("review_walk_painted_height_px", 0)
                     effective = middle.get("review_effective_body_height_px", 0)
@@ -103,27 +121,30 @@ def main():
                             and abs(reference - effective) <= 1.0
                             and abs(painted * scale - effective) <= 0.01):
                         raise AssertionError(
-                            "Sprite shrinks or grows on " + key.upper()
-                            + ": baseline=" + str(reference)
+                            "Painted body size changed on " + label
+                            + ": reference=" + str(reference)
                             + ", painted=" + str(painted)
                             + ", scaled=" + str(effective))
-                    checked[key.upper()] = {
-                        "clip": middle.get("animation_clip_intent"),
-                        "native_cel_index": middle.get("review_preview_frame"),
-                        "physical_vz": middle.get("player", {}).get("vz"),
-                        "reference_figure_height_px": reference,
-                        "native_source_figure_height_px": painted,
-                        "normalized_figure_height_px": effective,
-                        "uniform_visual_scale": scale,
+                    checked[label] = {
+                        "source": source,
+                        "intent": tag,
+                        "whole_cel_mirrored": mirrored,
+                        "frame": middle.get("review_preview_frame"),
+                        "velocity_x": middle.get("player", {}).get("vx"),
+                        "velocity_z": middle.get("player", {}).get("vz"),
+                        "reference_height_px": reference,
+                        "normalized_height_px": effective,
                     }
-                    canvas.screenshot(path=str(OUT / ("canonical-" + filename + ".png")))
+                    canvas.screenshot(path=str(OUT / (
+                        "canonical-walk-" + label.replace("+", "-") + ".png")))
                 finally:
-                    page.keyboard.up(key)
+                    for key in keys:
+                        page.keyboard.up(key)
                 page.wait_for_function(
                     "() => !window.__beastPhysicsDebug?.review_preview_active",
                     timeout=12000, polling=80)
-            if set(checked) != {"S", "W"}:
-                raise AssertionError("Both W and S must be verified")
+            if set(checked) != {"W", "S", "A", "D", "W+A", "W+D", "S+A", "S+D"}:
+                raise AssertionError("All eight compass directions must be checked")
             result.update({
                 "status": "PASS_TECHNICAL_OWNER_ART_PENDING",
                 "source_sha": start.get("source_sha"),
@@ -133,17 +154,17 @@ def main():
                 "foot_pivot_px": 75,
                 "full_source_status": "PENDING_ART",
             })
-            print("ONE CANONICAL /physics-v2/ JADE CLOSE-STEP GUARD PASS: "
-                  "real W AND S movements, 2 native 6x80px Sprite3D sources, "
-                  "PixelView floor; owner visual review still pending")
+            print("ONE CANONICAL /physics-v2/ JADE 8-DIRECTION GUARD PASS: "
+                  "real W/S/A/D + four diagonals, full-body mirrored 6x80px "
+                  "sources, stable scale, PixelView floor; owner art review pending")
         except Exception as exc:
             result["status"] = "FAIL"
             result["error"] = str(exc)
             result["last"] = state(page)
             raise
         finally:
-            page.keyboard.up("s")
-            page.keyboard.up("w")
+            for key in ("w", "s", "a", "d"):
+                page.keyboard.up(key)
             (OUT / "result.json").write_text(
                 json.dumps(result, ensure_ascii=False, indent=2))
             browser.close()
