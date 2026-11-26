@@ -222,12 +222,19 @@ def main():
                     running_visual.get("player", {}).get("vx", 0.0) < 2.5):
                 raise AssertionError("running sprite did not track real physical speed: " +
                                      str(report["physics_driven_run_art"]))
+            canvas.screenshot(path=str(OUT / "moss-running-real-speed.png"))
             page.wait_for_timeout(250)
             page.keyboard.up("d")
-            page.wait_for_timeout(250)
+            # The physical motor has inertia (especially at slope entry),
+            # and CanvasItem's art can be a render frame behind the 60Hz
+            # physics snapshot. Wait for BOTH a real stop and idle frame.
+            page.wait_for_function(
+                "() => {const s=window.__beastPhysicsDebug;"
+                "if (!s || !s.player) return false;"
+                "const speed=Math.hypot(s.player.vx, s.player.vz);"
+                "return speed < 0.20 && s.human_visual_gait === 'idle';}",
+                timeout=4000, polling=60)
             moved = snap(page)
-            if moved.get("human_visual_gait") != "idle":
-                raise AssertionError("human kept running after physical motor stopped")
             report["physics_driven_run_art_pass"] = True
             report["movement"] = moved
             report["player_dx"] = round(moved["player"]["x"]-first["player"]["x"], 3)
