@@ -253,7 +253,7 @@ def main():
                 # source holds >=85ms plus two renders per pose. Holding
                 # left/right too long hits real stage collision,
                 # legitimately stops _gait_distance_m and freezes the pose.
-                # We still REQUIRE every phase 0..5 to actually appear.
+                # We still REQUIRE every phase 0..7 to actually appear.
                 right_phases = page.evaluate(
                     """() => new Promise(resolve => {
                       const observed = new Set();
@@ -279,7 +279,7 @@ def main():
                         "D+D game renderer did not select every real "
                         "whole-body leg phase: " + str(run_state))
                 # Eight NEW owner-designed whole-body right-facing source
-                # cels in 480x160; never the old mixed legacy 4x20 atlas.
+                # cels in 640x160; never the old mixed legacy 4x20 atlas.
                 source_index = int(run_state.get("review_run_source_frame", -1))
                 if source_index != int(run_state.get("human_sprite_frame", -1)):
                     raise AssertionError("Right run visual frame != source atlas cell")
@@ -296,7 +296,7 @@ def main():
             finally:
                 page.keyboard.up("d")
             # A+A must render the OWNER-designed mirrored WHOLE-body
-            # left-facing row (indices 6..11), not the legacy 4x20 sprite.
+            # left-facing row (indices 8..15), not the legacy 4x20 sprite.
             page.wait_for_timeout(450)
             page.keyboard.press("r")
             page.wait_for_function(
@@ -391,11 +391,11 @@ def main():
                 },
                 "punch_art": "PENDING_ART_FRONT_PUNCH",
                 "kick_art": "PENDING_ART_INDEPENDENT_KICK",
-                "foot_pivot_px": 75,
+                "foot_pivot_px": 74,
                 "full_source_status": "PENDING_ART",
             })
             print("ONE CANONICAL /physics-v2/ JADE OWNER DESIGN EIGHT-POSE PASS: "
-                  "real A+A/D+D with new transparent 480x160 6+6 RGBA source; "
+                  "real A+A/D+D with new transparent 640x160 8+8 RGBA source; "
                   "both full-body row indices validated, eight walks and idle intact; "
                   "owner visual review pending")
         except Exception as exc:
