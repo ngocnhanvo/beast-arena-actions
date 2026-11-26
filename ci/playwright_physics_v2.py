@@ -193,6 +193,37 @@ def main():
                 "tiles": moss_pixel["pixel_view_floor_tiles"],
                 "fighters": moss_pixel["pixel_view_fighters"],
                 "colors": floor_tile_diversity(OUT / "moss-nes-style-2d-start.png")}
+            # Artist A/B must visibly differ IN THE REAL CANVAS, not
+            # merely change an internal flag. F6 changes ONLY the hero atlas,
+            # while preserving 3D feet, hitboxes and the fixed world skyline.
+            hero_before = snap(page)
+            page.keyboard.press("F6")
+            page.wait_for_function(
+                "() => window.__beastPhysicsDebug && window.__beastPhysicsDebug.hero_art_concept_enabled === true",
+                timeout=7000, polling=75)
+            hero_after = snap(page)
+            if (hero_after.get("combat_hp") != hero_before.get("combat_hp") or
+                    hero_after.get("map_id") != hero_before.get("map_id") or
+                    not hero_after.get("pixel_projection_mode")):
+                raise AssertionError("F6 art comparison changed human gameplay state")
+            page.wait_for_timeout(180)
+            art_compare_path = OUT / "moss-jade-scarf-concept.png"
+            canvas.screenshot(path=str(art_compare_path))
+            with (Image.open(OUT / "moss-nes-style-2d-start.png").convert("RGB") as
+                    baseline_image, Image.open(art_compare_path).convert("RGB") as concept_image):
+                if baseline_image.size != concept_image.size:
+                    raise AssertionError("F6 artist mode modified pixel viewport dimensions")
+                changed_pixels = sum(1 for old, new in zip(
+                    baseline_image.getdata(), concept_image.getdata()) if old != new)
+            report["original_jade_scarf_art_comparison"] = {
+                "active": True, "changed_visible_pixels": changed_pixels,
+                "same_hp": True, "same_level": True}
+            if changed_pixels < 50:
+                raise AssertionError("F6 concept artist sprite is not visibly different in actual 2D canvas")
+            page.keyboard.press("F6")
+            page.wait_for_function(
+                "() => window.__beastPhysicsDebug && window.__beastPhysicsDebug.hero_art_concept_enabled === false",
+                timeout=7000, polling=75)
             page.keyboard.press("F5")
             page.wait_for_timeout(180)
             if snap(page).get("pixel_projection_mode"):
