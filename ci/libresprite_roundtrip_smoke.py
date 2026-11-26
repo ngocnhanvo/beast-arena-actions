@@ -62,7 +62,7 @@ def make_editable(path: Path, frame_count: int = 4,
                                   len(parts), 100, 0, 0) + body)
     header = bytearray(128)
     struct.pack_into("<IHHHHH", header, 0, 128 + sum(map(len, frames)),
-                     0xA5E0, frame_count, 80, 80, 32
+                     0xA5E0, frame_count, 80, 80, 32)
     struct.pack_into("<I", header, 14, 1)
     struct.pack_into("<H", header, 18, 100)
     header[30] = 0
