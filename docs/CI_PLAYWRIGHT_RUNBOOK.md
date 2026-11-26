@@ -622,3 +622,13 @@ User rejected the skating rear-facing animation. Real game W moves up world -Z w
 - Local sprite authoring: PRIVATE `tools/export_animation_sources.py` uses Aseprite/LibreSprite --list-tags/--list-slices/PNG+JSON and strict audit; never run an unlicensed executable on public CI or synthesize fake full-body art. Art production details PRIVATE `docs/art/JADE_TEN_CLIP_ANIMATION_PRODUCTION_2026-11-26.md`.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+
+## 2026-11-26 — Final SpriteFrames live-instance V2 gate and exact-source release
+
+- PRIVATE current source `56e935d4a2bf62bed705ff7614e55cc114813d6` now runs the tagged 10-clip 80px Aseprite metadata parser in a headless Godot test, and **actually instantiates** a `BeastPhysicsCharacter` with synthetic test-only `AtlasTexture` animation data. Assert Sprite3D grid is exactly 1x1, no stale 4x20 frame, texture is native authored-slot AtlasTexture, foot_anchor y=76 produces source offset -3 and physics-airborne pose requests `jump_front`. No test-generated art is shipped; no visual quality assumed.
+- Real user source remains PENDING_ART, requiring 10 independently authored editable whole-body clip timelines, PNG+JSON export, valid pivot, original 80px character details and owner visual acceptance. `autocheck:false` means functional CI/E2E does not approve art.
+- Prior Public build #45780007709 SUCCESS for PRIVATE `73e1b806...` and PUBLIC `9dea165f...`, but **predates** the additional Sprite3D live-instance test and final sprite grid ordering. New non-skip CI must compile exact current private SHA, export Web and prove real Chromium against same Pages build before reporting technical PASS.
+- Previous Public E2E #45779061468 superseded by newer Pages during run; #45779338957 JS `abs` typo fixed; script `ci/playwright_arcade_v2.py` now tests actual V2 W/S motion, A+A/D+D motor, F punch, G kick and F+G jump, with strict PCK provenance and honest source PENDING_ART. Save exact new results in both checkpoints.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
