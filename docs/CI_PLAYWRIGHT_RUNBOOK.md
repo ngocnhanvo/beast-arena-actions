@@ -780,3 +780,12 @@ User rejected the skating rear-facing animation. Real game W moves up world -Z w
 - Playwright now requires BOTH A+A / D+D native run frames, actually moving at sprint speed, source orientation and screenshots on SAME `/physics-v2/` URL; final #45828107215/#45828220564 pending terminal proof. Final strict eight-frame run library separately PENDING_ART; owner autocheck:false decides visuals.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+### Real six-pose Jade sprint screenshots/HUD source parity
+
+## Live run evidence and final HUD-only refinement
+- Actual [Chromium #45828568096](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45828568096) **SUCCESS** on PRIVATE 97591b1c/PUBLIC 0374aa6b, [artifact #15121851401](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45828568096/artifacts/15121851401) directly inspected: both genuine A+A/D+D run rows/columns and selected real Sprite3D.frames; RIGHT source cell 22 with velocity 6.479m/s, LEFT cell 21 with velocity -6.510m/s, six distinct originals each, frame3, stride0.50m, eight previous walks and idle inhale unchanged. Screenshots of both running in actual game, floor/map visibly drawn.
+- The in-game upper HUD was then found to show stale `W/S SMALL-STEP GUARD REVIEW` even during real 6-cell sprint. PRIVATE `demo.gd` now displays correct state-aware `RUN: 6 ORIGINAL WHOLE-BODY POSES / OWNER REVIEW`; no motor/source graphics changed. Final playable PRIVATE SHA `a58d8dd83f693018063069354c7c2b7d63112323`, PUBLIC browser test SHA `0294f435d0c2d32aa4a7e62e4e984f6f36ae9bfd` also asserts the actual rendered atlas frame equals six-pose source frame in both directions.
+- [Latest Godot/Web/Windows/Pages #45829650691](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45829650691) **SUCCESS**, compiled exact a58d8dd and deployed the corrected HUD. [Latest Chromium #45830012021](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45830012021) **still IN PROGRESS** when checkpoint written. Read final browser verdict and screenshot artifact before claiming latest E2E PASS. Previous #45828568096 still proves actual run-content behavior, which was unchanged by HUD.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
