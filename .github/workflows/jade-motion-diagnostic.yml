@@ -1,0 +1,45 @@
+name: Beast Arena - Jade Motion Canvas Diagnostics
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ci/playwright_jade_motion_diagnostic.py
+      - .github/workflows/jade-motion-diagnostic.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: beast-arena-jade-motion-visual-diagnostic
+  cancel-in-progress: true
+
+jobs:
+  diagnose-canvas:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 13
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Chromium and screenshot comparator
+        run: |
+          python -m pip install "playwright==1.56.0" "Pillow==11.3.0"
+          python -m playwright install --with-deps chromium
+      - name: Capture actual WebGL Jade run motion
+        env:
+          EXPECTED_GAME_SOURCE_SHA: efe38067a00c9ff76d313f462062b5120ce8576d
+          EXPECTED_BUILD_RUN_ID: '45862343065'
+        run: python ci/playwright_jade_motion_diagnostic.py
+      - name: Upload actual canvas frame and video evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jade-motion-real-canvas-evidence
+          path: playwright-report/jade-motion-diagnostic/
+          if-no-files-found: warn
+          retention-days: 7
