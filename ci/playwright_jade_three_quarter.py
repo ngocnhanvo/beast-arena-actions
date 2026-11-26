@@ -93,6 +93,23 @@ def main():
                  False, "s.player.vx > 0.35 && s.player.vz > 0.35"),
             ]
             for keys, label, source, semantic, tag, mirrored, velocity in directions:
+                # Every case starts on safe walkable stage, not where the
+                # previous direction ended. A 15s predicate timeout with a
+                # held movement key can otherwise send Jade off-map and
+                # turn a presentation assertion into a falling-body failure.
+                # R is the existing in-game ramp-entry teleport, not a
+                # test-only mutation of physics state.
+                page.wait_for_timeout(340)  # >16 native 60Hz double-tap ticks
+                page.keyboard.press("r")
+                page.wait_for_function(
+                    "() => {const s=window.__beastPhysicsDebug;"
+                    "return s && s.player && s.player.grounded "
+                    "&& s.player.y > -0.25 && Math.abs(s.player.x) < 15 "
+                    "&& Math.abs(s.player.z) < 2 "
+                    "&& Math.abs(s.player.vx) < 0.25 "
+                    "&& Math.abs(s.player.vz) < 0.25 "
+                    "&& !s.sprint_requested;}",
+                    timeout=12000, polling=70)
                 for key in keys:
                     page.keyboard.down(key)
                 try:
@@ -106,7 +123,19 @@ def main():
                         "&& s.review_preview_flip_h === " + str(mirrored).lower()
                         + " && " + velocity + ";}"
                     )
-                    page.wait_for_function(script, timeout=15000, polling=50)
+                    try:
+                        page.wait_for_function(script, timeout=5000, polling=50)
+                    except Exception as exc:
+                        # Report the exact input/predicate and real Godot
+                        # state before releasing keys, not only a generic
+                        # timeout after the actor has wandered outside map.
+                        raise AssertionError(
+                            "Eight-direction guard gate failed for " + label
+                            + ": source=" + source
+                            + ", intent=" + tag
+                            + ", full_body_flip=" + str(mirrored)
+                            + ", live_state=" + str(state(page))
+                        ) from exc
                     page.wait_for_function(
                         "() => window.__beastPhysicsDebug?.review_preview_frame > 0",
                         timeout=15000, polling=50)
