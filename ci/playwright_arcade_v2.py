@@ -64,7 +64,20 @@ def main():
             expected_source = os.getenv("BEAST_EXPECT_BUILD_RUN_ID", "").strip()
             expected_pipeline = os.getenv("BEAST_EXPECT_PIPELINE_SHA", "").strip()
             if expected_source and str(start.get("build_run_id")) != expected_source:
-                raise AssertionError("V2 stale PCK build " + str(start.get("build_run_id")))
+                actual_run = str(start.get("build_run_id", ""))
+                # A later successful Pages deploy can replace an earlier
+                # PCK while its Chromium job is running. That earlier job
+                # is SUPERSEDED, not a tested/passable/failing game build.
+                # Preserve stale-old-Pages as a real FAIL.
+                if (actual_run.isdigit() and expected_source.isdigit()
+                        and int(actual_run) > int(expected_source)):
+                    report["status"] = "SUPERSEDED_BY_NEWER_PAGES"
+                    report["actual_run"] = actual_run
+                    report["expected_run"] = expected_source
+                    print("ARCADE V2 E2E SUPERSEDED: Page now has newer run " +
+                          actual_run + ", expected prior " + expected_source)
+                    return
+                raise AssertionError("V2 stale PCK build " + actual_run)
             if expected_pipeline and start.get("pipeline_sha") != expected_pipeline:
                 raise AssertionError("V2 stale PCK pipeline " + str(start.get("pipeline_sha")))
             if not re.fullmatch(r"[0-9a-f]{40}", start.get("source_sha", "")):
