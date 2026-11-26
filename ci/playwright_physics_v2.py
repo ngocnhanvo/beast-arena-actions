@@ -538,21 +538,70 @@ def main():
             # While physically facing -Z but visually front-facing, J/K render full bodies
             # on their physical attack clock. Godot ART-23 verifies alpha,
             # height and planted feet for all 4 directions.
-            page.keyboard.press("j")
-            page.wait_for_timeout(55)
-            light_visual = snap(page)
-            if (light_visual.get("human_visual_gait") != "attack" or
-                    light_visual.get("human_sprite_frame", -1) // 4 not in (7, 8)):
-                raise AssertionError("J failed to show complete front-facing light punch art: " + str(light_visual))
-            canvas.screenshot(path=str(OUT / "moss-jade-approved-W-J.png"))
-            page.wait_for_timeout(550)  # finish J recovery before K input
-            page.keyboard.press("k")
-            page.wait_for_timeout(55)
-            heavy_visual = snap(page)
-            if (heavy_visual.get("human_visual_gait") != "attack" or
-                    heavy_visual.get("human_sprite_frame", -1) // 4 not in (9, 10)):
-                raise AssertionError("K failed to show complete front-facing heavy punch art: " + str(heavy_visual))
-            canvas.screenshot(path=str(OUT / "moss-jade-approved-W-K.png"))
+            # One genuine Chromium key-down per attack, held through
+            # Godot's own authoritative attack clock. A 55ms delayed
+            # Python snap was flaky under SwiftShader: run #45770517662
+            # sampled IDLE/attack_frame=0 after a too-short press. This
+            # fixture must observe real attack state, never fake it.
+            def capture_real_strike(key: str, expected_rows: tuple[int, int],
+                                    shot: str) -> dict:
+                canvas.evaluate("""element => {
+                    element.setAttribute('tabindex', '0');
+                    element.focus();
+                }""")
+                captured_key = "__beastCaptured" + key.upper()
+                page.evaluate("(key) => { window[key] = null; }", captured_key)
+                page.keyboard.down(key)
+                try:
+                    try:
+                        page.wait_for_function(
+                            """([key, first, second]) => {
+                                const s = window.__beastPhysicsDebug;
+                                const row = s ? Math.floor(s.human_sprite_frame / 4) : -1;
+                                if (s && s.human_visual_gait === 'attack' &&
+                                    s.human_attack_frame > 0 &&
+                                    (row === first || row === second)) {
+                                    window[key] = {
+                                        human_visual_gait: s.human_visual_gait,
+                                        human_sprite_frame: s.human_sprite_frame,
+                                        human_attack_frame: s.human_attack_frame,
+                                        combat_hp: s.combat_hp
+                                    };
+                                    return true;
+                                }
+                                return false;
+                            }""",
+                            arg=[captured_key, expected_rows[0], expected_rows[1]],
+                            timeout=3500, polling=20)
+                    except Exception as exc:
+                        raise AssertionError(
+                            f"{key.upper()} never entered real Godot attack state: " +
+                            str({"debug": snap(page),
+                                 "canvas_focus": canvas.evaluate(
+                                     "el => document.activeElement === el")})
+                        ) from exc
+                    confirmed = page.evaluate("(key) => window[key]", captured_key)
+                    if (not confirmed or
+                            confirmed["human_sprite_frame"] // 4 not in expected_rows):
+                        raise AssertionError(
+                            f"{key.upper()} did not capture a verified combat frame: " +
+                            str(confirmed))
+                    canvas.screenshot(path=str(OUT / shot))
+                    return confirmed
+                finally:
+                    page.keyboard.up(key)
+
+            light_visual = capture_real_strike(
+                "j", (7, 8), "moss-jade-approved-W-J.png")
+            # Only after the real J attack/recovery has ended may K start.
+            # This is native combat state, not wall-clock 550ms guessing.
+            page.wait_for_function(
+                "() => {const s=window.__beastPhysicsDebug; "
+                "return s && s.human_attack_frame===0 && "
+                "s.human_visual_gait!=='attack';}",
+                timeout=9000, polling=30)
+            heavy_visual = capture_real_strike(
+                "k", (9, 10), "moss-jade-approved-W-K.png")
             # A visual test, not only physics telemetry: the back half
             # of the playable XZ plane must display actual GRASS, not the
             # first 64px vertical retaining WALL painted as floor tiles.
