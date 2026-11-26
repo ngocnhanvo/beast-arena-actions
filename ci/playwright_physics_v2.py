@@ -361,7 +361,7 @@ def main():
                     "() => {const s=window.__beastPhysicsDebug; "
                     "return s && s.human_approved_motion_set && "
                     "s.player.grounded && s.player.vz < -0.25 && "
-                    "s.human_sprite_frame % 4 === 3 && "
+                    "s.human_sprite_frame % 4 === 0 && "
                     "['run','walk'].includes(s.human_visual_gait);}",
                     timeout=9000, polling=70)
             except Exception as exc:
@@ -375,13 +375,13 @@ def main():
                            "focus": canvas.evaluate(
                                "element => document.activeElement === element")})
                     ) from exc
-            approved_rear = snap(page)
-            if (approved_rear.get("human_sprite_frame", -1) % 4 != 3 or
-                    approved_rear.get("human_visual_gait") not in ("walk", "run") or
-                    approved_rear.get("hero_atlas_frame_size") != 80 or
-                    not approved_rear.get("human_approved_motion_set")):
-                raise AssertionError("W must use original full-body approved Jade: " + str(approved_rear))
-            canvas.screenshot(path=str(OUT / "moss-jade-approved-rear-motion.png"))
+            approved_front_up = snap(page)
+            if (approved_front_up.get("human_sprite_frame", -1) % 4 != 0 or
+                    approved_front_up.get("human_visual_gait") not in ("walk", "run") or
+                    approved_front_up.get("hero_atlas_frame_size") != 80 or
+                    not approved_front_up.get("human_approved_motion_set")):
+                raise AssertionError("W must keep original front-visible approved Jade: " + str(approved_front_up))
+            canvas.screenshot(path=str(OUT / "moss-jade-approved-up-front-motion.png"))
             # Sample a known REAL physical travel distance rather than
             # holding W for a fixed wall-clock delay. Software WebGL can
             # process 1.05 wall seconds as >3 actual physics seconds and
@@ -399,8 +399,8 @@ def main():
             grounded_samples = [item for item in gait_samples
                                 if item.get("gait") == "run" and item.get("grounded")]
             observed_phases = {item.get("phase") for item in grounded_samples}
-            if any(item.get("facing") != 3 for item in grounded_samples):
-                raise AssertionError("W lost rear facing while running")
+            if any(item.get("facing") != 0 for item in grounded_samples):
+                raise AssertionError("W must keep front face visible while running")
             stride_begin = grounded_samples[0]["stride"] if grounded_samples else 0.0
             stride_end = grounded_samples[-1]["stride"] if grounded_samples else 0.0
             first_distance_m = stride_end - stride_begin
@@ -450,7 +450,7 @@ def main():
                     "return s && s.player.grounded && "
                     "s.player.vz < -0.25 && "
                     "s.human_visual_gait==='run' && "
-                    "s.human_sprite_frame % 4 === 3;}",
+                    "s.human_sprite_frame % 4 === 0;}",
                     timeout=9000, polling=70)
                 page.wait_for_function(
                     "() => {const s=window.__beastPhysicsDebug; "
@@ -467,8 +467,8 @@ def main():
                 if not more_grounded:
                     raise AssertionError(
                         "W retry never sampled real grounded movement")
-                if any(item.get("facing") != 3 for item in more_grounded):
-                    raise AssertionError("W retry lost rear facing")
+                if any(item.get("facing") != 0 for item in more_grounded):
+                    raise AssertionError("W retry lost front-facing projection")
                 extra_distance_m = (more_grounded[-1]["stride"]
                                     - more_grounded[0]["stride"])
                 if extra_distance_m <= 0.9:
@@ -504,9 +504,9 @@ def main():
             # NEW independent J/K fixture. The long W gait-sampling
             # experiment must NOT leak a near-edge or airborne player
             # into the punching test (prior real Chrome z=-13.469 on a
-            # -13m floor). Reset to native grounded spawn, face rear with
-            # a short genuine W motion, then stop before J/K. Never
-            # rewrite physical world position or fake the facing in JS.
+            # -13m floor). Reset to native grounded spawn, move -Z with
+            # a short genuine W motion (front-visible), then stop before J/K. Never
+            # rewrite physical position or fake combat facing in JS.
             page.keyboard.up("w")
             page.keyboard.press("t")
             page.wait_for_function(
@@ -524,7 +524,7 @@ def main():
             page.wait_for_function(
                 "() => {const s=window.__beastPhysicsDebug; "
                 "return s && s.player && s.player.grounded && "
-                "s.player.vz < -0.25 && s.human_sprite_frame % 4 === 3;}",
+                "s.player.vz < -0.25 && s.human_sprite_frame % 4 === 0;}",
                 timeout=9000, polling=70)
             page.keyboard.up("w")
             page.wait_for_timeout(140)
@@ -533,9 +533,9 @@ def main():
                     abs(strike_start["human_physical_ground_clearance_m"]) > 0.25 or
                     strike_start["player"]["z"] <= -7.5):
                 raise AssertionError(
-                    "J/K fixture must start on safe REAL grounded rear-facing terrain: "
+                    "J/K fixture must start on safe REAL grounded up-movement/front-visible terrain: "
                     + str(strike_start["player"]))
-            # While facing rear, J and K must render full illustrated bodies
+            # While physically facing -Z but visually front-facing, J/K render full bodies
             # on their physical attack clock. Godot ART-23 verifies alpha,
             # height and planted feet for all 4 directions.
             page.keyboard.press("j")
@@ -543,7 +543,7 @@ def main():
             light_visual = snap(page)
             if (light_visual.get("human_visual_gait") != "attack" or
                     light_visual.get("human_sprite_frame", -1) // 4 not in (7, 8)):
-                raise AssertionError("J failed to show complete rear light punch art: " + str(light_visual))
+                raise AssertionError("J failed to show complete front-facing light punch art: " + str(light_visual))
             canvas.screenshot(path=str(OUT / "moss-jade-approved-W-J.png"))
             page.wait_for_timeout(550)  # finish J recovery before K input
             page.keyboard.press("k")
@@ -551,7 +551,7 @@ def main():
             heavy_visual = snap(page)
             if (heavy_visual.get("human_visual_gait") != "attack" or
                     heavy_visual.get("human_sprite_frame", -1) // 4 not in (9, 10)):
-                raise AssertionError("K failed to show complete rear heavy punch art: " + str(heavy_visual))
+                raise AssertionError("K failed to show complete front-facing heavy punch art: " + str(heavy_visual))
             canvas.screenshot(path=str(OUT / "moss-jade-approved-W-K.png"))
             # A visual test, not only physics telemetry: the back half
             # of the playable XZ plane must display actual GRASS, not the
@@ -564,7 +564,7 @@ def main():
                 OUT / "moss-jade-approved-W-K.png")
             if min(j_grass, k_grass) < 0.40:
                 raise AssertionError(
-                    "W/J/K rear depth still shows wall instead of real walkable grass: "
+                    "W/J/K up-field still shows wall instead of walkable grass: "
                     + str({"j_green_fraction": round(j_grass, 3),
                            "k_green_fraction": round(k_grass, 3)}))
             report["jade_wjk_physics_sprite_regression"] = {
@@ -580,23 +580,23 @@ def main():
                 "j_attack_row": light_visual["human_sprite_frame"] // 4,
                 "k_attack_row": heavy_visual["human_sprite_frame"] // 4,
                 "physical_hp_unchanged": heavy_visual.get("combat_hp") == hero_before.get("combat_hp")}
-            # This fixture only verifies a TRUE moving rear-facing pose.
+            # This fixture verifies TRUE upward movement with front-visible art.
             # Do not require instant idle on W release: the real Godot
             # character can coast/slip with slope/gravity and remain
             # airborne for several frames. The pre-existing movement/
             # physical-stop tests remain independently strict below.
             page.wait_for_timeout(160)
-            report["user_approved_jade_rear_motion"] = {
+            report["user_approved_jade_up_front_motion"] = {
                 "active": True,
-                "direction": approved_rear["human_sprite_frame"] % 4,
-                "pose_row": approved_rear["human_sprite_frame"] // 4,
-                "gait": approved_rear["human_visual_gait"],
-                "screenshot": "moss-jade-approved-rear-motion.png"}
+                "direction": approved_front_up["human_sprite_frame"] % 4,
+                "pose_row": approved_front_up["human_sprite_frame"] // 4,
+                "gait": approved_front_up["human_visual_gait"],
+                "screenshot": "moss-jade-approved-up-front-motion.png"}
             page.keyboard.press("F7")
             page.wait_for_function(
                 "() => window.__beastPhysicsDebug && window.__beastPhysicsDebug.hero_art_approved_enabled === false",
                 timeout=8000, polling=70)
-            # Isolate the NEW W/rear-art fixture from all original 3D
+            # Isolate the NEW W/front-art fixture from all original 3D
             # movement tests. W changes actual world Z and can leave the
             # actor airborne/on a slope even after key release, which
             # invalidates the old D-only gait baseline. T is the game's
@@ -607,7 +607,7 @@ def main():
             if (reset.get("map_id") != hero_before.get("map_id") or
                     reset.get("combat_hp") != hero_before.get("combat_hp") or
                     reset.get("hero_art_approved_enabled")):
-                raise AssertionError("T did not isolate rear art fixture before physics regression tests")
+                raise AssertionError("T did not isolate W/front art fixture before physics regression tests")
             page.keyboard.press("F5")
             page.wait_for_timeout(180)
             if snap(page).get("pixel_projection_mode"):
