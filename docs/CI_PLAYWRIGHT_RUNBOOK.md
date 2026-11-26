@@ -798,3 +798,11 @@ User rejected the skating rear-facing animation. Real game W moves up world -Z w
 - Initial browser #45837687033 failed after Physics/Arcade PASS because old per-index 2s wait let left-going player reach obstacle and stop. Public `ci/playwright_jade_three_quarter.py` now samples within 850ms, still demands all six phases; exact next build #45839072298 pending at first checkpoint. No new public URL and no automatic owner aesthetics approval.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+## 2026-11-26 — Fix E2E real-W travel overshooting Moss floor, not physics
+
+- #45839451719 FAIL in prior unrelated `ci/playwright_physics_v2.py` after holding W too long waiting for both grounded and z<-7.5; actual sampling artifact #15127775589 proved actor fell with z=-56.5958/y=-1018 after passing floor boundary z=-13. This is Playwright input-lifetime risk, not a source run art/motor regression.
+- Public code de0746f changes to z<-3.2 safe within floor, 6s timeout, 35ms polling and unconditional immediate Playwright W release in finally. Following assertions still require >0.9m physically traveled on grounded floor, correct side/front art and shoe pivot, J/K visuals.
+- Build #45844347100 SUCCESS, PRIVATE compiled 0dd6, Pages OK. Browser #45844648520 must be read before PASS, and strict real A+A/D+D six live phases remain compulsory. No disabling game tests, no alternate URLs.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**

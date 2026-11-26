@@ -21,3 +21,13 @@ Use the newly designed Jade six-pose running sequence IN GAME, not another drawi
 3. 8+ independent-authored final run clips and original punch/kick/true idle/source foot signoff remain pending. Final game roadmap unfinished.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+## 2026-11-26 latest six-pose integration proof and unrelated W/Physics test repair
+
+- Do not regenerate or overwrite PRIVATE owner-designed art: 480×160 PNG 6 native 80px complete-body RIGHT cels [0..5], mirrored LEFT [6..11], separate editable ASE + foot pivot source already committed to PRIVATE 0dd6c491ac2ce17fb6dd568f853fb127544ce05e; pinned LibreSprite [#45837312555](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45837312555) attempt2 SUCCESS on four real W/S/left/right candidates (walk115ms,run85ms).
+- Exact latest [Godot/Web/Windows/Pages #45844347100](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45844347100) **SUCCESS** with PUBLIC de0746f49b17497f03bcecccdfa9d01281e41104 and PRIVATE 0dd6c491. Native Godot log printed `JADE RUN SIX POSE PASS`, 6 genuinely distinct frames each direction, 70px normalized body height, original 8-way walk unaffected, Pages deployed.
+- Previous [Chromium #45839451719](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45839451719) **FAIL before Jade test**, unrelated existing Physics V2 W/Z predicate: artifact #15127775589 shows grounded player moved beyond safe Moss z=-13 stage edge while test held real W for up to 10s; terminal z=-56.60/y=-1018.12, airborne. Public commit de0746 *only* changes `ci/playwright_physics_v2.py` to stop at z<-3.2 (safe) and always release W immediately, retains grounded >0.9m real travel + foot pivot + J/K checks. No gameplay motor/scene edits and no test gate disabled.
+- New exact [Chromium #45844648520](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45844648520) was running at checkpoint write: must check final Physics V2 PASS and actual `ci/playwright_jade_three_quarter.py` A+A/D+D all six live phases, screen captures and exact SHA before E2E PASS.
+- Owner checks only https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/ . `autocheck:false`: technical build/test does not imply aesthetic acceptance; punch/kick/strict full-source 10-tag still PENDING_ART.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
