@@ -186,11 +186,13 @@ def main():
             moss_pixel = snap(page)
             if (not moss_pixel.get("pixel_projection_mode") or
                     moss_pixel.get("pixel_view_fighters") != 4 or
-                    moss_pixel.get("pixel_view_floor_tiles", 0) < 60):
+                    moss_pixel.get("pixel_view_floor_tiles", 0) < 60 or
+                    moss_pixel.get("pixel_floor_details", 0) < 15):
                 raise AssertionError("Moss F5 2D start scene is missing map/4 humans")
             canvas.screenshot(path=str(OUT / "moss-nes-style-2d-start.png"))
             report["moss_pixel_2d_start"] = {
                 "tiles": moss_pixel["pixel_view_floor_tiles"],
+                "floor_details": moss_pixel["pixel_floor_details"],
                 "fighters": moss_pixel["pixel_view_fighters"],
                 "colors": floor_tile_diversity(OUT / "moss-nes-style-2d-start.png")}
             # Artist A/B must visibly differ IN THE REAL CANVAS, not
@@ -359,11 +361,13 @@ def main():
             if (not docks_pixel.get("pixel_projection_mode") or
                     docks_pixel.get("map_id") != "night_docks" or
                     docks_pixel.get("pixel_view_fighters") != 4 or
-                    docks_pixel.get("pixel_view_floor_tiles", 0) < 60):
+                    docks_pixel.get("pixel_view_floor_tiles", 0) < 60 or
+                    docks_pixel.get("pixel_floor_details", 0) < 15):
                 raise AssertionError("Docks F5 2D scene missing original map/characters")
             canvas.screenshot(path=str(OUT / "docks-nes-style-2d-start.png"))
             report["docks_pixel_2d_start"] = {
                 "tiles": docks_pixel["pixel_view_floor_tiles"],
+                "floor_details": docks_pixel["pixel_floor_details"],
                 "fighters": docks_pixel["pixel_view_fighters"],
                 "colors": floor_tile_diversity(OUT / "docks-nes-style-2d-start.png")}
             page.keyboard.press("F5")
