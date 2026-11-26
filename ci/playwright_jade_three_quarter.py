@@ -92,6 +92,12 @@ def main():
                 (("s", "d"), "S+D", "walk_down", "walk_right", "walk_right_guard",
                  False, "s.player.vx > 0.35 && s.player.vz > 0.35"),
             ]
+            expected_stride_m = {
+                "W": 0.30, "S": 0.30,
+                "A": 0.38, "D": 0.38,
+                "W+A": 0.35, "W+D": 0.35,
+                "S+A": 0.35, "S+D": 0.35,
+            }
             for keys, label, source, semantic, tag, mirrored, velocity in directions:
                 # Every case starts on safe walkable stage, not where the
                 # previous direction ended. A 15s predicate timeout with a
@@ -154,7 +160,28 @@ def main():
                             + ": reference=" + str(reference)
                             + ", painted=" + str(painted)
                             + ", scaled=" + str(effective))
+                    # Real stride cadence is distance-driven, not FPS or
+                    # animation timing simulated by the browser. Each clip
+                    # remains native; player movement speed is unchanged.
+                    frame_stride = middle.get("review_walk_distance_per_frame_m", 0)
+                    expected = expected_stride_m[label]
+                    if abs(frame_stride - expected) > 0.001:
+                        raise AssertionError(
+                            f"{label} step animation pace {frame_stride}m "
+                            f"does not match expected {expected}m/cel")
+                    # All directions use the same 4.2 m/s motor on flat
+                    # terrain; diagonals cannot become sqrt(2) faster.
+                    velocity_x = float(middle["player"]["vx"])
+                    velocity_z = float(middle["player"]["vz"])
+                    world_speed = (velocity_x**2 + velocity_z**2)**0.5
+                    if not (0.35 < world_speed < 5.5):
+                        raise AssertionError(
+                            f"{label} unexpected physical walking speed {world_speed}")
                     checked[label] = {
+                        "step_distance_per_cel_m": frame_stride,
+                        "approx_cels_per_second_at_4_2_mps": round(
+                            4.2 / frame_stride, 2),
+                        "real_world_speed_mps": round(world_speed, 3),
                         "source": source,
                         "intent": tag,
                         "whole_cel_mirrored": mirrored,
@@ -183,9 +210,10 @@ def main():
                 "foot_pivot_px": 75,
                 "full_source_status": "PENDING_ART",
             })
-            print("ONE CANONICAL /physics-v2/ JADE 8-DIRECTION GUARD PASS: "
-                  "real W/S/A/D + four diagonals, full-body mirrored 6x80px "
-                  "sources, stable scale, PixelView floor; owner art review pending")
+            print("ONE CANONICAL /physics-v2/ JADE 8-DIRECTION PACE PASS: "
+                  "W/S=0.30m/cel, lateral=0.38m/cel, diagonals=0.35m/cel; "
+                  "motor preserved, 6x80px cels, PixelView visible; "
+                  "owner visual review pending")
         except Exception as exc:
             result["status"] = "FAIL"
             result["error"] = str(exc)
