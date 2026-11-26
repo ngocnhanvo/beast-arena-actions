@@ -7,6 +7,7 @@ on:
       - ".github/workflows/libresprite-art.yml"
       - "ci/setup_libresprite.sh"
       - "ci/libresprite_roundtrip_smoke.py"
+      - "ci/libresprite_full_export_smoke.py"
       - "docs/LIBRESPRITE_RUNBOOK.md"
   workflow_dispatch:
 
@@ -56,6 +57,11 @@ jobs:
           cd "$RUNNER_TEMP/beast-game"
           python3 tools/animation_source_audit.py --json-output "$RUNNER_TEMP/animation_source_audit.json"
           echo "PRIVATE SOURCE SHA: $(git rev-parse HEAD)"
+          # EXERCISE the actual private exporter end-to-end with ORIGINAL
+          # test-only 58 frames and explicit foot metadata. Nothing uploaded.
+          cd "$GITHUB_WORKSPACE"
+          python3 ci/libresprite_full_export_smoke.py --game "$RUNNER_TEMP/beast-game" --binary libresprite
+          cd "$RUNNER_TEMP/beast-game"
           set +e
           python3 tools/libresprite_export.py --fighter jade_human --binary libresprite \
             --output-dir "$RUNNER_TEMP/private-guard-review"
