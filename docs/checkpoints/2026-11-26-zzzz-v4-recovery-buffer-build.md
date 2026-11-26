@@ -22,3 +22,12 @@
 NES-style original art quality and user signoff; grabs/throws/advanced combos; map props/editor UX, route AI, device FPS, P1.5 migration, original V5 beast forms.
 
 **Trạng thái: PARTIAL — chưa hoàn tất**
+
+
+## First actual feedback — corrected Chrome contract (2026-11-26)
+- Private source exactly `0af48c861537b1f8dd1bc6ff7d791a588cf0c62c`, build/Pages #45742050996 **SUCCESS**: all headless game tests incl. `COMBO V4 PASS`; exports Web + Windows completed; public branch `8a151d2a`.
+- Browser #45742273520 **FAIL**. Log excerpt: `PASS P1.5 ... dx=210.0`, then `AssertionError: J did not start the original light attack visual preview`. Browser artifact ID `15081542662`. Cause isolated to old `human_visual_action` assertion after true 60Hz attack intentionally no longer uses legacy visual preview. It is test-contract drift; not a verified gameplay hitbox failure.
+- Public `ci/playwright_physics_v2.py` fix `95281046` checks `human_visual_gait="attack"`, `human_attack_frame` and sprite row 7/8. Build/Pages revalidation [#45742647411](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45742647411) **SUCCESS**; Chromium #45742922283 started automatically, status must be queried before PASS.
+- Follow-on PRIVATE presentation-only skyline correction `8ae3fc37` + `PRES-12` two-map gate `dc14a7b6` have NOT YET been bundled into a new Pages source build. After current E2E closes, trigger next public pipeline with new exact private HEAD and verify map screenshots.
+
+**Trạng thái: PARTIAL — chưa hoàn tất**
