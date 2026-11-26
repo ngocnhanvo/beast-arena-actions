@@ -80,3 +80,12 @@ Do not equate successful test frames with artistically complete sprites.
   switch the live V2 sprite source from legacy to authored.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+## VERIFIED LATEST LIVE WEB FINAL CONTROLS GATE (2026-11-26)
+- Build actually compiled PRIVATE `56e935d4a2bf62bed705ff7614e55cc114813d6a` with PUBLIC pipeline `4fa9bf428e3a67aac42efd8e993d172f20545591`. [Godot/Windows/Web/Pages #45781105819](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45781105819) **SUCCESS** (all preflight/import/test/export/Pages jobs). Godot V2 test includes a REAL instanced Character Sprite3D with synthetic unit-test-only 80px AtlasTexture, grid 1x1 and original foot anchor: `ANIMATION V2 FOUNDATION PASS`; standard P1.5/Physics/Combat tests PASS. Source audit logs `PENDING_ART` because editable full-body animation files do not exist.
+- [EXACT real Chromium #45781380420](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45781380420) **SUCCESS**, expected PUBLIC SHA `4fa9bf4...` and Pages build run `45781105819`, P1.5 two scrolling maps dx203px PASS, Physics V2 real climb2.14m/descent2.50m, angle>=10deg and displacement12.16m PASS, new `ARCADE V2 WEB PASS: W/S front, A+A/D+D sprint, F punch, G kick, F+G jump; visual PENDING_ART`. [Screenshot artifact #15098676738](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45781380420/artifacts/15098676738) is available. No unresolved technical build/browser failure in this final exact release.
+- Owner playable controls preview: https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/?controls=v2&art=approved&pixel=1&v=45781105819 . Opt-in, normal game controls unchanged.
+- PRECISE limitation: ALL TEN **clip names/input/metadata paths** now implemented/tested, BUT authentic distinct editable 80x80 full-body Jade sprite sequences have NOT been authored. Kick G still shows legacy heavy-punch placeholder and current Jade running uses user-rejected old leg/arm compositing. Script deliberately says `animation_source_ready=false`/`PENDING_ART`. CI and Chromium PASS do NOT equal user visual approval (explicit `autocheck:false`).
+- Next work is source-art production and strictly validated import of ten *independently drawn* Aseprite/LibreSprite clip timelines (private production brief `docs/art/JADE_TEN_CLIP_ANIMATION_PRODUCTION_2026-11-26.md`), followed by manual owner artistic inspection and preview; no further pixel-fragment "fixes". If no editable clip source, keep status BLOCKED_ART_SOURCE.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
