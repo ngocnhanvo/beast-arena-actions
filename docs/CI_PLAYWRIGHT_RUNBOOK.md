@@ -818,3 +818,9 @@ User rejected the skating rear-facing animation. Real game W moves up world -Z w
 - Prior #45846453321 Jade E2E: selected pose mask 0x3F but browser rAF observed only [1,2,3,5] left. Treat rAF and actual selected phase as distinct evidence. Earlier [0,2,3,4,5] right. Pages build PASS alone is insufficient.
 - PRIVATE presentation now requires each source pose's 85ms duration plus >=2 rendered passes, preserving authoring/projection/physics and 5→0 wrap. PUBLIC Jade browser gate samples up to 1850ms, still demanding all six phases on A+A AND D+D, no test skip. Initial full build #45848128995; next retrieve exact Chromium and screenshots.
 - `autocheck:false` means art visual approval belongs to owner at the single canonical /physics-v2/ link; source still 6 pilot frames and missing full independent 8+ source, punch/kick clips.
+
+## 2026-11-26 22:27 ICT — CONFIRMED: six-body render hold and WebGL phase coverage
+- VERIFIED: PRIVATE bfb07f867dcaaaae6c6ec38a4dd8250161bd5766 / PUBLIC 6f2c7c837a3ce68c082997058937fedad0b90b8d, build/Pages #45848128995 SUCCESS. Native `JADE SIX RUN FRAME HOLD PASS`, 5→0 wrap, full six source frames both sides, physics unchanged.
+- VERIFIED: exact Chromium #45848462724 SUCCESS: all six source phases A+A/D+D on canonical /physics-v2/; existing walking/Arcade/slope tests PASS. Report screenshots artifact ID 15133260807.
+- SOURCE-AUDIT FINDING: `jade_run_owner_six_right.foot.json` and `left.foot.json` currently contain constant `[40,75]` draft foot pivots per cel and `pivot_review_required:true`. Potential planted-foot continuity issue is HYPOTHESIS, not proven reason for owner's last-leg perceptual defect.
+- NEXT ART: owner visual review `autocheck:false`; if still limping, author additional complete 80x80 body contact poses and accurate per-frame source pivots in editable ASE, no runtime limb patch. Full ten-clip original art still PENDING_ART.
