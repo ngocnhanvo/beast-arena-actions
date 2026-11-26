@@ -37,12 +37,12 @@ def make_editable(path: Path, frame_count: int = 4,
     for frame in range(frame_count):
         parts = []
         if frame == 0:
-            layer = struct.pack("<6HB3s", 1, 0, 0, 0, 0, 0, 255, b"\\0"*3)
+            layer = struct.pack("<6HB3s", 1, 0, 0, 0, 0, 0, 255, b"\0"*3)
             parts.append(chunk(0x2004, layer + word_string("original-test-only-cel")))
-            tags_bytes = [struct.pack("<H", len(tags)) + b"\\0"*8]
+            tags_bytes = [struct.pack("<H", len(tags)) + b"\0"*8]
             for name, first, last in tags:
                 tags_bytes.append(
-                    struct.pack("<HHBH", first, last, 0, 0) + b"\\0"*6 +
+                    struct.pack("<HHBH", first, last, 0, 0) + b"\0"*6 +
                     bytes((25, 158, 150, 0)) + word_string(name))
             parts.append(chunk(0x2018, b"".join(tags_bytes)))
         color = (20 + 25 * (frame % 4), 90 + 20 * (frame % 4), 170 - 19 * (frame % 4), 255)
