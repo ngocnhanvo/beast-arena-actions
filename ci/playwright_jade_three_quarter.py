@@ -92,10 +92,29 @@ def main():
                     middle = state(page)
                     if middle.get("hero_atlas_frame_size") != 80:
                         raise AssertionError(key.upper() + " preview isn't native 80px")
+                    # User visual bug: old and new 80px cells had DIFFERENT
+                    # painted silhouette heights. Their figure heights must
+                    # agree to <=1 screen pixel while W/S is actually moving.
+                    reference = middle.get("review_reference_body_height_px", 0)
+                    painted = middle.get("review_walk_painted_height_px", 0)
+                    effective = middle.get("review_effective_body_height_px", 0)
+                    scale = middle.get("review_visual_scale", 0)
+                    if not (reference > 0 and painted > 0 and scale > 0
+                            and abs(reference - effective) <= 1.0
+                            and abs(painted * scale - effective) <= 0.01):
+                        raise AssertionError(
+                            "Sprite shrinks or grows on " + key.upper()
+                            + ": baseline=" + str(reference)
+                            + ", painted=" + str(painted)
+                            + ", scaled=" + str(effective))
                     checked[key.upper()] = {
                         "clip": middle.get("animation_clip_intent"),
                         "native_cel_index": middle.get("review_preview_frame"),
                         "physical_vz": middle.get("player", {}).get("vz"),
+                        "reference_figure_height_px": reference,
+                        "native_source_figure_height_px": painted,
+                        "normalized_figure_height_px": effective,
+                        "uniform_visual_scale": scale,
                     }
                     canvas.screenshot(path=str(OUT / ("canonical-" + filename + ".png")))
                 finally:
