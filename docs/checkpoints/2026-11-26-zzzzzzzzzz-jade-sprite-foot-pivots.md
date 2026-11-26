@@ -104,3 +104,13 @@
 - Future option: if multi-capture still fails at ultra-low browser FPS, implement deterministic visual frame-hold/clip presentation to prevent dropped authored poses at render level. Do NOT alter 60Hz motor or accept 3/4 art as done.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+
+### 2026-11-26 — Multi-real-W browser E2E exposed test contamination at map edge, fixed
+
+- PUBLIC new multi-capture browser [#45763700972](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45763700972) **FAIL**: no longer fails at the first strict `4/4 visible W phases` assertion; it advanced to **J art**, but true native player was **airborne** at `z=-13.46884`, `y=-0.99236`, `vy=-5.90` outside Moss map's physical -13m depth boundary, after repeated W captures. Snapshot `human_sprite_frame=23` (airborne row5), even though actual combat `human_attack_frame=8`; `J failed to show complete rear light punch art` is therefore a contaminated test fixture, NOT evidence of broken grounded Jade punch sprite. Existing authored ART-23/24/25/3D pivot tests remain PASS. Clearly separate fixed wall-art and sprite bugs from invalid input sampling that runs out of the map.
+- PUBLIC-only source `ci/playwright_physics_v2.py` `da8094c23464457e50e350283565198ea14ab79d`: sample all real W captures until the **physical player z reaches -7.5m** (safe inside -13m floor edge), instead of wall-clock 1050ms that can span irregular actual physics time under slow WebGL. Keep 4/4 actually-rendered phase union across at most three genuine W runs, grounded/real distance per run, original foot pivot/HP tests. **Independent J/K fixture** now releases W, uses native T reset, waits for true floor idle, focuses actual Godot canvas, executes SHORT true rear W movement and releases, asserts physically grounded and not near edge before J and K. No direct world position/physics mutation or fake pose injection.
+- New CI/Pages+strict Chromium is required before J/K visual PASS; never suppress this failure, previously failed #45762495699 and #45762740141 remain documented.
+- **Still TODO**: final user art signoff and eventual structured Aseprite tags/SpriteFrames editing integration for the rest of the motions and fighters, map aesthetics, editor, beast mode roadmap.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
