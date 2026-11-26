@@ -29,3 +29,12 @@ Owner requested every fighter keep raised fists in standing, walking and running
 - Correctness status is at most `TECHNICAL_PENDING` until both gates pass. Original raised-hand whole-body guard-walk art is still absent for all four fighters; owner review `autocheck:false` has NOT occurred.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+## 2026-11-26 — Corrected guard JSON parser AND complete final source build verified
+- EXACT compiled PRIVATE `5abb1a1f418e30b28ea5492fce8324d9ae66fc19`, PUBLIC pipeline `1e0557bc5b2ad57efa6bb596ca8a89d027a540e7`.
+- [Latest Godot/Windows/Web/Pages #45791697419](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45791697419) **SUCCESS in every job** (preflight, test/export, Pages). Real log: `GUARD PROFILE STATIC PASS: 4 fighters, 10 combat-stance clips; 4 PENDING_ART`, `GUARD ANIMATION PROFILES PASS: four fighters, ten action contracts, 80px native frame importer, shared 3D pose, W/S front, PENDING_ART`, older V2 foundation/direction-safe tests PASS, `All export checks passed`, source-audit `PENDING_ART`. This is proof that the fixed Godot JSON profile parser works for all FOUR current fighters and that no fake guard art was shipped.
+- Earlier build #45790727518 failed GUARD-203 because JSON 80x80 numeric list direct equality was invalid, now superseded for this technical test by #45791697419; retain both run IDs in history.
+- [EXACT browser #45792314363](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45792314363) was IN PROGRESS when written; verify its final conclusion and whether it reached the four-profile Web test. **Do not infer browser PASS from build PASS.**
+- Owner's high-guard artwork itself **NOT DONE**. Four fighters still have missing editable full-body high-guard loops; `autocheck:false` owner judges art. Work is complete only for this technical architecture and CI layer, not visual content or full game roadmap.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
