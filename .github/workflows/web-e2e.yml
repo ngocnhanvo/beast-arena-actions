@@ -8,10 +8,57 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
-  browser-smoke:
+  publication-gate:
+    # A successful scheduled build can reuse its source/Pages SHA cache.
+    # In that case no NEW Web PCK was deployed and E2E must be SKIPPED,
+    # not incorrectly compared to the schedule's fresh run ID.
     if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    outputs:
+      deployed: ${{ steps.check-pages.outputs.deployed }}
+    steps:
+      - name: Require actual upstream Pages deployment
+        id: check-pages
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          UPSTREAM_RUN_ID: ${{ github.event.workflow_run.id }}
+          REPOSITORY: ${{ github.repository }}
+          DIRECT_MANUAL: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          set -euo pipefail
+          if [[ "$DIRECT_MANUAL" == "true" ]]; then
+            echo "deployed=true" >> "$GITHUB_OUTPUT"
+            echo "Manual browser recheck against current published Pages."
+            exit 0
+          fi
+          # GitHub Actions jobs endpoint is ground truth (not overall run
+          # conclusion). An hourly SHA-cache hit skips the deploy-pages job.
+          RESULT="$(gh api "repos/$REPOSITORY/actions/runs/$UPSTREAM_RUN_ID/jobs?per_page=100" \
+            --jq '.jobs[] | select(.name == "Publish Web game to GitHub Pages (PUBLIC)") | .conclusion')"
+          case "$RESULT" in
+            success)
+              echo "deployed=true" >> "$GITHUB_OUTPUT"
+              echo "Pages deployed by triggering run $UPSTREAM_RUN_ID; run strict exact-SHA and run-ID Chromium tests."
+              ;;
+            skipped)
+              echo "deployed=false" >> "$GITHUB_OUTPUT"
+              echo "::notice::Upstream run $UPSTREAM_RUN_ID reused successful source/Pages cache. No new deploy; browser tests are intentionally SKIPPED."
+              echo "Browser checks skipped: upstream Pages job was skipped (unchanged deployed SHA)." >> "$GITHUB_STEP_SUMMARY"
+              ;;
+            *)
+              echo "::error::Cannot verify upstream Pages deployment for run $UPSTREAM_RUN_ID (job conclusion: $RESULT)."
+              exit 1
+              ;;
+          esac
+
+  browser-smoke:
+    needs: publication-gate
+    if: needs.publication-gate.outputs.deployed == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
