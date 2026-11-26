@@ -365,9 +365,12 @@ def main():
                     not approved_rear.get("human_approved_motion_set")):
                 raise AssertionError("W must use original full-body approved Jade: " + str(approved_rear))
             canvas.screenshot(path=str(OUT / "moss-jade-approved-rear-motion.png"))
-            # Enough real-world travel to span all four foot phases,
-            # while avoiding the invalid run-off-the-stage fixture.
-            page.wait_for_timeout(480)
+            # Browser software-WebGL draws at lower FPS than the 60Hz
+            # motor; a 480ms screenshot sampler missed the very brief
+            # contact phase 0 while actual W travelled 3.29m grounded.
+            # Observe >2 full 4-phase stride cycles with 1050ms extra
+            # while player stays inside the 26m-deep Moss stage.
+            page.wait_for_timeout(1050)
             gait_samples = page.evaluate("""() => {
                 window.__beastWFootSampling = false;
                 return window.__beastWFootSamples || [];
@@ -385,6 +388,10 @@ def main():
                     + str({"phases": sorted(observed_phases),
                            "grounded_samples": len(grounded_samples),
                            "distance": stride_end - stride_begin,
+                           "sampled_foot_rows": [
+                               (item["phase"], item["row"], round(item["stride"], 2),
+                                round(item["clearance_m"], 3))
+                               for item in grounded_samples[:60]],
                            "last_state": snap(page).get("player")}))
             bad_anchors = [x for x in grounded_samples
                            if abs(float(x.get("offset_y", 99))
