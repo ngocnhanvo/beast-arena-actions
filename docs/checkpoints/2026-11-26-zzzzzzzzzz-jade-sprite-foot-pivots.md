@@ -36,3 +36,11 @@
 - Ensure workflow build from exact PRIVATE `a55620b` (docs/tool commits after it are nonfunctional), and separately observe actual new Chromium screenshot W/J/K before user's visual acceptance.
 
 **Trạng thái: PARTIAL — chưa hoàn tất**
+
+
+### Browser pass-through fixed; 4 visible-run sample gate still strict (2026-11-26)
+- PUBLIC E2E after canvas focus [#45760290243](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45760290243) **FAIL** at the NEW W four-visible-phase gate. Actual Chromium log: `phases=[1,2,3], grounded_samples=22, distance=3.290004m`; last physical state `grounded=true`, `vz=-4.2 m/s`, true Y-floor clearance <0.001m at x=-11.3, z=-4.445. This is a major improvement over previous W never moving, and proves native physical support, but 4-phase visual-sampler acceptance was NOT met. The first W startup, focus and physical-contact gates passed.
+- PUBLIC test source fix `f8e8e176779e7323816b02de583a2645a28373b2` expands the in-Chromium RAF collection from 480ms to 1050ms (inside the 26m stage) to cover at least two original 4-phase cycles even at slower software WebGL FPS; retains exactly **four distinct visible gait phases** and actual ground-contact+pivot equations; failure now includes recorded `(phase,row,stride,clearance)` tuples for diagnosis. Gameplay/motor/asset unchanged.
+- **Do not claim browser PASS until subsequent exact-source build+Pages+Chrome succeeds and genuine W/J/K PNGs inspected**. First failed browser #45759115851 and second #45760290243 preserved for traceability.
+
+**Trạng thái: PARTIAL — chưa hoàn tất**
