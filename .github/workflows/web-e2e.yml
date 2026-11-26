@@ -10,6 +10,12 @@ permissions:
   contents: read
   actions: read
 
+concurrency:
+  # Never continue checking an older Pages PCK after a newer successful
+  # pipeline replaces it. Superseded browser runs are cancelled, not PASS.
+  group: beast-arena-browser-e2e
+  cancel-in-progress: true
+
 jobs:
   publication-gate:
     # A successful scheduled build can reuse its source/Pages SHA cache.
