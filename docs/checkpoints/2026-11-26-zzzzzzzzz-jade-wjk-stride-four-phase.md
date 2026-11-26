@@ -13,3 +13,11 @@ Jade original user-approved sprite art remains `jade_approved_80f.png` (immutabl
 - Next public pipeline must PASS all Godot parser/import ART-23/24 tests, physics 60Hz, 3D slopes, root P1.5, Web+Windows export, Pages, and automatically spawned real Chromium. Browser report must include W phase 0/1/2/3 and W J/K screenshots. Do not call PASS from green build alone. Any failures: inspect job logs, fix private/public source, rerun.
 
 **Current checkpoint status: PARTIAL — chưa hoàn tất.**
+
+
+## Second actual CI failure — fixed, rebuild required
+- Corrected PNG import/CRC PASSED in build [#45756981894](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45756981894), but Godot ART-24 FAILED (`W did not alternate correct rear foot phase 0`), Pages SKIPPED.
+- Actual test-fixture cause: 3D player starts 0.12m ABOVE floor; headless visual test attempted run immediately after scene load while `is_on_floor` was still false. Correct runtime selected airborne jump row5. PRIVATE fix `a4cfa3a481705cfa67acb48081c4b9d6a6911143` requires 20 REAL physics ticks for landing and verifies on-floor before gait frame assertions. No gameplay motor or combat rules modified; **do not suppress ART-24**.
+- **NEW TARGET PRIVATE source:** `52751133013b5ad1cc59fb4163c73f8cf101180c`. This PUBLIC docs commit must trigger third Godot+Pages pipeline; then strict Chromium E2E with 4 foot phases and W J/K true source frame screenshot before any PASS claim.
+
+**Trạng thái: PARTIAL — chưa hoàn tất**
