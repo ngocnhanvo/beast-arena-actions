@@ -569,3 +569,12 @@ User rejected the skating rear-facing animation. Real game W moves up world -Z w
 - Owner explicitly set `autocheck:false`; do not self-loop stylistic screenshot acceptance. Await manual animation review and produce proper 80px authored frames if current native compositing still slides.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+
+## 2026-11-26 — W/S run cycle must move arms OPPOSITE feet
+
+- Owner observed gliding: prior original-resolution atlas had four unique leg bands, but upper arms were rigid. FRONT upper band was copied unchanged, and slow walking selected only two phases. This is source-verified, not a physics or map issue.
+- PRIVATE native 80px pixel arm compositor now clears/offsets separately masked left/right glove/forearm patches four ways opposite the contacting leg, protects original head/vest/scarf and keeps feet attached to the real stage. ART-28 independently checks left and right hand regions, four poses and opposite swing; ART-29 checks four slower walk poses. No 40px asset or world/attack changes.
+- Under autocheck:false run the one standard CI/Pages publication, inspect exact compiled source SHA and logs, then let USER judge if movement feels natural. Technical frames distinct != owner aesthetic PASS. Previously successful #45768105863 and #45768366561 are from BEFORE this implementation.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
