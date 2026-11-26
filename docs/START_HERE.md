@@ -1,3 +1,7 @@
+**2026-11-26 LATEST: ONE STABLE /physics-v2/ 3/4 JADE REVIEW (BUILD PENDING).**
+Private 6x80px editable Jade walk-down guard source now replaces previous straight frontal draft, using shared character preview profile and same 2D/3D Sprite3D pixel frames. Owner preview URL exclusively https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/ . First new Godot CI #45803665391 failed a test-only unsupported PackedByteArray.sha256_text call, corrected in Private 9318d2; subsequent LibreSprite/Build/Pages/Chromium must be verified. Owner autocheck:false; still PENDING_ART for 9 other full clips. Read newest canonical-jade-three-quarter checkpoint.
+Trạng thái: PARTIAL — chưa hoàn tất.
+
 **VERIFIED FOLLOW-UP 2026-11-26 — EXACT NEWEST CHROMIUM #45800631688 SUCCESS.** Public 1bfeaab Pages build #45800285101, real P1.5/Physics V2/Arcade V2 Web PASS (4 shared guard profiles, W/S front, sprint, attack, jump); browser artifact #15106558525. Prior older-run timeout #45800283677 is retained as historical FAIL, newer exact SHA passes. No new game art deployed: Jade source is one UNAPPROVED private six-frame draft, full 10-clip source still PENDING_ART and owner autocheck:false. See latest guard source checkpoint. **Trạng thái: PARTIAL — chưa hoàn tất.**
 
 **LATEST 2026-11-26 — REAL PRIVATE JADE 6-CEL EDITABLE DRAFT, PINNED LIBRESPRITE PASS, FULL ART PENDING.**
