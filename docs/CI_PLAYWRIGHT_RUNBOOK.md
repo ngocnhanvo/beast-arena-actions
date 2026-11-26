@@ -611,3 +611,14 @@ User rejected the skating rear-facing animation. Real game W moves up world -Z w
 - This further motivates V2: deterministic one-place AnimationPose resolved from simulation state and fed consistently to native Sprite3D and PixelView, instead of independent row/clock sampling. The core ART BLOCKER remains zero authored editable full-body clips and owner's explicit visual FAIL; `autocheck:false` manual visual review still applies.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+
+## 2026-11-26 — Arcade V2 real browser and source-art gate (owner-controlled)
+
+- New real Web test `ci/playwright_arcade_v2.py` runs after legacy P1.5+PhysicsV2 tests and checks genuine `?controls=v2&art=approved&pixel=1` inputs: W/S real -Z/+Z with both face visible; A single walks, A+A runs LEFT, D+D runs RIGHT, actual character motor acceleration and CLI clip intent, F attack_id light_punch, G attack_id front_kick, F+G jump_events increases while attack_id stays empty. Requires same public pipeline SHA + build run ID as deployed PCK. This is a **functional** test and NEVER proves sprite motion aesthetically correct.
+- Gameplay mapping is opt-in only, old J/K/Space/G guard is intact. New V2 uses F/G chord delay 7 *physics ticks*, horizontal doubletap window 16 ticks and independent kick source combat data. Real 80px exported animation clips remain entirely missing, therefore source audit continues to emit PENDING_ART and player HUD warns the prototype drawing is still legacy, not final.
+- Godot V2 smoke validates every clip name, Aseprite tagged Frame/foot-anchor importer (synthetic test-only 80px texture) and deterministic chord/doubletap. Initial public Godot/Pages #45780007709 SUCCESS, PENDING_ART truthful; owner `autocheck:false` means art approval withheld.
+- Real browser failures recorded: #45779061468 was stale *expected* build (newer Pages race), not proven game defect; concurrency now cancels superseded browser runs; #45779338957 threw JS ReferenceError `abs is not defined` AFTER normal game E2E PASS, fixed with `Math.abs` in public `9dea165f`. Do not report newer Chromium V2 PASS without reading exact latest log.
+- Local sprite authoring: PRIVATE `tools/export_animation_sources.py` uses Aseprite/LibreSprite --list-tags/--list-slices/PNG+JSON and strict audit; never run an unlicensed executable on public CI or synthesize fake full-body art. Art production details PRIVATE `docs/art/JADE_TEN_CLIP_ANIMATION_PRODUCTION_2026-11-26.md`.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
