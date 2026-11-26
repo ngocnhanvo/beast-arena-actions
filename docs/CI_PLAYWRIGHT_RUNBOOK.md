@@ -550,3 +550,8 @@ run for exact game SHA and live Playwright camera lock, not assumed.
 - **Follow-up**: Owner aesthetic signoff pending; full editable Aseprite clip/tag/pivot source and Godot SpriteFrames import, stronger authored four-direction foot-contact poses, stage art, editor/AI/combat/beast roadmap remain. Checkpoint at `docs/checkpoints/2026-11-26-zzzzzzzzzz-jade-sprite-foot-pivots.md` in both repos. Scoped WJK ground issue PASS; overall game **PARTIAL**.
 
 **Trạng thái: PARTIAL — chưa hoàn tất**
+
+
+## 2026-11-26 — owner `autocheck: false` for sprite visual review
+
+For this native-80px Jade artwork revision, user is the visual signoff gate, NOT an automated screenshot/style-acceptance loop. A single normal Public CI build/export/Pages publish is the technical delivery route; pre-existing E2E smoke may execute automatically by `workflow_run`, but its pass must not be described as the owner liking the sprite style. Keep exact compiled game SHA, public pipeline SHA, build and Pages status separate. Do not autonomously adjust artwork repeatedly based on guessed preference. The selected source is the approved 80px art, with original 40px motion pack no longer in runtime. When `autocheck: true`, design and execute explicit end-to-end quality checks to the stated goal, then still record owner art approval as distinct.
