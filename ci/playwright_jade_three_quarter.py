@@ -69,6 +69,25 @@ def main():
             if canvas.count() == 0:
                 canvas = page.locator("canvas").first
             canvas.click(force=True)
+            # The earlier "idle_breathe_front" name was only a static
+            # pose. On the same public document, measure a real timed
+            # inhale/exhale in *rendered presentation*, shoe anchor intact.
+            page.wait_for_function(
+                "() => window.__beastPhysicsDebug?.human_visual_gait === 'idle'",
+                timeout=10000)
+            page.wait_for_function(
+                "() => window.__beastPhysicsDebug?.review_breath_scale > 1.027",
+                timeout=6000, polling=35)
+            inhale = state(page)
+            canvas.screenshot(path=str(OUT / "canonical-idle-inhale.png"))
+            page.wait_for_function(
+                "() => window.__beastPhysicsDebug?.review_breath_scale < 1.005",
+                timeout=6000, polling=35)
+            exhale = state(page)
+            canvas.screenshot(path=str(OUT / "canonical-idle-exhale.png"))
+            if inhale["review_idle_art_status"] != (
+                    "WHOLE_BODY_BREATH_PLACEHOLDER_PENDING_CELS"):
+                raise AssertionError("Runtime must NOT claim authored idle art")
             checked = {}
             # One canonical page, eight physical compass movements. Side
             # frames reuse the WHOLE original body via horizontal mirroring;
@@ -201,12 +220,57 @@ def main():
                     timeout=12000, polling=80)
             if set(checked) != {"W", "S", "A", "D", "W+A", "W+D", "S+A", "S+D"}:
                 raise AssertionError("All eight compass directions must be checked")
+            # Sprint previously reverted to the original legacy 2-frame
+            # side source (and FRONT could freeze). Verify REAL doubletap
+            # D stays six native whole-body guard cels and faster physics.
+            page.wait_for_timeout(450)
+            page.keyboard.press("r")
+            page.wait_for_function(
+                "() => {const s=window.__beastPhysicsDebug;"
+                "return s?.player?.grounded && Math.abs(s.player.vx)<0.25 "
+                "&& !s.sprint_requested;}", timeout=12000)
+            page.keyboard.down("d")
+            page.wait_for_timeout(90)
+            page.keyboard.up("d")
+            page.wait_for_timeout(85)
+            page.keyboard.down("d")
+            try:
+                page.wait_for_function(
+                    "() => {const s=window.__beastPhysicsDebug;"
+                    "return s?.review_run_active === true "
+                    "&& s?.sprint_requested === true "
+                    "&& s?.human_sprite_hframes === 6 "
+                    "&& s?.review_run_distance_per_frame_m > 0.5 "
+                    "&& s?.player?.vx > 5.5;}", timeout=8000, polling=45)
+                page.wait_for_function(
+                    "() => window.__beastPhysicsDebug?.review_preview_frame > 0",
+                    timeout=3000, polling=45)
+                run_state = state(page)
+                canvas.screenshot(path=str(OUT / "canonical-guard-run-right.png"))
+                if (run_state.get("review_run_art_status") !=
+                        "REUSED_WALK_ART_PENDING_RUN"):
+                    raise AssertionError("Sprint pilot must not claim distinct run poses")
+            finally:
+                page.keyboard.up("d")
             result.update({
                 "status": "PASS_TECHNICAL_OWNER_ART_PENDING",
                 "source_sha": start.get("source_sha"),
                 "pipeline_sha": start.get("pipeline_sha"),
                 "build_run_id": start.get("build_run_id"),
                 "short_step_guard_directions": checked,
+                "idle_breath": {
+                    "inhale_scale": inhale["review_breath_scale"],
+                    "exhale_scale": exhale["review_breath_scale"],
+                    "status": inhale["review_idle_art_status"],
+                },
+                "run_preview": {
+                    "frame": run_state["review_preview_frame"],
+                    "stride_m": run_state["review_run_distance_per_frame_m"],
+                    "velocity_x": run_state["player"]["vx"],
+                    "source_status": run_state["review_run_art_status"],
+                },
+                "punch_art": "PENDING_ART_FRONT_PUNCH",
+                "kick_art": "PENDING_ART_INDEPENDENT_KICK",
                 "foot_pivot_px": 75,
                 "full_source_status": "PENDING_ART",
             })
