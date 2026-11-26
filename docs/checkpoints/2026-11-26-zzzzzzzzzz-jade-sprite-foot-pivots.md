@@ -63,3 +63,21 @@
 - **This PUBLIC checkpoint push intentionally triggers a FRESH Godot+Pages+Chromium pipeline to validate latest PRIVATE exact SHA `fac487fd99d3ab0452e297243c7ef2b2e7007213`. Do not call that new data-driven map release PASS until run IDs/logs and screenshots are observed.** The previous fixed screenshots remain genuinely PASS on earlier source. Original source PNG/user style unchanged; all other long-term animation editor authoring and user aesthetic approval still OPEN.
 
 **Trạng thái: PARTIAL — chưa hoàn tất**
+
+
+## 2026-11-26 — True Web image QA PASS and data-driven texture source follow-up
+
+### Physically grounded JPEG/PNG screenshot acceptance (previous 2D implementation)
+- [Godot, Windows, Web and Pages #45761478440](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45761478440) **PASS**, compiled PRIVATE `a066c55138ab1640fdc02fc45954f85d2fb003d8`, PUBLIC `5e44ab5146a40130c26ef202c574f4316fe43801`.
+- [REAL Chromium #45761680082](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45761680082) **PASS**. Downloaded [screenshots/report #15090520425](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45761680082/artifacts/15090520425); inspected all three actual screenshot PNGs `physics-v2/moss-jade-approved-rear-motion.png`, `-W-J.png`, `-W-K.png`. Green floor is visibly underneath Jade, no longer gray vertical wall in physically walkable area; physical 3D world Y not faked.
+- Actual `result.json` `status=PASS`, `jade_wjk_physics_sprite_regression`: W run phases [0,1,2,3]; native travel 8.47 m, 33 grounded samples, per-frame shoe anchor 0px error, J active row8, K windup row9, HP unchanged; walkable grass 93.6% in each J/K image. Moss physical climb 2.23m, Docks descent 2.37m, Chromium P1.5 also PASS. Real visual art not yet signed off by user.
+
+### Follow-up: no `map_id` patchwork; Inspector owns walkable source coordinates
+- PRIVATE `map_data.gd` `b96b784`: exported, range-validated `floor_texture_walkable_start_y_px`.
+- PRIVATE `data/moss_temple.tres` `a89ce6e` sets 64; `data/night_docks.tres` `48d596b` sets 80. Other newly authored maps use 0 for all-walkable textures.
+- PRIVATE `pixel_view.gd` `2108100`: 2D stage tile UV from resource metadata, not map-name if/switch.
+- PRIVATE `stage.gd` `95126d0`: 3D stage top-floor UV remapped from same authored metadata so switching F5 will not paint physical ground with vertical wall texels; unchanged 3D collider geometry / HP / physics speed.
+- PRIVATE `tests/pixel_projection_smoke.gd` `fac487f` PRES-16 checks Inspector metadata really controls renderer; `966b027` / `cdc257b` PRES-17 checks all three native top-floor mesh UV regions stay walkable in both maps. Original PRES-15, ART-25 and physics tests retained.
+- PRIVATE standard `docs/art/MAP_TEXTURE_SOURCE_STANDARD.md` `89fe62f`, engineering log `85c6407`.
+
+**STATUS FOR FOLLOW-UP = PARTIAL — no verified Godot+Pages+Chromium run for the metadata+3D change yet.** Next: publish PUBLIC Actions doc-trigger after source finalized, inspect import/PRES16/17 logs and source SHA, inspect live W/J/K Chromium PNG and if possible F5 native 3D screen. Fix any FAIL, update checkpoint & logs. Do NOT confuse first 2D PASS with this follow-up.
