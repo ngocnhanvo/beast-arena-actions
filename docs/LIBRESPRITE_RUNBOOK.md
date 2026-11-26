@@ -1,3 +1,5 @@
+> **Current verified art status (2026-11-26):** A real six-frame Jade original AI-assisted candidate .aseprite source has NOW been committed to the PRIVATE art/drafts folder with tagged PNG, provisional foot pivots and owner-review PNG. The PUBLIC LibreSprite workflow tests it via PRIVATE generic manifest reader; [#45800285146](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45800285146) SUCCESS on actual CLI and pixel identity. The earlier chat-only draft described below remains historical; the new committed draft does not complete the 10-clip fighter library. Strict tag/atlas/pivot coverage with eight negative regression cases and Godot/Pages #45800285101 both PASS. The draft is not in Pages or the game; full source is PENDING_ART and autocheck:false means human visual review.
+
 # Beast Arena LibreSprite 1.3 — CI operator and privacy runbook (2026-11-26)
 
 ## Real deployment and verified binary
