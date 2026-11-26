@@ -57,6 +57,17 @@ jobs:
           persist-credentials: false
           path: private-game
           fetch-depth: 1
+      - name: Prove real Jade six-frame editable candidate round-trip in LibreSprite
+        if: steps.source-access.outputs.available == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          ASSET="$GITHUB_WORKSPACE/private-game/experiments/physics_v2/art/drafts/jade_walk_down_guard_candidate"
+          python3 private-game/tests/draft_animation_source_smoke.py \
+            --source "$ASSET.aseprite" --reference "$ASSET.png" \
+            --foot "$ASSET.foot.json" --expected-tag walk_down_guard_front \
+            --expected-frames 6 --binary libresprite
+          echo "REAL PRIVATE JADE EDITABLE DRAFT: TECHNICAL ROUNDTRIP PASS; one of ten unapproved clips." >> "$GITHUB_STEP_SUMMARY"
       - name: Check PRIVATE game animation source (never upload or print art)
         if: steps.source-access.outputs.available == 'true'
         shell: bash
