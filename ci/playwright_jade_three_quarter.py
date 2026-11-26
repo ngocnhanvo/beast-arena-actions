@@ -250,6 +250,15 @@ def main():
                     "() => window.__beastPhysicsDebug?.review_preview_frame > 0",
                     timeout=3000, polling=45)
                 run_state = state(page)
+                # Six distinct existing whole-body original source cels,
+                # all RIGHT-facing (original atlas column 2); no runtime
+                # cutting/pasting gloves or disjoint running legs.
+                source_index = int(run_state.get("review_run_source_frame", -1))
+                if (source_index % 4 != 2 or source_index // 4
+                        not in (1, 2, 3, 4, 5, 19)):
+                    raise AssertionError(
+                        "D+D did not animate the original full-body six-pose "
+                        f"Jade run source: cell={source_index}")
                 canvas.screenshot(path=str(OUT / "canonical-guard-run-right.png"))
                 if (run_state.get("review_run_art_status") !=
                         "REUSED_ORIGINAL_SIX_WHOLE_BODY_RUN_POSES_OWNER_REVIEW_PENDING"):
