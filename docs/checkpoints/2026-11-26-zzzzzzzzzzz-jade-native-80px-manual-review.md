@@ -18,3 +18,11 @@ Owner explicitly set `autocheck: false`. **Do not build custom self-retrying scr
 Next: PUBLIC build once from updated private `main`, inspect its exact SHA/build failure if any, publish preview, owner visual review. Continue editable Aseprite 80px source and broader game roadmap after approval.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+## Fresh technical delivery verified, owner approval outstanding
+- Exact built PRIVATE source `b681ef47e2054419028eb90e6136efae60b7eece`; PUBLIC pipeline `e40ca17cbc7df8a0beda782e6b77ed56229acbf7`.
+- [Godot/Windows/Web/Pages #45766825513](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45766825513) **SUCCESS**. API verified preflight, Import/test/export and Pages jobs all concluded success. Real import/export job logs confirm checked-out PRIVATE SHA `b681ef47...`, `APPROVED JADE 80PX PASS` and `All export checks passed.`
+- Preview: https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/?pixel=1&art=approved . Owner manual check for idle/run/jump/punch requested (`autocheck: false`). No custom autonomous style/screenshot acceptance loop has been run; Pages technical deploy ≠ aesthetic signoff. A normal `workflow_run` browser smoke may start automatically but does not supersede user approval.
+- Next: owner tests W/A/S/D, Space, J/K, F5; collect user feedback before replacing fallback composites with fully authored native-80px animated clips. Rest of game still open.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
