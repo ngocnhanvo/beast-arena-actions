@@ -13,3 +13,12 @@ The owner screenshot after the previous native-80px preview confirms **W moved n
 Prior successful Pages [#45766825513](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45766825513) used a back-facing skating version; this is **not** validation of the current W/S correction. User has not signed off. Upon new source build, verify exact PRIVATE source SHA and PUBLIC pipeline commit in GitHub Actions; only then share https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/?pixel=1&art=approved for owner W/S/legs/F5 check. Do not declare done from old PASS.
 
 **Trạng thái: PARTIAL — chưa hoàn tất** (new build and owner visual signoff pending).
+
+## VERIFIED exact new source Web publish
+- PRIVATE actually checked-out & compiled `96274aff26ad0e433709f6d1b25e7283664f7682`; PUBLIC pipeline `daaae873bccce6cf950df12adee10b87b447b84e`.
+- [Godot 4.7.2/Windows/Web/GitHub Pages #45768105863](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45768105863) **SUCCESS**: preflight, import/test/export, Pages deployment all completed successfully. Actual GitHub job log contains `APPROVED JADE 80PX PASS: W/S same front view + 4 distinct native-80px left/right shoe contacts, physical foot pivots; owner art review pending` and `All export checks passed.`
+- Older technical build #45767939805 on prior doc head and same functional code also SUCCESS but use **#45768105863** as authoritative newest source+pipeline release.
+- Normal pre-existing browser smoke may run as an automatic `workflow_run`. No custom self-iterating screenshot acceptance loop is authorized while `autocheck: false`; owner visually decides whether the feet genuinely animate well.
+- Owner preview: https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/?pixel=1&art=approved . W up and S down must both show front face and foot phases; test at own pace.
+
+**Trạng thái: PARTIAL — chưa hoàn tất (technical Pages PASS; owner art approval pending).**
