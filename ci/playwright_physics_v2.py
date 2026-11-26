@@ -258,6 +258,41 @@ def main():
             page.wait_for_function(
                 "() => window.__beastPhysicsDebug && window.__beastPhysicsDebug.hero_art_painted_enabled === false",
                 timeout=8000, polling=70)
+            # This is the ACTUAL user's approved expressive chibi drawing
+            # with teal spiky hair, cream vest and red scarf, not the older
+            # painted/flat-rect placeholder. Compare real canvas pixels and
+            # preserve gameplay state. PNG contains 4x20 80px pose cells.
+            page.keyboard.press("F7")
+            page.wait_for_function(
+                "() => window.__beastPhysicsDebug && window.__beastPhysicsDebug.hero_art_approved_enabled === true",
+                timeout=8000, polling=70)
+            approved_state = snap(page)
+            if (approved_state.get("map_id") != hero_before.get("map_id") or
+                    approved_state.get("combat_hp") != hero_before.get("combat_hp") or
+                    not approved_state.get("pixel_projection_mode") or
+                    approved_state.get("hero_atlas_frame_size") != 80):
+                raise AssertionError("Approved true 80px fighter source was not shown or changed real physical state: "
+                                     + str(approved_state.get("hero_atlas_frame_size")))
+            page.wait_for_timeout(180)
+            approved_path = OUT / "moss-jade-approved-exact-art.png"
+            canvas.screenshot(path=str(approved_path))
+            with (Image.open(OUT / "moss-nes-style-2d-start.png").convert("RGB") as
+                    baseline, Image.open(approved_path).convert("RGB") as approved_art):
+                if baseline.size != approved_art.size:
+                    raise AssertionError("F7 approved sprite modified Web viewport")
+                approved_pixel_difference = sum(1 for old, new in zip(
+                    baseline.getdata(), approved_art.getdata()) if old != new)
+            if approved_pixel_difference < 700:
+                raise AssertionError("Approved hand-drawn chibi art not visible in real WebGL: "
+                                     + str(approved_pixel_difference))
+            report["user_approved_jade_art_comparison"] = {
+                "active": True, "atlas_cell_px": 80,
+                "visible_changed_pixels": approved_pixel_difference,
+                "physical_hp_unchanged": True, "physical_map_unchanged": True}
+            page.keyboard.press("F7")
+            page.wait_for_function(
+                "() => window.__beastPhysicsDebug && window.__beastPhysicsDebug.hero_art_approved_enabled === false",
+                timeout=8000, polling=70)
             page.keyboard.press("F5")
             page.wait_for_timeout(180)
             if snap(page).get("pixel_projection_mode"):
