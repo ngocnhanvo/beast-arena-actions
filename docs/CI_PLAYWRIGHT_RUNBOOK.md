@@ -827,3 +827,8 @@ User rejected the skating rear-facing animation. Real game W moves up world -Z w
 
 ## 2026-11-26 — Jade 8-phase A+A/D+D exact WebGL gate
 - User requested real game run 4+4 opposite-leg eight-phase source. Active PRIVATE run atlas 640x160, 8x2 80px cels, original editable ASE sidecars, y74 baseline. Public ci/playwright_jade_three_quarter.py now requires real eight rAF poses and Sprite3D mask 0xFF, sources 0..7 RIGHT, 8..15 LEFT on same /physics-v2/ Pages. Must check latest build #45856559025/#45856647084 and browser; screenshot evidence and owner autcheck:false art signoff separate. Do not call eight distinct hashes proof of anatomical leg switch.
+
+## 2026-11-26 — WebGL _process pose selection is not post-draw proof
+- OBSERVED: Pages/Libresprite #45856928823/#45856928793 SUCCESS, but browser #45857553417 FAIL Jade D+D actual rAF=[2,4,6] while Sprite3D SELECTED mask127, vx6.48m/s and 8x2 source loaded; preceding Physics/Arcade PASS. Renderer may draw fewer browser-visible poses than update-frame bookkeeping predicts.
+- FIX: source b074b377 and 37766233 connect RenderingServer.frame_post_draw to recording actual GPU frame events, hold each full-body source phase >=2 drawn frames/85ms; publish drawn mask + chronological phase history. PUBLIC 6b43d5d demands drawn 0xFF, sequence 0..7 and 7->0 seam both A+A/D+D. Browser rAF samples remain diagnostics only, not art signoff.
+- PENDING: build #45858816783 and exact E2E; owner autocheck:false must judge perceived anatomy. No motor/foot pivot/collision changes.
