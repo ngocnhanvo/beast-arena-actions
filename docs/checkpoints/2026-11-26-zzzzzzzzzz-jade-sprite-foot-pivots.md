@@ -25,3 +25,14 @@
 3. After PASS and visual QA, migrate hero animation selection from anonymous 4x20 rows toward Aseprite tagged `SpriteFrames` with per-frame slice pivots; run same pipeline on added poses. The approved Jade artwork and source PNG stay original. Full art approval and rest of game roadmap remain open.
 
 **Trạng thái: PARTIAL — chưa hoàn tất**
+
+
+## Actual browser FAIL #45759115851 — now focusing real Godot canvas (2026-11-26)
+
+- Godot+Web/Windows+Pages #45758868968 **PASS**, exact source `a55620bee0a78f6b974c897b4abe7d703d6b5fff`, public pipeline `aed5cda897a32ce64ae46efc1c37d7608347aa54`. ART-25 ran and passed on 40 grounded animation cells; original motor/combat tests all PASS.
+- Actual browser [#45759115851](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45759115851) **FAIL**, artifact [15089466700](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45759115851/artifacts/15089466700) downloaded and inspected. P1.5 browser PASS dx=220.5. Strict new native-ground W test fails at `W must use original full-body approved Jade`. Actual grounded snapshot shows `player.grounded=true`, `human_physical_ground_clearance_m=0.000147`, sprite pad=3px, Sprite3D offset=-3px, HP=100; player `vx=vz=0`, row6 `land`, `human_visual_gait=action`. Genuine physical ground is present, and original art correction is applied; however W INPUT DID NOT MOVE THE PLAYER in this fixture. Cannot assert W/J/K end-to-end PASS.
+- Failed screenshot `physics-v2/failure.png` visually shows upright Jade boots near the ground, no evidence of active W animation; it must not be used to claim completed running or attack fix. Local verification of exact GitHub Pages artifact #15088619376 attempted with Chromium but this environment blocked local loopback `ERR_BLOCKED_BY_ADMINISTRATOR`; do not call local browser pass.
+- PUBLIC E2E-only fix `cbb8ea24762ea020838aeafcbb3b01b3bff98df7`: after native T reset wait for **true grounded + idle**, force focus on actual Godot canvas, require real native negative Z velocity / gait / rear facing before claiming W starts, capture tick advance & focus diagnostics if it doesn't, then sample 4 real-foot phases and verify per-frame physical offsets. Does not fake movement or weaken physical-ground acceptance. New Godot+Pages [#45760063063](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45760063063) started; new Chromium run still required. If this still fails, investigate engine input/focus/motor in actual Web rather than only modifying timing.
+- Ensure workflow build from exact PRIVATE `a55620b` (docs/tool commits after it are nonfunctional), and separately observe actual new Chromium screenshot W/J/K before user's visual acceptance.
+
+**Trạng thái: PARTIAL — chưa hoàn tất**
