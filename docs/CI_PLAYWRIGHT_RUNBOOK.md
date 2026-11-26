@@ -391,3 +391,14 @@ run for exact game SHA and live Playwright camera lock, not assumed.
 - **Next:** inspect Chromium #45730411190; check `physics-v2/result.json` and PNG itself, repair from real screenshot/log if FAIL. Do NOT claim cyan art screenshot PASS merely because guard event counter >0 or prior browser PASS. Update private matching checkpoint. This is still visual-first Nekketsu-like original asset prototype, root P1.5 unchanged, V5 not started.
 
 **Trạng thái: PARTIAL — chưa hoàn tất**
+
+
+## 2026-11-26 — Confirmed four original pixel skyline variants on BOTH stages
+
+- PRIVATE exact source `e1e2c74853f1db1d5408b113062f1eacead115c9`, PUBLIC build source `a20aa6c6090d476e68f072b78d7bc738f8d743fb`. [Godot+Web+Windows+Pages #45730978934](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45730978934) SUCCESS, with strict parser/3D physics/0.5m visual ramps/guards/2v2 hit effects/team rounds all PASS.
+- [Chromium E2E #45731247515](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45731247515) SUCCESS, real `publication-gate` + P1.5 + Physics0 tests all PASS, screenshot ZIP downloaded and inspected: `physics-v2/moss-nes-style-2d-start.png` displays original shrine/torii/trees/pagoda (468 tile spans, 4 fighters), `physics-v2/docks-nes-style-2d-start.png` displays original warehouse/crane/tank/container silhouettes (576 tile spans, 4 fighters). Fixed horizon and physical inclines remain; no cloned one-shape skyline. Human-first graphics are still prototype and require user visual review.
+- Real cyan blocking and screenshot pixel check continue PASS on the new stages: `real_guard_contact.blocks=1`, `real_guard_contact.visible_cyan_pixels=1662`, HP=97, real 3D contact feedback count matches visual VFX; `round_restart_pass`, direct pixel URL and 2v2 HP PASS.
+- The **scheduled SHA-cache no-deploy branch** for `publication-gate` remains to be proven by next natural cached scheduled workflow. Its real deployed build branch already passed #45730089391. Never mislabel #45728174303 stale-run failure as a game rendering defect.
+- Next user-visual acceptance, richer original human poses/props/editor, grab/throw/combos and obstacle-aware team AI; benchmark mobile hardware. Keep root P1.5 separate; do not begin V5 beast art until human map gameplay approved.
+
+**Trạng thái: PARTIAL — chưa hoàn tất**
