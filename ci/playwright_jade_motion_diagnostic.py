@@ -67,7 +67,16 @@ def capture_sprint(page, canvas, key, direction):
         # No freezing sprites or injecting animation frame values.
         seen = set()
         last = None
-        while time.monotonic() - start < 5.0:
+        if os.getenv("DIAG_STRESS_SCREENSHOTS", "0") != "1":
+            # IMPORTANT: synchronous canvas.screenshot() freezes expensive
+            # WebGL/SwiftShader draws by up to seconds, creating artificial
+            # skipped phases. Record honest uninterrupted browser video/rAF.
+            page.wait_for_timeout(3700)
+            trace_only = page.evaluate("window.__motionRafTrace || []")
+            seen.update(int(x["phase"]) for x in trace_only
+                        if x.get("phase") in range(8))
+        while (os.getenv("DIAG_STRESS_SCREENSHOTS", "0") == "1"
+               and time.monotonic() - start < 5.0):
             state = snap(page)
             if not state or not state.get("review_run_active"):
                 page.wait_for_timeout(16)
@@ -109,6 +118,11 @@ def capture_sprint(page, canvas, key, direction):
         "captured_phases": sorted(seen),
         "raf_trace_samples": len(trace),
         "raf_phase_sequence": collapsed,
+        "screenshot_mode": os.getenv("DIAG_STRESS_SCREENSHOTS", "0") == "1",
+        "raf_frame_intervals_ms": [
+            trace[i]["dt"] - trace[i - 1]["dt"]
+            for i in range(1, len(trace))
+        ],
         "raf_full_cycle_detected": any(
             collapsed[i:i+8] == list(range(8))
             for i in range(max(0, len(collapsed)-7))),
@@ -203,7 +217,7 @@ def main():
             # Source/renderer correctness != art quality.
             result["status"]="DIAGNOSTICS_CAPTURED_NO_ART_APPROVAL"
             if not all(d["captured_phases"] for d in result["runs"]):
-                raise AssertionError("No live game canvas poses captured")
+                raise AssertionError("No live rAF source phases captured")
         except Exception as exc:
             result["status"]="FAIL"
             result["error"]=str(exc)
