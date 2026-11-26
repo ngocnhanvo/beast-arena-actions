@@ -680,3 +680,13 @@ User rejected the skating rear-facing animation. Real game W moves up world -Z w
 - User `autocheck:false`; full-body raised-guard animation sprites actually still absent, so technical pass != sprite quality; continue at `docs/checkpoints/2026-11-26-zzzzzzzzzzzzzzzzz-guard-stance-reusable.md`.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+## 2026-11-26 — LibreSprite art CI separate from player gameplay visual approval
+
+- REAL official LibreSprite 1.3 Linux SHA256-pinned AppImage installed in runner using ci/setup_libresprite.sh; no FUSE; real app verified with --version. .github/workflows/libresprite-art.yml uses secure actions/checkout of PRIVATE game and does not release private art to public artifacts or Pages.
+- Real [#45796842259](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45796842259) **SUCCESS**: roundtrip test-only 80px .ase 4 cels + metadata and full 58 test-only cels/10 guard tags with actual PRIVATE source exporter; [#45797269317](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45797269317) **SUCCESS** also verifies secure private checkout. Actual original editable Jade source remains PENDING_ART.
+- Historical FAIL #45796083150/#45796479653 due test-only .ase NUL/JSON corruption; fixed and preserved. PRIVATE tools/libresprite_export.py replaces unsupported --list-slices with manually-authored .foot.json per original timeline cel and runs strict native RGBA8 80px tag validation. PRIVATE source tag drift detector added.
+- First Jade native 80px six-frame high-guard walk-down DRAFT editable .aseprite, PNG/GIF and foot sidecar exists in current chat as sandbox artifact, NOT committed to private git or published to Pages. Full source requires 58 authentic artist frames and user aesthetic signoff under autocheck:false.
+- See docs/LIBRESPRITE_RUNBOOK.md and latest LibreSprite checkpoint. Never equate real exporter technical PASS with Jade art completeness.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
