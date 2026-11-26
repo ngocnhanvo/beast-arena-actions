@@ -518,3 +518,13 @@ run for exact game SHA and live Playwright camera lock, not assumed.
 - **Remaining roadmap:** full editable Aseprite source with authored 4-direction clips, map art quality, editor, AI, grabs, V5 beast and P1.5 migration not complete. This update is a scoped repair, not an assertion of a finished game.
 
 **Trạng thái: PARTIAL — chưa hoàn tất**
+
+
+## 2026-11-26 — Jade WJK real Chromium green-floor PASS / data-driven 3D map UV release check
+
+- **Real old 2D floor bug resolved and visually verified**: Godot+Web+Windows+Pages [#45761478440](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45761478440) SUCCESS; Chromium [#45761680082](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45761680082) SUCCESS. Screenshot artifact [15090520425](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45761680082/artifacts/15090520425) downloaded; real `moss-jade-approved-rear-motion.png`, `moss-jade-approved-W-J.png`, `moss-jade-approved-W-K.png` **all inspected**. W 4 actual animation phases [0,1,2,3], 8.47m real grounded movement, 33 grounded samples, 0px shoe pivot error, J8/K9 actual attacks, both grass source image fractions 0.936, HP unchanged; original P1.5 + physical slopes PASS.
+- **Further authored-map architecture change** (must be separately tested): PRIVATE exports `BeastPhysicsMap.floor_texture_walkable_start_y_px` from Godot Inspector, Moss 64px and Docks 80px; PixelView no longer switches by `map_id`; native Godot 3D floor material UVs now share same source region to keep wall art off physical floor. PRIVATE PRES-16 validates metadata-driven 2D sourcing; PRES-17 validates left, slope and raised native 3D ground meshes in both maps. Runtime character collider and combat unchanged. Source doc `docs/art/MAP_TEXTURE_SOURCE_STANDARD.md`.
+- **Critical release gate**: this PUBLIC doc commit starts a NEW Godot/Pages pipeline for the latest private source. Record exact PRIVATE source SHA from job log, Godot parser/import, PRES-15/16/17, ART-25, Web+Windows and Pages, then auto-triggered Chromium. Retain strict real PNG WJK + green-floor tests; do not count older Chromium as proving new 3D UV source. If this CI fails, inspect the actual error and fix.
+- Do not alter P1.5 production entrypoint or expose private source/keys. User must visually approve final art; many roadmap stages remain unfinished.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
