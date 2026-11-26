@@ -382,16 +382,21 @@ def main():
                     not approved_front_up.get("human_approved_motion_set")):
                 raise AssertionError("W must keep original front-visible approved Jade: " + str(approved_front_up))
             canvas.screenshot(path=str(OUT / "moss-jade-approved-up-front-motion.png"))
-            # Sample a known REAL physical travel distance rather than
-            # holding W for a fixed wall-clock delay. Software WebGL can
-            # process 1.05 wall seconds as >3 actual physics seconds and
-            # run past Moss's -13m floor boundary during slow polling.
-            # Stop near z=-7.5m, safely INSIDE the native -13m edge.
-            page.wait_for_function(
-                "() => {const s=window.__beastPhysicsDebug; "
-                "return s && s.player && s.player.grounded && "
-                "s.player.z < -7.5;}",
-                timeout=10000, polling=70)
+            # Stop immediately after a SHORT real forward run, far inside
+            # Moss's -13m walkable floor boundary. Old z<-7.5 predicate
+            # also required grounded and left W held for 10s if headless
+            # WebGL advanced past the edge between Playwright polls: actual
+            # failure #45839451719 ended at z=-56.6, y=-1018. This is an
+            # E2E input-lifetime bug, not broken player physics.
+            # Still require >0.9m native grounded stride and real planted
+            # shoe checks below; no mocked state or loosened art contract.
+            try:
+                page.wait_for_function(
+                    "() => {const s=window.__beastPhysicsDebug; "
+                    "return s && s.player && s.player.z < -3.2;}",
+                    timeout=6000, polling=35)
+            finally:
+                page.keyboard.up("w")
             gait_samples = page.evaluate("""() => {
                 window.__beastWFootSampling = false;
                 return window.__beastWFootSamples || [];
