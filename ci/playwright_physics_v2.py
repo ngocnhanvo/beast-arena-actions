@@ -518,7 +518,7 @@ def main():
 
             # A player can open the image-first version directly by URL
             # rather than discovering F5. It must boot the SAME tested PCK.
-            direct_url = URL + "&pixel=1"
+            direct_url = URL + "&pixel=1&capture_guard=1"
             direct_response = page.goto(direct_url, wait_until="domcontentloaded", timeout=50000)
             if direct_response is None or direct_response.status != 200:
                 raise AssertionError("direct pixel preview URL unavailable")
@@ -533,6 +533,7 @@ def main():
                 "drawn_tiles": direct.get("pixel_view_floor_tiles"),
                 "drawn_fighters": direct.get("pixel_view_fighters")}
             if (direct.get("source_sha") != first.get("source_sha") or
+                    not direct.get("pixel_guard_capture_debug") or
                     not direct.get("pixel_projection_mode") or
                     direct.get("pixel_view_floor_tiles", 0) < 60 or
                     direct.get("pixel_view_fighters") != 4):
