@@ -87,6 +87,9 @@ jobs:
               exit 1
               ;;
           esac
+      - name: Reject overlapping guard clips and missing original pivots
+        if: steps.source-access.outputs.available == 'true'
+        run: python3 private-game/tests/animation_source_contract_test.py
       - name: Summary
         if: always()
         run: |
