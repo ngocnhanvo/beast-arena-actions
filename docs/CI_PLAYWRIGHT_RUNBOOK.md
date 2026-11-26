@@ -641,3 +641,13 @@ User rejected the skating rear-facing animation. Real game W moves up world -Z w
 - Next work is source-art production and strictly validated import of ten *independently drawn* Aseprite/LibreSprite clip timelines (private production brief `docs/art/JADE_TEN_CLIP_ANIMATION_PRODUCTION_2026-11-26.md`), followed by manual owner artistic inspection and preview; no further pixel-fragment "fixes". If no editable clip source, keep status BLOCKED_ART_SOURCE.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+
+## 2026-11-26 — Verified actual Jade atlas orientation; no fake W/S 4-frame gait assertion
+
+- Owner screenshot forced source reinspection: 4x20 original `jade_approved_80f.png` horizontal rows mix RIGHT / LEFT / RIGHT / BACK views for rows1..4; row0 contains FRONT/FRONT/FRONT/BACK. Earlier test incorrectly treated 4 columns as one-direction motion and accepted hand/leg cut-paste on W/S. That is a **real source-alignment defect**, not rendering latency.
+- New PRIVATE direction-safe movement lookup and ART-30: W/S physically move ±Z but intentionally render one WHOLE authentic front idle 80px sprite (PENDING_ART until a new walk animation exists). A/D use ORIGINAL col1 left/col2 right, WALK rows1/2 vs RUN rows3/4, two actual poses per gait. All original motion source rows1..4 remain byte-exact; no hand/leg collage on movement. Don't require 4 fabricated W foot frames or claim gait art approved from full-image hashes.
+- New PUBLIC `ci/playwright_physics_v2.py`: samples real WebGL W movement, ground anchor and **row0/col0 FRONT** consistency; retains exact SHA, active J/K, ramp/grass floor and legacy side direction smoke. Do not confuse technical Pass with aesthetic finish. Source status remains `PENDING_ART` until independent editable Aseprite clips exist, owner `autocheck:false`.
+- Exact build [#45785263338](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45785263338) SUCCESS, compiled PRIVATE `d6ae5c26...` with PUBLIC `1142c019...`. Actual browser [#45785507440](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45785507440) must be read for verdict. Source code and runbook checkpoint `docs/checkpoints/2026-11-26-zzzzzzzzzzzzzzzz-jade-verified-direction-cells.md`.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
