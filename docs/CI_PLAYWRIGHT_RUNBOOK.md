@@ -465,3 +465,10 @@ run for exact game SHA and live Playwright camera lock, not assumed.
 **Next**: solicit/record user art preference between Classic / Scarf / Painted in real game; refine ONE original approved human silhouette and unique animation loops (walk/run/attack/get-up) at 64px; make foreground/props/stages higher visual fidelity (physical Y respected). Then complete grab/throw, obstacle-aware AI, editor, device FPS, P1.5 parity before V5 original beast transformation.
 
 **Trạng thái: PARTIAL — chưa hoàn tất**
+
+## 2026-11-26 — Approved illustration real PNG A/B visual gate PASS
+
+- PUBLIC pipeline `5ba8919f938b54fae5a1eaaab6b98c3048a7204b` built PRIVATE `03a34e696c1d48fe0910294637bcb98bfa8a59db`. [Build/Pages #45751045283](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45751045283) SUCCESS and [Chromium #45751278124](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45751278124) SUCCESS.
+- `ci/playwright_physics_v2.py` takes real A/B canvas captures `moss-nes-style-2d-start.png` and `moss-jade-approved-exact-art.png` after pressing F7; asserts flag, actual 80px atlas cell, same HP/map, >=700 visibly different pixels. Real result: **17,155** changed pixels, all previous P1.5/V2/2v2/guard/slopes tests pass. GitHub Actions screenshot artifact [15085976043](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45751278124/artifacts/15085976043); both comparison images downloaded and visually inspected.
+- Learned: a visual-art requirement must be validated against **the exact approved source image** as imported asset and actual rendered game screenshot; do not substitute source-level texture loading, pixel count alone, or AI-generated concept page. Existing maps/roster still stylized blocky by scoped user direction; do not widen feature work until 1-fighter approval.
+**Trạng thái: PARTIAL — chưa hoàn tất.**
