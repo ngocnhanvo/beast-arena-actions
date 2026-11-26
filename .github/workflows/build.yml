@@ -91,6 +91,14 @@ jobs:
         with:
           persist-credentials: false
           path: pipeline
+      - name: Inventory source-authored sprite clips (PENDING is not art PASS)
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Missing editable .ase/.aseprite Jade timeline is an explicit
+          # PENDING_ART state, never a visual approval or invented asset.
+          # Invalid source manifests/exports remain real CI failures.
+          python3 game/tools/animation_source_audit.py
       - name: Record source commit (SHA only)
         id: source-sha
         shell: bash
