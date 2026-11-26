@@ -760,3 +760,15 @@ User rejected the skating rear-facing animation. Real game W moves up world -Z w
 - [Godot/Pages #45823598975](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45823598975) PASS; browser [#45823930933](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45823930933) pending at initial checkpoint. Source authenticity remains PENDING_ART for punch/kick and dedicated run/idle. Never cut-and-paste gloves/legs.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+### Live browser proof and missing authored strike pose caveat
+
+## Exact terminal verification (2026-11-26)
+
+- Build [#45823598975](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45823598975) SUCCESS (PRIVATE source `07d5dfb453815ecc221b0f62712c4ea540483e4c`, PUBLIC pipeline `8568d1516dfd1ce64f0a8557e42e3bfb136092aa`): native idle/run pilot smoke, Godot/Windows/Web exports and Pages deploy PASS.
+- Browser [#45823930933](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45823930933) SUCCESS, all four gates PASS: game P1.5, Physics V2 up2.21m/down2.33m, Arcade V2 inputs and same-URL 8-way guard/idle/run.
+- Real extracted screenshot artifact [#15118938172](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45823930933/artifacts/15118938172), `jade-34/result.json`: `PASS_TECHNICAL_OWNER_ART_PENDING`, exact SHA/build ID, all 8 walks, real idle inhale 1.030577/exhale 1.001149 whole-body scale at same shoe contact, screenshots of both; real doubletap D sprint 6 native 80px frame source sampled frame3, 0.56m/cel, vx6.479m/s, screenshot `canonical-guard-run-right.png` shows map/actor/floor.
+- Crucial honesty: BREATH is whole-body visual-only micro-scale, not a native 4+ idle art clip; RUN is the previously accepted short-guard walk 6 source cels reused, not independent 8+ run poses. Existing `punch_front` is static FRONT idle cells; `kick_front` is a heavy-punch alias; these **remain PENDING_ART**, notwithstanding real F/G combat input PASS. Only one game link for owner https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/ and `autocheck:false` visual signoff.
+- Need next: author original editable fully posed Jade idle ≥4, run_left/run_right ≥8 each, punch ≥4 and kick ≥5; per-frame guard/scarf/foot pivots; enable the existing generic profile importer; run strict LibreSprite source audit and actual Web E2E before owner acceptance. Never crop/shift limbs to synthesize them.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
