@@ -254,6 +254,8 @@ def main():
                 # all RIGHT-facing (original atlas column 2); no runtime
                 # cutting/pasting gloves or disjoint running legs.
                 source_index = int(run_state.get("review_run_source_frame", -1))
+                if source_index != int(run_state.get("human_sprite_frame", -1)):
+                    raise AssertionError("Right run visual frame != source atlas cell")
                 if (source_index % 4 != 2 or source_index // 4
                         not in (1, 2, 3, 4, 5, 19)):
                     raise AssertionError(
@@ -297,6 +299,8 @@ def main():
                     timeout=3000, polling=45)
                 left_run = state(page)
                 left_idx = int(left_run.get("review_run_source_frame", -1))
+                if left_idx != int(left_run.get("human_sprite_frame", -1)):
+                    raise AssertionError("Left run visual frame != source atlas cell")
                 if left_idx % 4 != 1 or left_idx // 4 not in (1, 2, 3, 4, 5, 19):
                     raise AssertionError(
                         f"A+A must use original LEFT running pose: {left_idx}")
