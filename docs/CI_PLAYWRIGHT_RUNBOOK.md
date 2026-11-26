@@ -690,3 +690,10 @@ User rejected the skating rear-facing animation. Real game W moves up world -Z w
 - See docs/LIBRESPRITE_RUNBOOK.md and latest LibreSprite checkpoint. Never equate real exporter technical PASS with Jade art completeness.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+## 2026-11-26 — Both W/S Jade short-step clips at canonical /physics-v2/
+- New browser test ci/playwright_jade_three_quarter.py exercises real W AND S physically, verifies native six-cell Sprite3D frames for walk_up_guard_front and walk_down_guard_front, and screenshot each direction. Query flags are read-only test diagnostics on SAME document, never an alternative owner URL.
+- Actual test #45811584096 SUCCESS on PUBLIC df20da9 / PRIVATE source 316d597, with screenshots artifact #15114441535. Preexisting game physics/Arcade tests PASS. Rendered game is at https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/ only.
+- A separately pinned LibreSprite CLI re-export of the NEW two ASE files is NOT yet evidenced. Prior source test belongs to former 1-clip asset; do not transfer its conclusion to new pair. Art aesthetic signoff remains owner-gated.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
