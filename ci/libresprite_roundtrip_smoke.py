@@ -28,18 +28,23 @@ def chunk(kind: int, data: bytes) -> bytes:
     return struct.pack("<IH", len(data) + 6, kind) + data
 
 
-def make_editable(path: Path) -> None:
+def make_editable(path: Path, frame_count: int = 4,
+                  tags: list[tuple[str, int, int]] | None = None) -> None:
+    # Test-only original pixels. Can exercise a complete ten-tag source
+    # contract without publishing it as actual Jade animation art.
+    tags = tags if tags is not None else [("smoke_four", 0, 3)]
     frames = []
-    for frame in range(4):
+    for frame in range(frame_count):
         parts = []
         if frame == 0:
-            # Visible layer: independently editable cels.
-            layer = struct.pack("<6HB3s", 1, 0, 0, 0, 0, 0, 255, b"\0"*3)
+            layer = struct.pack("<6HB3s", 1, 0, 0, 0, 0, 0, 255, b"\\0"*3)
             parts.append(chunk(0x2004, layer + word_string("original-test-only-cel")))
-            tag = (struct.pack("<H", 1) + b"\0"*8 +
-                   struct.pack("<HHBH", 0, 3, 0, 0) + b"\0"*6 +
-                   bytes((25, 158, 150, 0)) + word_string("smoke_four"))
-            parts.append(chunk(0x2018, tag))
+            tags_bytes = [struct.pack("<H", len(tags)) + b"\\0"*8]
+            for name, first, last in tags:
+                tags_bytes.append(
+                    struct.pack("<HHBH", first, last, 0, 0) + b"\\0"*6 +
+                    bytes((25, 158, 150, 0)) + word_string(name))
+            parts.append(chunk(0x2018, b"".join(tags_bytes)))
         color = (20 + 25 * frame, 90 + 20 * frame, 170 - 19 * frame, 255)
         rgba = bytearray(80 * 80 * 4)
         for y in range(80):
@@ -57,7 +62,7 @@ def make_editable(path: Path) -> None:
                                   len(parts), 100, 0, 0) + body)
     header = bytearray(128)
     struct.pack_into("<IHHHHH", header, 0, 128 + sum(map(len, frames)),
-                     0xA5E0, 4, 80, 80, 32)
+                     0xA5E0, frame_count, 80, 80, 32
     struct.pack_into("<I", header, 14, 1)
     struct.pack_into("<H", header, 18, 100)
     header[30] = 0
