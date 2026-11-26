@@ -84,23 +84,27 @@ def main():
                 raise AssertionError("V2 missing private source commit")
             if (start.get("controls_v2_enabled") is not True
                     or start.get("animation_source_ready") is not False
-                    or start.get("animation_clip_intent") != "idle_breathe_front"):
+                    or start.get("animation_profile_count") != 4
+                    or start.get("animation_profile_id") != "jade_human"
+                    or start.get("animation_profile_stance") != "guard"
+                    or start.get("animation_clip_intent") != "idle_guard_front"):
                 raise AssertionError("V2 inputs or PENDING_ART signal missing: " + str(start))
             report["version"] = {x: start.get(x) for x in
                                  ("source_sha", "pipeline_sha", "build_run_id")}
             report["cases"]["source_art"] = "PENDING_ART, not visual acceptance"
+            report["cases"]["guard_profiles"] = "4 fighter profiles; locomotion clips in combat guard stance"
 
             page.keyboard.down("w")
             up = expect_state(
                 page, "W upward real world velocity / front appearance",
-                "s.animation_clip_intent === 'walk_up_front_view' && "
+                "s.animation_clip_intent === 'walk_up_guard_front' && "
                 "s.player.vz < -0.4 && (s.human_sprite_frame % 4) === 0")
             page.keyboard.up("w")
             page.wait_for_timeout(350)
             page.keyboard.down("s")
             down = expect_state(
                 page, "S downward real world velocity / front appearance",
-                "s.animation_clip_intent === 'walk_down_front_view' && "
+                "s.animation_clip_intent === 'walk_down_guard_front' && "
                 "s.player.vz > 0.4 && (s.human_sprite_frame % 4) === 0")
             page.keyboard.up("s")
             report["cases"]["w_s"] = {
@@ -114,7 +118,7 @@ def main():
             page.keyboard.down("a")
             once = expect_state(
                 page, "A single press must walk, not sprint",
-                "s.animation_clip_intent === 'walk_left' && "
+                "s.animation_clip_intent === 'walk_left_guard' && "
                 "!s.sprint_requested && s.player.vx < -0.2")
             page.keyboard.up("a")
             page.wait_for_timeout(45)
@@ -122,7 +126,7 @@ def main():
             left = expect_state(
                 page, "A+A must activate true left sprint and run clip intent",
                 "s.sprint_requested === true && s.sprint_direction === -1 && "
-                "s.animation_clip_intent === 'run_left' && s.player.vx < -0.7")
+                "s.animation_clip_intent === 'run_left_guard' && s.player.vx < -0.7")
             page.keyboard.up("a")
             page.wait_for_timeout(350)
             if snap(page).get("sprint_requested"):
@@ -134,14 +138,14 @@ def main():
 
             page.keyboard.down("d")
             expect_state(page, "single D walk only",
-                         "s.animation_clip_intent === 'walk_right' && !s.sprint_requested")
+                         "s.animation_clip_intent === 'walk_right_guard' && !s.sprint_requested")
             page.keyboard.up("d")
             page.wait_for_timeout(45)
             page.keyboard.down("d")
             right = expect_state(
                 page, "D+D must choose rightward run and actual motor",
                 "s.sprint_requested === true && s.sprint_direction === 1 && "
-                "s.animation_clip_intent === 'run_right' && s.player.vx > 0.7")
+                "s.animation_clip_intent === 'run_right_guard' && s.player.vx > 0.7")
             page.keyboard.up("d")
             report["cases"]["right_double_tap"] = {"run_vx": right["player"]["vx"]}
             canvas.screenshot(path=str(OUT / "run-right-prototype.png"))
@@ -205,7 +209,7 @@ def main():
             if report["pages"]:
                 raise AssertionError("browser script errors: " + str(report["pages"][:5]))
             report["status"] = "PASS_FUNCTIONAL_ART_PENDING"
-            print("ARCADE V2 WEB PASS: W/S front, A+A/D+D sprint, F punch, G kick, F+G jump; visual PENDING_ART")
+            print("ARCADE V2 WEB PASS: 4 reusable guard profiles; W/S front, A+A/D+D sprint, F punch, G kick, F+G jump; visual PENDING_ART")
         except Exception as exc:
             report["status"] = "FAIL"
             report["error"] = str(exc)
