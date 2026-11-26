@@ -734,3 +734,11 @@ User rejected the skating rear-facing animation. Real game W moves up world -Z w
 - ONLY owner game link: https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/ . Eight walking inputs now technically implemented and deployed. Original 8 unique directional art sets and full ten-tag fighter archive remain PENDING_ART, owner visual signoff must be manual under `autocheck:false`.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+## 2026-11-26 — cadence parity across W/S, A/D and diagonal
+
+- Distinguish 4.2m/s physical world motion from artistic frame rate and 2D projection X32px/m/Z6.5px/m. Same previous 0.30m/pose gave 14 poses/s for all directions, but side looked hurried. Owner W/S clip is baseline.
+- Private shared frame pacing: W/S=0.30m/pose (unchanged), A/D=0.38, diagonals=0.35; no motor/slope/attack/run changes, no sprite compositing. Native exact test #45819228268 PASS source 5c229eae1f52 / PUBLIC 7b6e31a94ed7; browser #45819571675 must verify all 8 actual inputs and report screen shots.
+- One canonical user URL /physics-v2/; auto visual acceptance prohibited under autocheck:false. More authentic original directional art later.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**

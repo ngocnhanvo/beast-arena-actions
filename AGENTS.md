@@ -53,3 +53,5 @@ QUY TẮC:
 
 
 - **2026-11-26 REUSED 8-DIRECTION JADE GUARD WALK:** User accepts W/S compact shuffling guard and wants the SAME pose for A,D and all four diagonals. PUBLIC Chromium ci/playwright_jade_three_quarter.py checks all eight physical inputs (including mixed X/Z), correct semantic tags, reused W/S 6×80px source, left whole-body horizontal flip and 70px size parity. No fake per-direction art, no physical movement hacks. Only owner URL `https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/`; `autocheck:false` means no autonomous art signoff. Build/Pages #45815352430 PASS; check real browser #45815615697. See latest eight-direction checkpoint.
+
+- **2026-11-26 Jade pose-cadence parity:** Owner wants A/D and diagonals to step a little slower than W/S. Preserve physical 4.2m/s+diagonal normalization and real 70px sprite scale; only shared review pose distance W/S=0.30m, A/D=0.38m, diagonals=0.35m. Public browser test must validate all eight visual strides on SAME canonical /physics-v2/ Pages, not a test-only preview. #45819228268 Pages PASS; exact #45819571675 Chromium pending final signoff. Owner autocheck:false, no art VISUAL_ACCEPTED.
