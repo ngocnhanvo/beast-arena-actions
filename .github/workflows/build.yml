@@ -98,7 +98,12 @@ jobs:
           # Missing editable .ase/.aseprite Jade timeline is an explicit
           # PENDING_ART state, never a visual approval or invented asset.
           # Invalid source manifests/exports remain real CI failures.
-          python3 game/tools/animation_source_audit.py
+          python3 game/tools/animation_source_audit.py --json-output /tmp/beast-animation-source-audit.json
+          STATUS="$(python3 -c 'import json; print(json.load(open("/tmp/beast-animation-source-audit.json"))["status"])')"
+          echo "### Editable animation source: $STATUS (not aesthetic approval)" >> "$GITHUB_STEP_SUMMARY"
+          if [[ "$STATUS" == "PENDING_ART" ]]; then
+            echo "::warning::Jade full-body authored animation source is missing. Godot build PASS cannot close the visual defect."
+          fi
       - name: Record source commit (SHA only)
         id: source-sha
         shell: bash

@@ -595,3 +595,12 @@ User rejected the skating rear-facing animation. Real game W moves up world -Z w
 - **USER `autocheck: false`**: no autonomous appearance approval. Owner must play https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/?pixel=1&art=approved and decide if the 80px left/right arm swing counter to shoe contacts looks natural W/S and if F5 views remain clean. This remains a native-pixel compositing preview, not authentic full hand-authored four-way Aseprite animation. Overall game roadmap remains open.
 
 **Trạng thái: PARTIAL — chưa hoàn tất** (technical build/E2E PASS; owner graphic signoff + full roadmap not completed).
+
+
+## 2026-11-26 — Additional authored-animation source readiness gate
+
+- Current Jade PNG atlas has 4x20 tile positions but *no editable .ase/.aseprite timeline and no full genuine independently drawn run cycle*. Do not treat ART-28/29 hash/offset tests as visual acceptance; owner explicitly rejected their result. Root cause detailed in PRIVATE `docs/architecture/ANIMATION_SYSTEM_V2.md` and checkpoint `docs/checkpoints/2026-11-26-zzzzzzzzzzzzzz-animation-v2-root-cause.md`.
+- After Private checkout, `build.yml` runs `python3 game/tools/animation_source_audit.py`. Expect explicit `PENDING_ART` with `visual_accepted:false` until native 80px editable clips plus PNG+JSON tag/slice export exist. Malformed inventory should FAIL. Keep PENDING visible in GitHub Actions summary. STRICT tool mode is for source-quality gate before art migration, not routine Godot technical build.
+- Godot/Pages #45773624934 SUCCESS on Private `1f165ac9...` / Public `6c717f3...`, but its source audit accurately reports `jade_human: no complete editable animation source + exported clips`. This is a **BLOCKED art production step**, not a failure of engine compilation. No new sprite art should be published as visually solved. `autocheck:false` remains in force.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
