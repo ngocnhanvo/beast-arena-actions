@@ -14,3 +14,10 @@
 - ONE of TEN original guard clips is a candidate. Nine remaining (at least 52 frames), authentic reviewed foot pivots, merged 58+ frame editable private source, strict full-export, Godot preview, and owner's visual signoff are NOT finished.
 - With owner autocheck:false, never turn a technical CI PASS into visual acceptance. Add new clips to PRIVATE candidate manifest and the same generic CI tests them; follow game source roadmap, keep PUBLIC Pages art unchanged until authorized.
 - Status: PARTIAL — chưa hoàn tất.
+
+## Final post-checkpoint technical result (verified)
+- [Exact Chromium #45800631688](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45800631688) **SUCCESS**, PUBLIC pipeline 1bfeaabbdc83 and exact Pages build #45800285101. Real logs: P1.5 dx=210.0px; Physics V2 scenario PASS (entire job success); Arcade V2 Web PASS with four guard profiles, W/S front, A+A/D+D sprint and F/G/F+G. Screenshots artifact [#15106558525](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45800631688/artifacts/15106558525).
+- Earlier old-run [#45800283677](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45800283677) remains historical **FAIL** due a Physics V2 10s predicate; do not rewrite history. Fresh exact newer run supersedes for current technical browser status.
+- SOURCE ART still **PENDING_ART** (only one unapproved 6-frame candidate of ten; 9 clips + foot pivots + manual owner review + actual art deployment OPEN). Technical Web PASS is NOT visual art PASS.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
