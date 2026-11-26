@@ -321,6 +321,18 @@ def main():
             page.wait_for_function(
                 "() => window.__beastPhysicsDebug && window.__beastPhysicsDebug.hero_art_approved_enabled === false",
                 timeout=8000, polling=70)
+            # Isolate the NEW W/rear-art fixture from all original 3D
+            # movement tests. W changes actual world Z and can leave the
+            # actor airborne/on a slope even after key release, which
+            # invalidates the old D-only gait baseline. T is the game's
+            # existing authoritative respawn to the same flat start.
+            page.keyboard.press("t")
+            page.wait_for_timeout(440)
+            reset = snap(page)
+            if (reset.get("map_id") != hero_before.get("map_id") or
+                    reset.get("combat_hp") != hero_before.get("combat_hp") or
+                    reset.get("hero_art_approved_enabled")):
+                raise AssertionError("T did not isolate rear art fixture before physics regression tests")
             page.keyboard.press("F5")
             page.wait_for_timeout(180)
             if snap(page).get("pixel_projection_mode"):
