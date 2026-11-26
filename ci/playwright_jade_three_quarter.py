@@ -249,9 +249,9 @@ def main():
                 page.wait_for_function(
                     "() => window.__beastPhysicsDebug?.review_preview_frame > 0",
                     timeout=3000, polling=45)
-                # Sample the LIVE gameplay frame stream for <=850ms,
-                # rather than wait 2 seconds per numbered phase. Holding
-                # left/right for many seconds hits real stage collision,
+                # Sample the LIVE gameplay frame stream for <=1850ms,
+                # source holds >=85ms plus two renders per pose. Holding
+                # left/right too long hits real stage collision,
                 # legitimately stops _gait_distance_m and freezes the pose.
                 # We still REQUIRE every phase 0..5 to actually appear.
                 right_phases = page.evaluate(
@@ -262,7 +262,7 @@ def main():
                         const s = window.__beastPhysicsDebug;
                         if (s?.review_run_active && s?.sprint_requested)
                           observed.add(s.review_preview_frame);
-                        if (observed.size === 6 || performance.now() - start > 850)
+                        if (observed.size === 6 || performance.now() - start > 1850)
                           resolve([...observed].sort((a,b)=>a-b));
                         else requestAnimationFrame(sample);
                       }
@@ -330,7 +330,7 @@ def main():
                         const s = window.__beastPhysicsDebug;
                         if (s?.review_run_active && s?.sprint_requested)
                           observed.add(s.review_preview_frame);
-                        if (observed.size === 6 || performance.now() - start > 850)
+                        if (observed.size === 6 || performance.now() - start > 1850)
                           resolve([...observed].sort((a,b)=>a-b));
                         else requestAnimationFrame(sample);
                       }
