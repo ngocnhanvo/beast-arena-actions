@@ -706,3 +706,12 @@ User rejected the skating rear-facing animation. Real game W moves up world -Z w
 - Owner `autocheck:false`: technical size match isn't aesthetic approval.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+## 2026-11-26 — canonical 8-direction Jade guard browser gate
+
+- On real Pages route only `https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/`, test W, S, A, D, W+A, W+D, S+A, S+D using read-only `?review=1&e2e=1` diagnostics on SAME underlying document. No alternate user-facing link.
+- Each direction must have actual 60Hz motor velocity on correct X/Z sign and the expected unchanged combat action tag. A/D and diagonals are *semantic* `walk_left/walk_right` even when the ART source is reused from `walk_up/walk_down` by Z input. Mirror bit true only for leftward whole-body original sprite. Confirm six-cell frame advances and alpha-painted visible body scales to 70px; capture 8 screenshot files including visible map floor.
+- This is reuse of TWO original candidate 6x80px art sources, not eight new original sprite strips, and it never reports full 10-tag art VISUAL_ACCEPTED under `autocheck:false`.
+- Actual compiled source `0d2d2bdf`; PUBLIC `dbb3d32b`; [Build/Pages #45815352430](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45815352430) SUCCESS; [Chromium #45815615697](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45815615697) final outcome must be read before reporting web PASS. Earlier #45813823212 checked only W/S.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
