@@ -114,3 +114,28 @@
 - **Still TODO**: final user art signoff and eventual structured Aseprite tags/SpriteFrames editing integration for the rest of the motions and fighters, map aesthetics, editor, beast mode roadmap.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+
+## 2026-11-26 — FINAL scoped Jade foot-anchor + W/J/K + map-texture release PASS (exact provenance)
+
+**The requested bugfix is TECHNICALLY VERIFIED in real deployed browser.** This is NOT a claim that the rest of Beast Arena or fully authored SpriteFrames/Aseprite animation library is finished.
+
+### Provenance / actual runs
+- Compiled exact PRIVATE code+docs source: `660093be13f55dae0aa30a8eb5d6a72818e87a56` (later changes only doc/checkpoint). PUBLIC build pipeline source: `da8094c23464457e50e350283565198ea14ab79d`.
+- Godot strict import, ART-23/24/25; PRES-15/16/17 for MAP RESOURCE walkable source / PixelView / actual 3D mesh UV; 60Hz physics/combat/ramps; Windows+Web export; real GitHub Pages deploy [#45764000051](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45764000051) **ALL PASS**. Actual job logs print `APPROVED JADE WJK PASS: 4 foot phases + shared physical shoe pivots for W/J/K, full body attacks, preserved gameplay`, `2D VISUAL ADAPTER PASS`, `VISUAL SPIKE PASS` and `All export checks passed`.
+- Fresh, **exact published source/build-bound real Chromium** [#45764224828](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45764224828) **SUCCESS**; browser checked PUBLIC `da8094c...` and build ID `45764000051`. Original P1.5 browser PASS dx=220.5; isolated Physics V2 Web PASS Moss slope climb 2.23m, Docks descent 2.27m, real >=10deg contact angles, horizontal dx9.40m.
+- [Downloaded screenshot+result artifact #15091725487](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45764224828/artifacts/15091725487) ACTUALLY opened and inspected: `physics-v2/moss-jade-approved-rear-motion.png`, `moss-jade-approved-W-J.png`, `moss-jade-approved-W-K.png`. Genuine visible Jade shoes appear planted on GREEN actual walkable floor, with correct 2.5D physical ground and no gray-wall-art used as floor in these captures.
+- Browser `physics-v2/result.json.status=PASS`; `jade_wjk_physics_sprite_regression={walkable_grass_visible_j:1.0,walkable_grass_visible_k:1.0,w_unique_run_phases:[0,1,2,3],travel_stride_m:6.44,real_w_capture_runs:1,grounded_samples:32,foot_anchor_max_error_px:0,j_attack_row:7,k_attack_row:9,physical_hp_unchanged:true}`; approved chibi art is actually active `atlas_cell_px=80,visible_changed_pixels=16887`, not a mocked static page.
+
+### Root causes and robust fixes retained
+1. Source PNG varying 3px idle/strike vs 8–10px W frame transparent shoe padding made legs float. Fixed with per-frame cached `BeastSpriteFootAnchor` used by `Sprite3D` and `PixelView`; no collider, hitbox, gravity, HP or native physical Y modified. ART-25 40 grounded poses; Aseprite/LibreSprite slice-pivot authoring and CLI `tools/sprite_atlas_audit.py` standard documented.
+2. Moss original SVG vertical 64px stone wall and Docks 80px steel wall incorrectly sampled onto walkable XZ floor. Moved source region to `BeastPhysicsMap.floor_texture_walkable_start_y_px` Inspector property (Moss=64, Docks=80); both 2D floor sampler and actual 3D ground material UV use SAME resource. PRES-15/16/17 + Web image grass fraction enforce it for future authored maps. See `docs/art/MAP_TEXTURE_SOURCE_STANDARD.md`.
+3. Actual failed E2E tests MUST remain documented: #45762495699 and #45762740141 had 3/4 rAF **sampled** phases due software-WebGL frame skipping, not physical W stop (5.25m/6.37m truly grounded); #45763700972 extended repeated W runs past the map edge (z=-13.47) and contaminated J fixture, so J snapshot was airborne. Corrected PUBLIC E2E `da8094c...` captures union of all four **real rendered** phases over at most three grounded runs, stops each W by physically reaching z=-7.5 (safe before -13 edge), resets and re-faces rear naturally before testing J/K. Final passed first W capture in one run; game physics never changed.
+
+### Owner preview & next checkpoint
+- Play: https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/?pixel=1&art=approved. Hold W (rear-running), J and K, toggle F5 to compare native 3D vs Pixel 2D, F7 to compare approved Jade art.
+- User has not yet personally accepted the new visual movement and complete animation. Only the **scoped** floating-shoes / run / two punch poses / source-region toolchain bugfix is technical PASS.
+- **Still open / roadmap**: editable full Aseprite frame/tag sources and Godot named `SpriteFrames` migration from 4x20 index atlas; full 4-direction authored artist animation including idle walk run J/K hit KO grab/beast; full stage art style similar to approved original reference, physical props/map editor, combat/AI/beast roadmap and production migration. DO NOT mark full game DONE.
+- Final exact fresh release build/browser IDs above must be retained in BOTH repo START_HERE and runbook/engineering log. Subsequent docs-only SHAs do not alter compiled binary.
+
+**Trạng thái: PARTIAL — chưa hoàn tất** (entire game roadmap remains, scoped defect is verified PASS).
