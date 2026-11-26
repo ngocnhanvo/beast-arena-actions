@@ -249,13 +249,23 @@ def main():
             page.wait_for_timeout(180)
             attack_visual = snap(page)
             report["human_attack_visual"] = attack_visual
-            if attack_visual.get("human_visual_action") != "punch_light":
-                raise AssertionError("J did not start the original light attack visual preview")
+            # Combat owns the 60Hz strike timeline. The old
+            # human_visual_action preview is intentionally not authoritative:
+            # it can outlive a hitbox/recovery and was removed from genuine
+            # attacks. Assert the PHYSICAL clock and the corresponding art.
+            if (attack_visual.get("human_visual_gait") != "attack" or
+                    not 1 <= attack_visual.get("human_attack_frame", -1) < 16):
+                raise AssertionError(
+                    "J did not begin the authoritative 60Hz light attack: "
+                    + str({
+                        "gait": attack_visual.get("human_visual_gait"),
+                        "frame": attack_visual.get("human_attack_frame"),
+                        "sprite": attack_visual.get("human_sprite_frame")}))
             if attack_visual.get("human_sprite_frame", -1) // 4 not in (7, 8):
-                raise AssertionError("attack animation not on the original punch rows")
+                raise AssertionError("physical attack art not on original punch rows")
             canvas.screenshot(path=str(OUT / "moss-light-preview.png"))
-            # This verifies animation playback only; combat damage/boxes
-            # remain a separate milestone, never inferred from pixels.
+            # The selected pose follows the physical attack clock; 3D
+            # hit volume and damage are independently asserted by Godot.
 
             before_jumps = moved["player"]["jump_events"]
             page.keyboard.press("Space")
