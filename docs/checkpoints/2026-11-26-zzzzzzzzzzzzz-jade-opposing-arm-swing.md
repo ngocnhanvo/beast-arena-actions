@@ -15,3 +15,11 @@ Previous PRIVATE gameplay 96274aff26ad0e433709f6d1b25e7283664f7682 and PUBLIC pi
 NEXT: build current PRIVATE HEAD on current PUBLIC pipeline, verify ART-28/29 and exact source SHA, Web/Windows exports and Pages. Then ask owner to review live at https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/?pixel=1&art=approved , testing W/S arm/leg opposition and F5, while original 80px face and grounded shoes remain clear. This source-native compositing bridge is not independently painted layered Aseprite animation; full content roadmap remains open.
 
 **Trạng thái: PARTIAL — chưa hoàn tất** (at writing: new build/deploy and owner art review pending).
+
+## New exact technical delivery VERIFIED
+- PRIVATE actually compiled `eb2e32ae46b175e92f9ad12aa0567e85bcb6a932`; PUBLIC pipeline `cb53bf4fb94d6a01bc0c333c03f56c705c2f605b`.
+- [Godot/Windows/Web/Pages #45770278285](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45770278285) **SUCCESS**, preflight, import/tests/export and Pages all completed. Real build job log asserts `APPROVED JADE 80PX COUNTER-SWING PASS: W/S same front, 4 shoe contacts, 4 opposite moving native-80px arm poses, source face/vest untouched, anchored feet; owner visual review pending` plus `All export checks passed.`
+- Existing browser E2E auto-run [#45770517662](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45770517662) was IN PROGRESS on first note; check actual outcome and exact build/provenance before calling E2E PASS.
+- Playable owner URL https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/?pixel=1&art=approved . `autocheck:false` user reviews visual arm+leg swing himself; technical Web success is NOT artistic signoff. Rest of game roadmap remains incomplete.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
