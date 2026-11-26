@@ -22,3 +22,11 @@
 4. Update both latest checkpoints and runbook with terminal result/next action.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+## TERMINAL VERIFY 2026-11-26 22:27 ICT — technical PASS, owner visual PENDING
+- PRIVATE source checked out by CI: `bfb07f867dcaaaae6c6ec38a4dd8250161bd5766`. PUBLIC exact build pipeline SHA `6f2c7c837a3ce68c082997058937fedad0b90b8d`.
+- [Godot/Web/Windows/Pages #45848128995](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45848128995) **SUCCESS**, all 3 jobs including actual Pages deploy PASS. Godot log explicitly: `JADE SIX RUN FRAME HOLD PASS: source 85ms, >=2 render updates, sequential 5->0 seam`; 6 original native source frames each direction, 70px normalized character, eight-direction walk PASS. Native test warns about `Image.load_from_file` in a test-only audit path, not an export compile failure.
+- [EXACT Chromium #45848462724](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45848462724) **SUCCESS**. P1.5 PASS (two maps/camera), Physics V2 PASS (2.17m climb, 2.35m descent), Arcade V2 PASS, `ONE CANONICAL /physics-v2/ JADE OWNER DESIGN SIX-POSE PASS`: strict browser E2E demands all six rAF phases for BOTH live A+A/D+D, source indices correct, idle and 8 walking directions unchanged. Artifact `beast-arena-browser-screenshots` ID 15133260807 was uploaded.
+- OWNER ART: **PENDING_ART**. Six source cels exist, but draft `jade_run_owner_six_{right,left}.foot.json` currently has identical placeholder pivots x40/y75 for all six with `pivot_review_required:true`; do not pretend this proves believable grounded leg reversal. Full independent authored 8+ running poses, real punch/kick/idle source and owner gameplay visual acceptance remain pending (`autocheck:false`).
+- NEXT: owner tests ONLY https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/ . If last→first still looks lame, correct native editable .aseprite whole-body contact keyframes/foot pivots, not a crop/shift-body-parts hack, then run same complete CI+Chromium.
+**Trạng thái: PARTIAL — chưa hoàn tất.**
