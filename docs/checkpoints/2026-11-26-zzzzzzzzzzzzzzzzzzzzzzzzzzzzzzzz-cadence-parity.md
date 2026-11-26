@@ -19,3 +19,12 @@ PRIVATE game compiled SHA 5c229eae1f526834d8e38a6cc9565e835b66e60b; PUBLIC CI te
 - Next: verify live Chromium, append artifact and exact source SHA, preserve documented technical vs artistic status.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+## Terminal 8-direction cadence verification — exact released artifact
+
+- [Godot/Windows/Web/Pages #45819228268](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45819228268) SUCCESS; compiled PRIVATE SHA `5c229eae1f526834d8e38a6cc9565e835b66e60b`, PUBLIC pipeline SHA `7b6e31a94ed75d9ffcbdc7a8fb03688167e1c6c9`. Native logs printed exact eight-direction `JADE-WALK-PACE` values and successful Web/Windows export/Pages deploy.
+- [Real Chromium #45819571675](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45819571675) SUCCESS: game P1.5 dx217px, Physics V2 climb2.19m/down2.48m, Arcade V2 attack/run, and `ONE CANONICAL /physics-v2/ JADE 8-DIRECTION PACE PASS`.
+- Screenshot artifact [#15117192266](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45819571675/artifacts/15117192266) `jade-34/result.json` independently inspected: `PASS_TECHNICAL_OWNER_ART_PENDING`, exact source/pipeline/build IDs, W/S stride0.30m/pose ≈14/s, A/D stride0.38m/pose ≈11.05/s, all diagonals0.35m/pose ≈12/s, true world velocity magnitude4.2m/s for EVERY direction (diagonals X/Z ±2.969848m/s), all eight height70px, full-body source frame/mirror correct. Nine screenshots show idle + eight directions on map.
+- One owner URL ONLY https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/ . Scoped technical work is **PASS**. Do not claim overall game finished or art VISUAL_ACCEPTED; owner `autocheck:false` still reviews visual feel, complete ten-tag authored library still PENDING_ART. New evidence supersedes earlier "Chromium pending" within same checkpoint.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
