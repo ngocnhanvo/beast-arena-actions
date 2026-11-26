@@ -273,6 +273,11 @@ def main():
                         f"D+D must play all SIX visible phases during real sprint, "
                         f"observed={right_phases}, state={state(page)}")
                 run_state = state(page)
+                if (int(run_state.get("review_run_presented_phase_mask", 0))
+                        & 0x3F) != 0x3F:
+                    raise AssertionError(
+                        "D+D game renderer did not select every real "
+                        "whole-body leg phase: " + str(run_state))
                 # Six NEW owner-designed whole-body right-facing source
                 # cels in 480x160; never the old mixed legacy 4x20 atlas.
                 source_index = int(run_state.get("review_run_source_frame", -1))
@@ -336,6 +341,11 @@ def main():
                         f"A+A must play all SIX visible phases during real sprint, "
                         f"observed={left_phases}, state={state(page)}")
                 left_run = state(page)
+                if (int(left_run.get("review_run_presented_phase_mask", 0))
+                        & 0x3F) != 0x3F:
+                    raise AssertionError(
+                        "A+A game renderer did not select all six "
+                        "authored running poses: " + str(left_run))
                 left_idx = int(left_run.get("review_run_source_frame", -1))
                 if left_idx != int(left_run.get("human_sprite_frame", -1)):
                     raise AssertionError("Left run visual frame != source atlas cell")
@@ -367,6 +377,7 @@ def main():
                     "source_frame": run_state["review_run_source_frame"],
                     "source_pose_count": run_state["review_run_source_pose_count"],
                     "observed_live_phases": right_phases,
+                    "actual_sprite_pose_mask": run_state["review_run_presented_phase_mask"],
                     "source_action": run_state["review_preview_action"],
                 },
                 "left_run_preview": {
@@ -374,6 +385,7 @@ def main():
                     "source_frame": left_run["review_run_source_frame"],
                     "pose_count": left_run["review_run_source_pose_count"],
                     "observed_live_phases": left_phases,
+                    "actual_sprite_pose_mask": left_run["review_run_presented_phase_mask"],
                     "velocity_x": left_run["player"]["vx"],
                     "source_action": left_run["review_preview_action"],
                 },
