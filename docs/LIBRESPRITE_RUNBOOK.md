@@ -66,3 +66,8 @@ Native Godot, Pages export, Chromium and a REAL pinned LibreSprite CLI source re
 
 ## 2026-11-26 — Jade eight-phase source to be validated by real LibreSprite CLI
 - New PRIVATE candidate jade_run_eight_right and jade_run_eight_left: eight individually authored 80px source frames, each 85ms, one run guard tag, PNG and editable .aseprite, foot y74 sidecar. Active candidates.json replaces old six-frame registered run tags; original six still archived. Public workflow automatically checks source tags, frame durations and pixel-exact roundtrip; any FAIL is a real exporter/ASE bug, not automatically art acceptance. User reviews only canonical https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/ . Owner aesthetic still PENDING_ART.
+
+## 2026-11-26 — Jade 8-pose arm counter-swing source retouch (not owner-accepted yet)
+- PRIVATE updated full 640x160 Jade source atlas; only 4 upper-body frames 2,3,4,5 are hand-repainted with near-arm guard counter-swing. Accepted shoes/legs are pixel-identical across ALL eight phases (source baseline `jade_run_eight_16_before_arm_retouch.png`, rows y55..79). Opposite LEFT sources mirror whole 80px frames, no limb component runtime manipulation.
+- Active editable `.aseprite` sources and PNG exports regenerated for both 8-frame sides, 85ms per tagged cel. Private Godot `three_quarter_preview_smoke.gd` checks pixel-invariant legs and amended arm-only phases; PUBLIC real LibreSprite workflow validates full source PNG/ASE roundtrip.
+- Owner `autocheck:false`; visual acceptance still pending. Inspect only https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/ after exact SHA Pages deployment and browser Chromium test. Do NOT declare a source edit artistically successful solely from CLI PASS.
