@@ -111,3 +111,29 @@ landmarks must come from a separately approved pose bible.
 Use `--review-sheet /private/out/review.png` to export an annotated local
 contact sheet; never upload original or derived private game art into PUBLIC
 CI logs or workflow artifacts. The package does not publish its input images.
+
+## Cross-project motion diagnostics (strictly not art approval)
+
+The generic `motion-diagnose` command measures actual PNG frames, including
+the final-to-first loop seam. It works for any project-declared canvas and
+frame count; it does not depend on Godot, Beast Arena, 80px or six poses.
+
+```sh
+sprite-foundation motion-diagnose --manifest /private/hero/manifest.json \
+  --root /private/hero --out /private/review/motion-report.json
+```
+
+Report fields include per-frame opaque alpha bounds, bottom-most filled
+row and candidate pixel columns, visual center, adjacent pixel-change
+fractions (including last→first), seam/internal-median ratio and exact
+duplicate transitions. **These are 2D raster diagnostics only.** A
+bottom-most pixel is not proof of planted-foot physical contact; a small
+seam difference is not proof of natural movement. The report always
+states `ground_contact_status=UNVERIFIED`,
+`world_space_foot_trajectory_status=UNVERIFIED`,
+`loop_art_review_status=UNVERIFIED` and
+`release_authorization=NONE`. Independent 3D/world displacement,
+owner visual approval, and externally signed art are separate steps.
+
+No private source images are embedded in the JSON diagnostic. Do not
+upload private screenshots/artifact payloads in PUBLIC CI.
