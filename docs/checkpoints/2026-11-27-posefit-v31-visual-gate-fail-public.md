@@ -1,0 +1,15 @@
+# 2026-11-27 — Base Character v3.1 actual visual FAIL: CI source PASS must not approve art
+
+## User evidence / verified root cause
+Owner shared screenshot of 3-panel preview at frame 4/6 showing exaggerated planted leg and wrong body stance. On reopening the exact locally supplied 242x60 six-pose reference, rig data and 80x80 candidate frames, the fundamental gap is a **self-referential test**: IK length and world ankle drift were checked against the same invented landmarks, without independent silhouette or ground-pixel checks.
+With current reference crop normalization (provisional 1.38x nearest), all 6 native 80px candidate silhouettes have IoU [0.503,0.581,0.514,0.531,0.599,0.513], mean **0.5401**. This is a triage metric, not pixel-perfect anatomy proof. The current y72 ground plane has body alpha down to y75 in contact frames 1,2,4,5, **38 below-floor pixels per frame, 152 total**. The earlier claim `plant drift = 0px` is numerically true for solved ankle keys but insufficient for actual sprite shoe-ground contact.
+
+## Source change and actual run
+PRIVATE Draft [PR #5](https://github.com/ngocnhanvo/beast-arena/pull/5), isolated source code implementation SHA **8d3eeb978170bf0fb01f1879c4c201b97906406c** (later docs commits separate), new `pose_fit_revision/src/visual_gate.py`, six visual negative checks, blocked status `REJECTED_BY_OWNER_2026_11_27`, red error banner in offline preview with per-frame status and frame scrub initially paused. Local reviewed overlay shows reference-only pixels blue, candidate-only red, shared yellow. The reference is OWNER LOCAL ONLY, never in PRIVATE/Public code or CI artifact.
+PUBLIC source-only CI workflow source SHA **2bb00982c1ebc0735ad668a54eb7ef5e1f4c257b** [run #46007535618](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/46007535618), job `140534407588`: **COMPLETED SUCCESS**, real logs `Ran 23 tests / OK` and `V31_POSE_TECHNICAL_PASS_ART_RELEASE_BLOCKED`. The public runner has no copyrighted source reference; the art gate properly returns **BLOCKED**, not a false-art PASS. 23/23 checks validate that the gate catches errors, not that artwork is good.
+Local independent visual audit with the actual user reference returns `ART_VISUAL_GATE_FAIL`, 6/6 silhouette mismatches and 4 grounded poses penetrating y72. No owner-accepted anatomical landmark set exists. No game profile change, Jade source change, main merge, Pages deploy, LibreSprite rerun or in-game Chromium E2E occurred.
+
+## Immediate stop and next step
+Do NOT keep generating cosmetic limb patches or skins from this failed base. Require an authored six-pose skeleton with checked head/pelvis/hip/knee/ankle/shoulder/elbow/wrist anchors, calibrated reference scale, accurate body silhouettes and phase-specific foot-contact geometry, followed by an owner-reviewed GIF. The 0.70 IoU review threshold alone never authorizes art. Keep PRs Draft, `autocheck:false`, private reference strictly out of public artifacts. Update source SHA and rerun pinned source-only validation if code/art changes.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**

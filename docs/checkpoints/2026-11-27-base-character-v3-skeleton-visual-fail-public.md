@@ -1,0 +1,11 @@
+# 2026-11-27 — PRIVATE Base Character v3 gait visual review FAIL, independent technical source CI remains PASS
+
+PRIVATE owner questioned skeleton/run motion after seeing animated skeleton/contact preview; independent audit confirmed **gait unsuitable for visual acceptance**. PRIVATE [Draft PR #5](https://github.com/ngocnhanvo/beast-arena/pull/5) is still DRAFT and received review `CHANGES REQUIRED`. PRIVATE `feat/base-character-v3-rig-independent` checkpoint `docs/checkpoints/2026-11-27-base-character-v3-skeleton-visual-review-fail.md` documents exact issue.
+
+Verified in PRIVATE `rig.json` and `rig_pipeline.py`: six ankle/wrist targets manually invented (not annotated from agreed six-pose reference), `foot_contact` copied to manifest only and never used to constrain grounded foot/root motion. Example far planted foot claims phases 2 and 3, but ankle changes [24,68]→[35,65], **11.4 px drift** with pelvis x fixed. Shoulder/head tilt and near/far elbow/knee signs are hard coded, not optimized against actual target keyframes; no world-space planting or 6→1 seam / angular continuity visual gate. Owner described skeleton moving comically; classify **VISUAL_FAIL**, no owner aesthetic approval.
+
+Prior [PUBLIC CI #46000054846](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/46000054846) remains genuinely **COMPLETED SUCCESS** for pinned PRIVATE rig source SHA `43b77cd190ae95f8f1a12ba1a06a2b60ebd785ef`: 20/20 Python technical tests, official LibreSprite 1.3 pixel-perfect native ASE exports and Godot 4.7.2 import + isolated rig diagnostic no errors. **Technical PASS != motion correctness.** No new workflow triggered because this is a documentation-only art review, no change to tested source files; no PUBLIC game deployment, no Pages or in-game Chromium E2E.
+
+Next: label *original/licensed* actual six-pose running silhouette joints + contacting soles (do not rip external game into distributed assets), fit rig to reference, annotate root-world displacement, implement planted foot and weight shift, test phase transitions and frame 6→1 seam and owner review skeleton-only loop. **Do not extend skins/integrate** until visually accepted; no merge; preserve Jade PR #2 and single canonical /physics-v2/ URL.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
