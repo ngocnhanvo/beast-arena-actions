@@ -36,7 +36,7 @@ jobs:
           set -euo pipefail
           python -m unittest discover -s packages/sprite-foundation/tests -v
           python -m sprite_foundation --help
-          echo SPRITE_FOUNDATION_GENERIC_11_TESTS_PASS
+          echo SPRITE_FOUNDATION_GENERIC_14_TESTS_PASS
 
   v4-rejected:
     name: Independent private v4 actual 80px source, visual REJECTED
@@ -103,7 +103,7 @@ jobs:
         run: |
           {
             echo '## Portable Sprite Foundation - exact independent source gate'
-            echo '11 generic tests over 32px/4 and 64px/8 unrelated synthetic projects.'
+            echo '14 generic tests incl. approval tampering over 32px/4 and 64px/8 projects.'
             echo 'Private original v4: STRUCTURE PASS, VISUAL REJECTED, RELEASE BLOCKED.'
             echo 'Six provisional head/body ratio flags do NOT replace an artist review.'
             echo 'No PRIVATE art uploaded, no automatic owner approval, no game/Pages deployment.'
