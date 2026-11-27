@@ -28,4 +28,11 @@ Then owner creates a genuinely reviewed neutral silhouette and motion set;
 public tool does NOT generate or beautify art. Future apps can import
 `packages/sprite-foundation` and write only a thin project manifest adapter.
 
+
+## Terminal source QA evidence
+
+- PUBLIC generic package tested at workflow SHA `4db7a95b5b760ecf0230a7c376498eb42e318fda`, PRIVATE v4 adapter immutable SHA `a57a723088595e2153a6304aa1c4f17c631d41c5`, [GitHub Actions #46031026676](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/46031026676) **COMPLETED SUCCESS**. Job `140614548571` actual log `Ran 11 tests / OK` + `SPRITE_FOUNDATION_GENERIC_11_TESTS_PASS`, independent project fixtures 32×32×4 and 64×64×8. Job `140614654175` actual log `Ran 1 test / OK` + `V40_OWNER_REJECTED_ART_HARD_BLOCK_SOURCE_VALID`, six original v4 frames source checked without publishing any private art files.
+- First workflow #46030876976 failed YAML pre-validation because unquoted step name colon. Quoted YAML name and reran full pipeline. The final `SUCCESS` proves the validator *correctly blocks owner-rejected art*, not that actual mannequin artwork has improved.
+- v4 source audit `STRUCTURE PASS / VISUAL REJECTED / RELEASE BLOCKED`, 6 provisional style-ratio review warnings and 5 explicit gates. No auto-sign, no uploaded private image, no merge, no Pages release or Godot game E2E. Visual body anatomy still needs reauthoring and explicit owner approval.
+
 **Trạng thái: PARTIAL — chưa hoàn tất.**
