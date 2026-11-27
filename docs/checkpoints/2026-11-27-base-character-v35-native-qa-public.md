@@ -1,0 +1,19 @@
+# 2026-11-27 — Base Character v3.5 strict 23-layer source-only QA PASS, owner visual pending
+
+## Exact source pins and actual run
+- PRIVATE source (stacked on Draft v3.4 PR #8) branch feat/base-character-v35-layered-source. Exact tested PRIVATE implementation commit 9772e7e4a13a1db4d82295ab8f3c3491d2660c9f; later docs-only handoff d5cf6a9deab4998b6aa973c7f095916815cc8bcd and checkpoint 112cd2d08d3f8092424fd23352697f046ae6191a. PRIVATE main 48dc2119981f26e9f010b279ff2520af99b2f99b; Jade Draft PR #2 intact.
+- PUBLIC repo main c72335df77237580e88066749a3411b58b5494a6; isolated branch ci/base-character-v35-23-layer-qa workflow SHA 8bd17055d55c3e77ae6b4979edc676744c6bcc0f. Actual [Actions #46020972534](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/46020972534) **COMPLETED SUCCESS**, job 140580225963. Actual logs show **Ran 24 tests / OK**, LibreSprite official SHA256-pinned v1.3 strict native RGBA PARITY for Original/Skyguard/Ember/Hybrid six 23-layer cels each, and Godot 4.7.2 isolated source AnimatedSprite2D import 24/24 PASS with zero engine errors.
+- First run [#46020805203](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/46020805203) FAILED Godot headless shutdown because 24 temporary renderer RIDs were leaked; editor importer had successfully loaded sprites but error could not be ignored. PRIVATE source corrected by detaching and freeing AnimatedSprite2D/SpriteFrames before exit; strict rerun #46020972534 SUCCESS. No weakening of Godot error guard.
+
+## True technical enhancement
+- V3.4 had ONE flattened body foundation and nine gear layers. V3.5 now uses 14 named **separately editable visible body cutouts**, plus 9 named gear layers, per native six-frame source. A formal 23-layer interleaved draw order puts far arm behind shirt and near arm/glove above shirt, rear coat behind body. This addresses the previously observable front-hand/shirt overlap risk without pretending it auto-produces anatomy.
+- Neutral six native 80x80 source frames pixel-identical to v3.3. Four body/gear-mixed skins output 23-layer native ASE, 23-layer OpenRaster per frame, PNG, GIF and mirror atlas. --compose-only explicitly preserves edits to either one part of body or any gear PNG, and rejects tampered neutral source.
+- Local Python 24/24 positive/negative source tests PASS; offline Chromium exact-pixel preview **24/24** (4 variants x 2 directions x 3 cels), custom hair-only mix, no JS errors. NOT actual deployed Godot gameplay E2E.
+- PRIVATE source art never uploaded as PUBLIC repo file or CI artifact. No game runtime asset/profile/physics change; no Pages deploy/merge.
+
+## Pending art / next chat continuation
+- Owner uses autocheck:false. CURRENT ART = PENDING_OWNER_ART; the hidden body under clothing is a guided technical underpaint, **not authored and approved complete anatomy**. This is not a production ready brawler and no six-to-one seam/hair/boot/sleeve motion acceptance has been given. Existing generic guard run expects 8+ independently authored frames. Source technical QA PASS does not constitute owner signoff.
+- Owner visually reviews supplied standalone preview/GIFs and identifies exact mismatches; then adjust hand-authored PNG and redraw hidden anatomy per pose, rerun locked source and native CI, only later explicit permission to integrate into gameplay. Keep single canonical owner-facing gameplay URL https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/ (unchanged), no alternate public preview deploy.
+- Source handoff docs: PRIVATE docs/architecture/BASE_CHARACTER_V35_LAYERED_AUTHORING.md, docs/checkpoints/2026-11-27-base-character-v35-strict-native-source-qa-pass.md, tools/pose_lock/base_character_v35/SKILL_V35.md. This does NOT automatically install a new Skill.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
