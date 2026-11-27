@@ -1,0 +1,110 @@
+name: Sprite Foundation - portable multi-project gate and rejected v4 validation
+
+on:
+  push:
+    branches: [feat/sprite-foundation-portable-quality-gates]
+    paths:
+      - ".github/workflows/sprite-foundation-independent-qa.yml"
+      - "packages/sprite-foundation/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sprite-foundation-portable-independent
+  cancel-in-progress: false
+
+jobs:
+  generic:
+    name: Generic Python tests, two independent projects
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install only portable package
+        run: |
+          python -m pip install --disable-pip-version-check "Pillow==11.3.0"
+          python -m pip install --disable-pip-version-check --no-deps -e packages/sprite-foundation
+      - name: Run positive and negative tests, no game SDK
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s packages/sprite-foundation/tests -v
+          python -m sprite_foundation --help
+          echo SPRITE_FOUNDATION_GENERIC_11_TESTS_PASS
+
+  v4-rejected:
+    name: Independent private v4 actual 80px source, visual REJECTED
+    needs: generic
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout only PUBLIC validator
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          path: public
+      - name: Checkout exact PRIVATE original source transiently
+        uses: actions/checkout@v4
+        with:
+          repository: ngocnhanvo/beast-arena
+          ref: a57a723088595e2153a6304aa1c4f17c631d41c5
+          token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
+          persist-credentials: false
+          path: private
+      - name: Pin independently tested private adapter
+        run: |
+          set -euo pipefail
+          test "$(git -C private rev-parse HEAD)" = "a57a723088595e2153a6304aa1c4f17c631d41c5"
+          test -f private/tools/pose_lock/base_character_v40/source_quality_adapter.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install ONLY portable generic library and Pillow
+        run: |
+          python -m pip install --disable-pip-version-check "Pillow==11.3.0"
+          python -m pip install --disable-pip-version-check --no-deps -e public/packages/sprite-foundation
+      - name: Build isolated original v4 candidate (private output)
+        run: |
+          set -euo pipefail
+          python private/tools/pose_lock/base_character_v40/src/mannequin.py init --root "$RUNNER_TEMP/v4"
+      - name: Assert adapter preserves owner rejection and neutral gear
+        env:
+          SPRITE_V40_SOURCE_ROOT: ${{ runner.temp }}/v4
+        run: |
+          python -m unittest discover -s private/tools/pose_lock/base_character_v40/tests -p test_quality_adapter.py -v
+          python private/tools/pose_lock/base_character_v40/source_quality_adapter.py --root "$RUNNER_TEMP/v4" --out "$RUNNER_TEMP/v4/sprite_manifest.json"
+      - name: Verify no false-green ART acceptance, check explicit failure code
+        run: |
+          set -euo pipefail
+          set +e
+          python -m sprite_foundation audit --manifest "$RUNNER_TEMP/v4/sprite_manifest.json" --root "$RUNNER_TEMP/v4" --out "$RUNNER_TEMP/v4/report.json" > "$RUNNER_TEMP/v4/summary.log"
+          result=$?
+          set -e
+          test "$result" -eq 3
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root=Path(os.environ['RUNNER_TEMP'])/'v4'
+          d=json.loads((root/'report.json').read_text())
+          assert d['structure_status']=='PASS'
+          assert d['visual_review_status']=='REJECTED'
+          assert d['release_status']=='BLOCKED'
+          assert len(d['diagnostic_warnings'])==6
+          assert {x['code'] for x in d['approval_blockers']}>={'OWNER_REJECTED_ART','GROUND_CONTACT_NOT_VERIFIED','LOOP_SEAM_NOT_REVIEWED','NO_EXTERNAL_OWNER_APPROVAL_FOR_EXACT_ART_BYTES'}
+          print('V40_OWNER_REJECTED_ART_HARD_BLOCK_SOURCE_VALID')
+          PY
+      - name: Honest result: no art assets published
+        run: |
+          {
+            echo '## Portable Sprite Foundation - exact independent source gate'
+            echo '11 generic tests over 32px/4 and 64px/8 unrelated synthetic projects.'
+            echo 'Private original v4: STRUCTURE PASS, VISUAL REJECTED, RELEASE BLOCKED.'
+            echo 'Six provisional head/body ratio flags do NOT replace an artist review.'
+            echo 'No PRIVATE art uploaded, no automatic owner approval, no game/Pages deployment.'
+          } >> "$GITHUB_STEP_SUMMARY"
