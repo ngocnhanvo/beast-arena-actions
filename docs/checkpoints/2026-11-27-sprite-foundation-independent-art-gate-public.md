@@ -36,3 +36,33 @@ public tool does NOT generate or beautify art. Future apps can import
 - v4 source audit `STRUCTURE PASS / VISUAL REJECTED / RELEASE BLOCKED`, 6 provisional style-ratio review warnings and 5 explicit gates. No auto-sign, no uploaded private image, no merge, no Pages release or Godot game E2E. Visual body anatomy still needs reauthoring and explicit owner approval.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+## 2026-11-27 continuation: source-contract approval v2 (pending terminal CI)
+
+Observed security/quality defect in public v0.1: approval v1 signed ONLY
+final flattened RGBA output. Repainting a source body layer that is hidden by
+another layer could preserve the final frame hash and reuse a stale owner
+signature. Furthermore, changing the manifest motion claims could leave a
+v1 signature valid. This is NOT acceptable for reusable cross-project agent
+workflows where generated source and independently approved evidence must not
+share authority.
+
+Change in this draft branch:
+- `audit.py`: include a canonical SHA-256 fingerprint of the ENTIRE manifest,
+  individual body/neutral-gear RGBA layers, frame order and final frames.
+  HMAC v2 signs that fingerprint and final hashes, and v1 is fail-closed.
+- `cli.py`: human-only owner-sign signs report's v2 source contract.
+- `tests/test_foundation.py`: three additional adversarial tests for invisible
+  source-layer modification, manifest change and legacy signature rejection.
+- Package README explains invalidating old approval and human-only re-signing.
+- No new artwork, no renderer, Jade, game physics, Pages or main merge.
+
+The code commits are `adcccde`, `a107f58`, `f71e7a6` and docs `7fc851c`.
+The branch workflow is triggered automatically by package modifications.
+Do not mark new revision PASS until actual terminal Actions run and job logs
+show full 14/14 generic tests and v4 rejected-source adapter gate.
+
+Next: inspect terminal CI, then update this checkpoint with exact run and SHA.
+Keep PRIVATE v4 rejected, owner art signoff required. No deployment.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
