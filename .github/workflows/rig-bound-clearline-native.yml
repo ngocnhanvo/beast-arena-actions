@@ -28,14 +28,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ngocnhanvo/beast-arena
-          ref: d07fc8ac6fd13b40f1cb3a3d8f864f6257cbe8a3
+          ref: 08b3f6b512679e1227738723be56be1667c8e8ad
           token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
           persist-credentials: false
           path: private
       - name: Verify pinned source and full asset contract
         run: |
           set -euo pipefail
-          test "$(git -C private rev-parse HEAD)" = "d07fc8ac6fd13b40f1cb3a3d8f864f6257cbe8a3"
+          test "$(git -C private rev-parse HEAD)" = "08b3f6b512679e1227738723be56be1667c8e8ad"
           test -f private/.agents/skills/beast-arena-motion-logic/scripts/render_vector_pro.py
           test -f private/tools/pose_lock/vector_clearline/native_bridge.py
           test -f private/tools/pose_lock/vector_clearline/source/pose-contract.json
@@ -157,12 +157,35 @@ jobs:
           cat "$RUNNER_TEMP/vector-godot.log"
           if grep -Eq 'ERROR:|SCRIPT ERROR:|Parser Error' "$RUNNER_TEMP/vector-godot.log"; then exit 1; fi
           grep -q 'BEAST_VECTOR_CLEARLINE_GODOT_480PX_IMPORT_PASS_6_CELS' "$RUNNER_TEMP/vector-godot.log"
+      - name: Install isolated Chromium Playwright for actual canvas source QA
+        run: |
+          python -m pip install --disable-pip-version-check "playwright==1.56.0"
+          python -m playwright install --with-deps chromium
+      - name: Browser canvas screenshot tests for six rig-bound original frames
+        run: |
+          set -euo pipefail
+          python private/tools/pose_lock/vector_clearline/browser_source_preview.py \
+            --art-dir "$RUNNER_TEMP/vector" \
+            --out "$RUNNER_TEMP/browser-preview"
+          python - <<'PY'
+          import os,json
+          from pathlib import Path
+          root=Path(os.environ["RUNNER_TEMP"])/"browser-preview"
+          r=json.loads((root/"browser-source-report.json").read_text())
+          assert r["six_visible_browser_frames"]=="PASS"
+          assert r["button_wrap"]=="PASS"
+          assert r["javascript_errors"]==[]
+          assert r["actual_gameplay"]=="NOT_TESTED"
+          assert r["release"]=="BLOCKED"
+          assert len(list(root.glob("browser_pose_??.png")))==3
+          print("BEAST_CHROMIUM_6_SOURCE_FRAMES_VISIBLE_BUTTON_WRAP_PASS_GAMEPLAY_NOT_TESTED")
+          PY
       - name: Declare source PASS, visual FAIL, gameplay/Pages blocked
         run: |
           {
             echo "### Exact source-only independent QA"
             echo "34 portable tests + 4 game-native tests, SVG SHA and identity parity,"
-            echo "official LibreSprite 1.3 pixel exact, isolated Godot 4.7.2 import."
+            echo "official LibreSprite 1.3 pixel exact, isolated Godot 4.7.2 import, Chromium source canvas."
             echo "ART self review FAIL_NOT_PRODUCTION_QUALITY. Owner signoff missing."
             echo "No game/physics/Web E2E, no release/Pages, no private art uploaded."
           } >> "$GITHUB_STEP_SUMMARY"
