@@ -194,6 +194,16 @@ jobs:
           cp "$RUNNER_TEMP/staging-src/clearline_staging_24.png" "$STAGE/"
           cp "$RUNNER_TEMP/staging-src/clearline_staging_motion24.json" "$STAGE/"
           REVIEW=private/experiments/physics_v2
+          # Godot's project-specific class_name registry is generated on editor
+          # import. A fresh CI checkout cannot run typed SceneTree scripts
+          # until this step (same requirement as normal build.yml).
+          godot --headless --editor --path "$REVIEW" --import --quit > "$RUNNER_TEMP/real-motor-import.log" 2>&1 || {
+            tail -n 90 "$RUNNER_TEMP/real-motor-import.log"; exit 1;
+          }
+          if grep -Eq 'SCRIPT ERROR:|ERROR: Failed to load script|Parser Error' "$RUNNER_TEMP/real-motor-import.log"; then
+            tail -n 90 "$RUNNER_TEMP/real-motor-import.log"; exit 1;
+          fi
+          echo "BEAST_REAL_MOTOR_CLASS_REGISTRY_IMPORTED"
           godot --headless --path "$REVIEW" --script res://tests/clearline_actual_motor_smoke.gd > "$RUNNER_TEMP/real-motor.log" 2>&1 || {
             tail -n 100 "$RUNNER_TEMP/real-motor.log"; exit 1;
           }
