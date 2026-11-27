@@ -78,6 +78,35 @@ jobs:
           assert {e["code"] for e in doc["approval_blockers"]}>={"GROUND_CONTACT_NOT_VERIFIED","LOOP_SEAM_NOT_REVIEWED","NO_EXTERNAL_OWNER_APPROVAL_FOR_EXACT_ART_BYTES"}
           print("V41_PORTABLE_STRUCTURE_PASS_OWNER_ART_BLOCKED")
           PY
+      - name: Checkout pinned public cross-project motion diagnostics
+        uses: actions/checkout@v4
+        with:
+          repository: ngocnhanvo/beast-arena-actions
+          ref: 31991e608ed58f93341d215d3ad515b712ae1a73
+          persist-credentials: false
+          path: shared-foundation
+      - name: Analyze actual v4.1 frame cadence without fake foot-contact approval
+        run: |
+          set -euo pipefail
+          test "$(git -C shared-foundation rev-parse HEAD)" = "31991e608ed58f93341d215d3ad515b712ae1a73"
+          python -m pip install --disable-pip-version-check --no-deps -e shared-foundation/packages/sprite-foundation
+          python -m sprite_foundation motion-diagnose --manifest "$RUNNER_TEMP/v41/portable-manifest.json" --root "$RUNNER_TEMP/v41" --out "$RUNNER_TEMP/v41/motion-report.json"
+          python - <<'PY'
+          import os, json
+          from pathlib import Path
+          report=json.loads((Path(os.environ["RUNNER_TEMP"])/"v41/motion-report.json").read_text())
+          assert report["frame_count"]==6
+          assert len(report["transitions"])==6
+          assert report["transitions"][-1]["loop_seam"]
+          assert report["transitions"][-1]["to_frame"]==1
+          assert report["ground_contact_status"]=="UNVERIFIED"
+          assert report["world_space_foot_trajectory_status"]=="UNVERIFIED"
+          assert report["loop_art_review_status"]=="UNVERIFIED"
+          assert report["release_authorization"]=="NONE"
+          print("V41_MOTION_DIAGNOSTIC_MEASURED_UNAPPROVED",
+                "seam_ratio",report["seam_vs_internal_median_ratio"],
+                "bottom_rows",[x["bottom_opaque_y"] for x in report["frames"]])
+          PY
       - name: Install official pinned LibreSprite
         run: bash pipeline/ci/setup_libresprite.sh
       - name: Independent native ASE editor RGBA test
