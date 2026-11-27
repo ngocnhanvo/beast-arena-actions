@@ -28,14 +28,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ngocnhanvo/beast-arena
-          ref: 1e838e9b7067e3c446fff3bff4f4477cb9e73f56
+          ref: 6f0af07b32c59cc780150b7ca829904b063abec9
           token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
           persist-credentials: false
           path: private
       - name: Verify pinned source and full asset contract
         run: |
           set -euo pipefail
-          test "$(git -C private rev-parse HEAD)" = "1e838e9b7067e3c446fff3bff4f4477cb9e73f56"
+          test "$(git -C private rev-parse HEAD)" = "6f0af07b32c59cc780150b7ca829904b063abec9"
           test -f private/.agents/skills/beast-arena-motion-logic/scripts/render_vector_pro.py
           test -f private/tools/pose_lock/vector_clearline/native_bridge.py
           test -f private/tools/pose_lock/vector_clearline/source/pose-contract.json
