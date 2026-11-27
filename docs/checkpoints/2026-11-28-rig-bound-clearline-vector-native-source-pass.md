@@ -41,3 +41,14 @@ New external-pose adversarial gates: `LOAD_HIP_FAILED_TO_DESCEND`, `FLIGHT_HIP_F
 **Scope remains source QA, NOT gameplay acceptance**: artifact is still `FAIL_NOT_PRODUCTION_QUALITY`, `art_release=BLOCKED`, `gameplay_e2e=NOT_RUN`. No live-game motor collision verification, Web/Chromium tests, owner art signoff, native production cutover, Pages deploy or merge. No private artwork uploaded to PUBLIC repo or artifacts. The older #46047066962 32-test run remains historical; this 38-test run is the latest verified one. Follow exact PRIVATE checkpoint for next art revision.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+
+## Latest 2026-11-28 terminal source-browser QA (not deployed game E2E)
+
+PUBLIC tested exact runner SHA `c68429c62d901f4035318446a9509b750f6acbff` with pinned PRIVATE art/SVG/tool SHA `08b3f6b512679e1227738723be56be1667c8e8ad`. [GitHub Actions #46049081789](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/46049081789) **COMPLETED SUCCESS**, job `140675614164` SUCCESS. Official 38/38 Python source+native tests, original SVG/pose byte-perfect rerender, LibreSprite 1.3 native exact RGBA and Godot 4.7.2 480px isolated import still PASS.
+
+**New**: install pinned Playwright 1.56/Chromium on the standard Ubuntu runner and exercise a PRIVATE source-only canvas preview. Browser renders all six original rig-derived 480px frames with distinct canvas bytes, steps Next/Previous across 6→1/1→6 correctly, reports no JavaScript errors. Logs `BEAST_CHROMIUM_6_SOURCE_FRAMES_VISIBLE_BUTTON_WRAP_PASS_GAMEPLAY_NOT_TESTED`. PRIVATE screenshot files remain transient in runner temp; they are **not uploaded to PUBLIC GitHub**. This is a source preview and **NOT** the Godot game E2E, production PCK, physics motor or a deployed Pages check.
+
+Art remains `FAIL_NOT_PRODUCTION_QUALITY`, release `BLOCKED`, owner signoff absent; Private PR #18, Public Draft PR #17 still unmerged. The previous #46048568171 is historical (before browser gate). Next: actual game staging motor and Web/Playwright E2E only after new visual source quality review; do not claim source/browser smoke is game deployed.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
