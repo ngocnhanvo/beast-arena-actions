@@ -1,0 +1,94 @@
+name: Beast Arena - Base V3.4 modular source QA (isolated)
+
+on:
+  push:
+    branches: [ci/base-character-v34-modular-source-qa]
+    paths:
+      - ".github/workflows/base-character-v34-modular-source-qa.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: beast-base-v34-source
+  cancel-in-progress: false
+
+jobs:
+  isolated-source-qa:
+    name: Pinned private 21 tests + official LibreSprite 4 skins
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout PUBLIC source-only validator
+        uses: actions/checkout@v4
+        with:
+          path: pipeline
+          persist-credentials: false
+      - name: Checkout exact PRIVATE source on transient runner
+        uses: actions/checkout@v4
+        with:
+          repository: ngocnhanvo/beast-arena
+          ref: 2d4dadd53b70bad5abe22f83d15236ba54bf7722
+          token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
+          path: private-source
+          persist-credentials: false
+      - name: Assert exact source pin (no public image artifacts)
+        run: |
+          set -euo pipefail
+          test "$(git -C private-source rev-parse HEAD)" = "2d4dadd53b70bad5abe22f83d15236ba54bf7722"
+          test -f private-source/tools/pose_lock/base_character_v34/src/modular_v34.py
+          test -f private-source/tools/pose_lock/base_character_v33/assets/base_run_right_6x80.png
+          echo "Pinned private source verified; output not uploaded"
+      - name: Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned Python dependencies
+        run: python -m pip install --disable-pip-version-check "Pillow==11.3.0" "numpy==2.2.6"
+      - name: Run 21 unit and negative test cases
+        run: |
+          set -euo pipefail
+          ROOT="private-source/tools/pose_lock/base_character_v34"
+          python -m unittest discover -s "$ROOT/tests" -p "test_modular_v34.py" -v
+      - name: Rebuild 4 equipment presets, verify all 6 cels, authored PNG recomposition
+        run: |
+          set -euo pipefail
+          ROOT="private-source/tools/pose_lock/base_character_v34"
+          INPUT="private-source/tools/pose_lock/base_character_v33/assets/base_run_right_6x80.png"
+          python "$ROOT/src/modular_v34.py" --source "$INPUT" --output "$RUNNER_TEMP/base-v34"
+          python "$ROOT/src/modular_v34.py" --source "$INPUT" --output "$RUNNER_TEMP/base-v34" --compose-only
+          python "$ROOT/src/qa_modular.py" --source "$INPUT" --output "$RUNNER_TEMP/base-v34"
+          python "$ROOT/src/build_preview.py" --source "$RUNNER_TEMP/base-v34" --output "$RUNNER_TEMP/base-v34/preview.html"
+      - name: Install SHA256 pinned official LibreSprite v1.3
+        run: bash pipeline/ci/setup_libresprite.sh
+      - name: Independent strict RGBA check for each 6-frame 10-layer native ASE
+        run: |
+          set -euo pipefail
+          for SKIN in original skyguard ember hybrid; do
+            FILE="$RUNNER_TEMP/base-v34/skins/$SKIN/$SKIN.aseprite"
+            libresprite -b --sheet-type horizontal "$FILE" --sheet "$RUNNER_TEMP/$SKIN.png"
+          done
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          from PIL import Image
+          root=Path(os.environ["RUNNER_TEMP"])
+          for skin in ("original","skyguard","ember","hybrid"):
+              native=Image.open(root/f"{skin}.png").convert("RGBA")
+              assert native.size==(480,80), (skin,native.size)
+              for i in range(1,7):
+                  expected=Image.open(root/"base-v34"/"skins"/skin/f"run_{i:02}.png").convert("RGBA")
+                  candidate=native.crop(((i-1)*80,0,i*80,80))
+                  assert candidate.tobytes()==expected.tobytes(),f"Native RGBA mismatch: {skin}, frame {i}"
+              print(f"LIBRESPRITE_V34_{skin.upper()}_STRICT_RGBA_PASS")
+          print("V34_ALL_4_NATIVE_10_LAYER_6_FRAME_SOURCES_PASS")
+          PY
+      - name: Honest gate report (not a game deployment)
+        run: |
+          {
+            echo '### Base v3.4 modular SOURCE QA PASS, art pending owner'
+            echo '21 Python tests and official pinned LibreSprite 1.3 strict RGBA source parity for 4×6 editable native Aseprite cels.'
+            echo 'No game deploy, no in-game Web/Pages E2E. Outfit body underpaint is provisional, artistic review required.'
+            echo 'Private source art was not uploaded or stored in the public repository.'
+          } >> "$GITHUB_STEP_SUMMARY"
