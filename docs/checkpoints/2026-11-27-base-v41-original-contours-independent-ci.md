@@ -43,3 +43,33 @@ on an unapproved body, or claim game Web E2E. Source/body review next,
 then independent motion and signed approval, then skins/game integration.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+
+## Terminal continuation: safe one-pose/one-part source updates
+
+PRIVATE exact code `d363b7ae89940d9e7f3c52f443190c10140c9197`
+adds per-contour SHA metadata, fail-closed stale-polygon detection and
+`apply-contour --frame --part`. One agent cannot edit a polygon in
+`pose_shapes.json` and silently rebuild unchanged PNGs; it must
+explicitly apply the ONE intended contour. Other sources remain pixel
+unchanged and forged motion/owner-review metadata is rejected.
+
+PUBLIC [Actions #46035363712](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/46035363712)
+**COMPLETED SUCCESS**, workflow tested SHA
+`bfaf56cc5e9df4992b938aacdc3eeff14b7a9704`,
+job `140629380489` actual log:
+- `Ran 16 tests` OK (original eight + eight scoped editing tests).
+- `V41_PORTABLE_STRUCTURE_PASS_OWNER_ART_BLOCKED`, source 0 errors,
+  0 warnings; 3 pending independent motion/owner gates.
+- `V41_AUTHORED_6FRAME_31LAYER_LIBRESPRITE_PASS`.
+- `V41_SOURCE_INDEPENDENT_GODOT_IMPORT_PASS`.
+
+Earlier intermediate workflow #46035339603 FAIL (15/16) because
+the negative test expected the old approval error string despite
+the correct stricter `UNTRUSTED_SOURCE_METADATA` exception.
+The test was updated to assert the real stronger guard, followed
+by full terminal PASS. No falsified art approval or altered source
+was used to make CI green. Public repository still contains no
+PRIVATE raw source or rendered artwork. No gameplay, Pages, merge.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
