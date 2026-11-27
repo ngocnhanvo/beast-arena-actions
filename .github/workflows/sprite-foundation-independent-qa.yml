@@ -99,7 +99,7 @@ jobs:
           assert {x['code'] for x in d['approval_blockers']}>={'OWNER_REJECTED_ART','GROUND_CONTACT_NOT_VERIFIED','LOOP_SEAM_NOT_REVIEWED','NO_EXTERNAL_OWNER_APPROVAL_FOR_EXACT_ART_BYTES'}
           print('V40_OWNER_REJECTED_ART_HARD_BLOCK_SOURCE_VALID')
           PY
-      - name: Honest result: no art assets published
+      - name: "Honest result: no art assets published"
         run: |
           {
             echo '## Portable Sprite Foundation - exact independent source gate'
