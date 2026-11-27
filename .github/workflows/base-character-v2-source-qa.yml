@@ -48,7 +48,7 @@ jobs:
           python-version: "3.12"
       - name: Install pinned test-only Pillow
         run: python -m pip install --disable-pip-version-check "Pillow==11.3.0"
-      - name: Run 9 independent positive and negative regression tests
+      - name: Run 11 independent positive and negative regression tests
         run: python -m unittest discover -s private-source/tools/pose_lock/base_character_v2/tests -v
       - name: Prepare native Aseprite/PNG source and hybrid recipe
         run: |
@@ -67,5 +67,5 @@ jobs:
       - name: Report source-only status
         run: |
           echo '### Base Character v2 isolated source QA PASS' >> "$GITHUB_STEP_SUMMARY"
-          echo 'Python 9 tests, 4 source exports and independent pinned LibreSprite RGBA checks passed.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Python 11 tests, 4 source exports and independent pinned LibreSprite RGBA checks passed.' >> "$GITHUB_STEP_SUMMARY"
           echo 'NO Godot/Web/Pages deploy, NO in-game Chrome E2E, owner art remains PENDING.' >> "$GITHUB_STEP_SUMMARY"
