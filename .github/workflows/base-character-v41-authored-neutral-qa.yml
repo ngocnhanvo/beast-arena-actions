@@ -28,14 +28,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ngocnhanvo/beast-arena
-          ref: ec66e40b25ea86abee66ca169d68999e631ee400
+          ref: d363b7ae89940d9e7f3c52f443190c10140c9197
           token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
           persist-credentials: false
           path: private
       - name: Assert exact source pin and six original contour data
         run: |
           set -euo pipefail
-          test "$(git -C private rev-parse HEAD)" = "ec66e40b25ea86abee66ca169d68999e631ee400"
+          test "$(git -C private rev-parse HEAD)" = "d363b7ae89940d9e7f3c52f443190c10140c9197"
           test -f private/tools/pose_lock/base_character_v41/data/pose_shapes.json
           test -f private/tools/pose_lock/base_character_v41/src/authored_neutral.py
           test -f private/tools/pose_lock/base_character_v40/src/native_ase.py
