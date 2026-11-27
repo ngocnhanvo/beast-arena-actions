@@ -30,13 +30,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ngocnhanvo/beast-arena
-          ref: 86bac78dca66d24300c15d8aa5818346cb7312b9
+          ref: 0be70455dc7cbc439ab21459c8e22c2134983a71
           token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
           persist-credentials: false
           path: private-source
       - name: Verify exact source commit and v2 path
         env:
-          SOURCE_SHA: 86bac78dca66d24300c15d8aa5818346cb7312b9
+          SOURCE_SHA: 0be70455dc7cbc439ab21459c8e22c2134983a71
         run: |
           set -euo pipefail
           test "$(git -C private-source rev-parse HEAD)" = "$SOURCE_SHA"
