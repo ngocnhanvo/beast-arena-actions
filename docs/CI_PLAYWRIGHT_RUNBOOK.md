@@ -893,3 +893,9 @@ User rejected the skating rear-facing animation. Real game W moves up world -Z w
 ## 2026-11-27 — Isolated Jade draft test parser regression
 
 - #45936492263 and diagnostic #45936854443: PRIVATE SHA 88f74b99ad1064083a205c94dc1ee8bdbfc80273 gave Godot 4.7.2 import PASS but the source smoke failed with duplicate function-scope variable `phase`. A source-only test fix (new SHA 51f3d8e12cb8d46071d9cdbd3ba0ab028b50aad7) renames the second loop iterator `counterphase_index`, no artistic or motor adjustment. Repin `ci/jade-pr2-source-check`; never test PRIVATE main in lieu of exact PR SHA; no public artifacts or deploy.
+
+
+## 2026-11-27 — Jade owner arm swing reference v3 isolated CI
+
+- PRIVATE Draft PR #2 v3 source `89e85277189eb5ea406ef91f0b8aef6e1d8124d3` regenerates 8+8 full-body sprite cels inspired by supplied six-pose running arm rhythm (no art copied). Isolated branch `ci/jade-pr2-source-check` repins exact SHA. New Node22 source-art and media check required before Python/LibreSprite; Godot4.7.2 and Chromium GIF playback independent. No Pages deploy, no public artifacts.
+- Old #45936962296 PASSED v2 and must not be reused as v3 evidence. Report exact run/job outcomes only once complete; owner art PENDING, Issues #1/#3 separate source and run→idle handoff.

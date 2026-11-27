@@ -16,7 +16,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  PRIVATE_SOURCE_SHA: "51f3d8e12cb8d46071d9cdbd3ba0ab028b50aad7"
+  PRIVATE_SOURCE_SHA: "89e85277189eb5ea406ef91f0b8aef6e1d8124d3"
 
 jobs:
   source-art:
@@ -47,6 +47,14 @@ jobs:
           python-version: "3.12"
       - name: Install pinned test-only Pillow
         run: python -m pip install "Pillow==11.3.0"
+      - name: Use pinned Node 22 for original native sprite reproducibility
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Reconstruct every native Jade cel, exact ASE/PNG and review media from authored source
+        run: |
+          node private-game/tools/jade_run_guard_swing_v3.js --check
+          node private-game/tools/jade_run_review_media_v3.js --check
       - name: Run independent Python verifier from reviewed SHA
         id: verify
         run: python ci/jade_draft_source_qa.py verify private-game
