@@ -880,3 +880,7 @@ User rejected the skating rear-facing animation. Real game W moves up world -Z w
 ## 2026-11-27 — no-copy Codex and ChatGPT API bridge in PRIVATE repo
 - PRIVATE `.github/workflows/jade-agent-bridge.yml` runs two Codex edit turns with one independent GPT API review, posts Issue #1 feedback and opens PRIVATE draft PR only. Uses PRIVATE secret `BEAST_AGENT_OPENAI_API_KEY` and only an owner-authorized trigger; not installed in this PUBLIC repo and not equivalent to a finished sprite change.
 - GitHub GITHUB_TOKEN bot comments do not trigger arbitrary new Issue workflows: the bridge sequences roles inside one run with bound 2+1, thus no comment polling or circular model loops. No public source leakage or auto-merge/deploy. Public native Godot/LibreSprite and actual Chromium must run only after authorized source integration; old E2E cannot validate new art.
+
+## 2026-11-27 — Jade sprite specialist ACK, no new art CI
+- PRIVATE Issue #1 specialist created branch but no source changes or PR at review. Reviewer posted https://github.com/ngocnhanvo/beast-arena/issues/1#issuecomment-7208739403 with 8-frame editable native asset, animated loop and owner acceptance requirements.
+- Existing art build/Pages #45930802938 SUCCESS; Chromium #45930986653 FAIL in Arcade V2 `Page.wait_for_function: Timeout 4000ms exceeded` (after P1.5/Physics V2 PASS), independent from sprite handoff. Do not confuse pipeline success of old art with quality/availability of future new cels. No new deploy by this documentation commit.
