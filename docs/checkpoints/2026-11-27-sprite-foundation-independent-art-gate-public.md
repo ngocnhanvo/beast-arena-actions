@@ -91,3 +91,44 @@ neutral six-pose source and real running loop, then test its exact source
 under the generic validator; do not auto-sign from an agent.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+
+## Continued 2026-11-27 — reusable model-neutral motion diagnostics verified
+
+REQUIREMENT: Do not let low-cost agents infer natural running or grounded
+feet from a self-produced vector/pixel animation. Added reusable
+`sprite_foundation.motion` and `sprite-foundation motion-diagnose`
+across arbitrary frame counts/canvas sizes. It reads actual RGBA renders
+and reports per-frame alpha silhouette bounds/centroid, lowest filled pixel
+row, adjacent pixel-change fractions and a measured final→first seam
+relative to internal median. It **does not infer ground contact, world
+trajectory, smooth motion or visual owner acceptance**.
+
+**PUBLIC exact CI #46035667624 COMPLETED SUCCESS**, tested SHA
+`31991e608ed58f93341d215d3ad515b712ae1a73`:
+- Generic job `140630471824`: `Ran 19 tests` / OK, including five
+  independent synthetic motion cases for 32px/4 and 64px/8, duplicate
+  frames, bottom-pixel ambiguity, empty and missing frames.
+- PRIVATE old rejected v4 source job `140630659505`: `Ran 1 test` / OK;
+  `V40_OWNER_REJECTED_ART_HARD_BLOCK_SOURCE_VALID`.
+- Earlier interleaved pushes' runs were superseded/cancelled. Use the
+  exact successful run above, not the old 14-test run.
+
+**PRIVATE real v4.1 diagnostic** executed through independently pinned
+PUBLIC isolated [#46035739118](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/46035739118)
+on runner SHA `232a95356100d12cc2fd6cee3e3cdf70502d9478`,
+private source SHA `d363b7ae89940d9e7f3c52f443190c10140c9197`.
+Measured `seam_vs_internal_median_ratio=1.0928`, painted lowest
+rows `[72,72,71,72,72,72]`, NOT physical foot contacts;
+`ground_contact_status=UNVERIFIED`,
+`loop_art_review_status=UNVERIFIED`,
+`release_authorization=NONE`. Concurrent v4.1 16/16 original
+source tests, strict LibreSprite 31-layer RGBA and isolated Godot import
+also PASS.
+
+No art/style QA can be auto-approved from metrics. No owner visual review,
+no game E2E, no new Pages deployment or merge. Next: actual owner review
+of neutral body, then independently authored/verified motion and owner
+source-contract signoff; only then enable skin and game integration.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
