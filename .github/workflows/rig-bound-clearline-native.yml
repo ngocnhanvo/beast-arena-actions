@@ -248,6 +248,18 @@ jobs:
           assert text.count(old)==1
           p.write_text(text.replace(old,new))
           PY
+          # Dynamically opened resources are not auto-exported by Godot.
+          # Explicitly include both transient files in the staging-only PCK.
+          python - <<'PY'
+          from pathlib import Path
+          cfg=Path('private/experiments/physics_v2/export_presets.cfg')
+          data=cfg.read_text()
+          old='include_filter="art/export/*.json,art/fighters/*.json"'
+          new='include_filter="art/export/*.json,art/fighters/*.json,assets/clearline_staging_motion24.json,assets/clearline_staging_24.png"'
+          assert data.count(old)==1, 'EXPORT_INCLUDE_FILTER_UNEXPECTED'
+          cfg.write_text(data.replace(old,new))
+          print('STAGING_DYNAMIC_ATLAS_AND_JSON_INCLUDED_IN_WEB_PCK')
+          PY
           # Export is transient on this CI runner; the staged sprite comes
           # from the same authenticated rig art made for real motor smoke.
           bash pipeline/ci/install_templates.sh
