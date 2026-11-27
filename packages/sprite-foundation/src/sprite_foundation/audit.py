@@ -99,35 +99,54 @@ def _hash(image: Image.Image) -> str:
     return hashlib.sha256(image.convert("RGBA").tobytes()).hexdigest()
 
 
-def _signature_payload(asset: str, hashes: list[str]) -> bytes:
-    return json.dumps({"asset": asset, "sha256_rgba_frames": hashes},
-                      sort_keys=True, separators=(",", ":")).encode("utf-8")
+def _signature_payload(asset: str, hashes: list[str], contract_sha256: str) -> bytes:
+    # An approval seals the exact source-layer bytes AND the project manifest,
+    # including motion claims. Merely sealing the flattened PNG is unsafe:
+    # an agent could alter hidden source layers or change verification flags.
+    return json.dumps(
+        {"asset": asset, "sha256_rgba_frames": hashes,
+         "source_contract_sha256": contract_sha256},
+        sort_keys=True, separators=(",", ":")).encode("utf-8")
 
 
-def sign_approval(asset: str, hashes: list[str], secret: str) -> dict:
-    """Only an authorized human pipeline should call this with an OUT-OF-REPO key."""
+def sign_approval(asset: str, hashes: list[str], secret: str,
+                  contract_sha256: str) -> dict:
+    """Only the owner can sign a reviewed report using an external secret."""
     if len(secret) < 24:
         raise ValueError("REVIEW_SIGNING_SECRET_TOO_SHORT")
-    payload = _signature_payload(asset, hashes)
-    return {"schema": "sprite-foundation/owner-approval-1", "asset": asset,
+    if not isinstance(contract_sha256, str) or len(contract_sha256) != 64 or any(
+            c not in "0123456789abcdef" for c in contract_sha256):
+        raise ValueError("INVALID_SOURCE_CONTRACT_HASH")
+    if not hashes or any(not isinstance(h, str) or len(h) != 64 or any(
+            c not in "0123456789abcdef" for c in h) for h in hashes):
+        raise ValueError("INVALID_FRAME_HASHES")
+    payload = _signature_payload(asset, hashes, contract_sha256)
+    return {"schema": "sprite-foundation/owner-approval-2", "asset": asset,
             "sha256_rgba_frames": hashes,
+            "source_contract_sha256": contract_sha256,
             "hmac_sha256": hmac.new(secret.encode(), payload, hashlib.sha256).hexdigest()}
 
 
-def _verify_approval(approval_file: str | None, asset: str, hashes: list[str], secret: str | None) -> bool:
+def _verify_approval(approval_file: str | None, asset: str, hashes: list[str],
+                     contract_sha256: str, secret: str | None) -> bool:
     if not approval_file or not secret:
         return False
     try:
         data = json.loads(Path(approval_file).read_text(encoding="utf-8"))
-        if data.get("schema") != "sprite-foundation/owner-approval-1" or data.get("asset") != asset:
+        # V1 signatures sealed only the flattened render, so a modified body
+        # under an opaque gear layer could reuse an old signature. Fail closed.
+        if data.get("schema") != "sprite-foundation/owner-approval-2" or data.get("asset") != asset:
             return False
         if data.get("sha256_rgba_frames") != hashes:
             return False
-        check = hmac.new(secret.encode(), _signature_payload(asset, hashes), hashlib.sha256).hexdigest()
+        if data.get("source_contract_sha256") != contract_sha256:
+            return False
+        check = hmac.new(
+            secret.encode(), _signature_payload(asset, hashes, contract_sha256),
+            hashlib.sha256).hexdigest()
         return hmac.compare_digest(check, str(data.get("hmac_sha256", "")))
-    except (ValueError, OSError, TypeError):
+    except (ValueError, OSError, TypeError, AttributeError):
         return False
-
 
 def audit_manifest(manifest: dict, *, root: Path, approval_file: str | None = None,
                    review_key: str | None = None) -> dict:
@@ -158,9 +177,12 @@ def audit_manifest(manifest: dict, *, root: Path, approval_file: str | None = No
             raise ValueError("INVALID_TOPOLOGY_EDGE")
     body_errors=[]; warnings=[]; gate=[];frames=[]
     pixels=[]
+    source_pixels=[]
     for frame in range(1,count + 1):
         src={}
         stats={}
+        layer_digests={}
+        gear_digests={}
         for part in parts:
             name = _frame_png_path(root, manifest["part_template"], part, frame)
             try:
@@ -169,6 +191,7 @@ def audit_manifest(manifest: dict, *, root: Path, approval_file: str | None = No
                 body_errors.append(_error("MISSING_OR_INVALID_PART_PNG",frame=frame,part=part,detail=type(exc).__name__))
                 continue
             src[part]=img
+            layer_digests[part]=_hash(img)
             bbox=_mask(img).getbbox()
             pixels_opaque=_opaque_count(img)
             stats[part]={"opaque_pixels":pixels_opaque,"bbox":bbox}
@@ -183,10 +206,13 @@ def audit_manifest(manifest: dict, *, root: Path, approval_file: str | None = No
             slot_path=_frame_png_path(root,slot_template,slot,frame)
             try:
                 gear=_read_rgba(slot_path,size)
+                gear_digests[slot]=_hash(gear)
                 if _opaque_count(gear)!=0:
                     body_errors.append(_error("NEUTRAL_GEAR_NOT_EMPTY",frame=frame,part=slot))
             except (FileNotFoundError,OSError,ValueError) as exc:
                 body_errors.append(_error("MISSING_OR_INVALID_EMPTY_GEAR_SLOT",frame=frame,part=slot,detail=type(exc).__name__))
+        source_pixels.append({"frame":frame, "parts":layer_digests,
+                              "empty_slots":gear_digests})
         if len(src)!=len(parts):
             continue
         # Optional externally reviewed anchors. A generator-derived anchor is
@@ -248,6 +274,15 @@ def audit_manifest(manifest: dict, *, root: Path, approval_file: str | None = No
         body_errors.append(_error("INCOMPLETE_FRAME_SET",frames_loaded=len(frames),expected=count))
     if len(set(pixels)) != len(pixels) and not manifest.get("allow_identical_frames", False):
         body_errors.append(_error("DUPLICATED_FRAMES_NEED_ART_REVIEW"))
+    # Bind every body/gear layer, exact render and all project-specific QA
+    # settings to the external owner's signature. No AI/sprite bytes in report.
+    contract_data={"schema":"sprite-foundation/owner-source-contract-2",
+                   "manifest":manifest,
+                   "source_rgba_by_frame":source_pixels,
+                   "render_sha256_rgba_frames":pixels}
+    contract_sha256=hashlib.sha256(
+        json.dumps(contract_data,sort_keys=True,separators=(",", ":"),
+                   ensure_ascii=False).encode("utf-8")).hexdigest()
     author=manifest.get("authoring",{})
     if author.get("source_kind") in ("procedural", "auto_inferred", "traced"):
         gate.append(_error("PROCEDURAL_ART_REQUIRES_INDEPENDENT_REVIEW"))
@@ -257,12 +292,14 @@ def audit_manifest(manifest: dict, *, root: Path, approval_file: str | None = No
         gate.append(_error("GROUND_CONTACT_NOT_VERIFIED"))
     if not manifest.get("motion",{}).get("loop_review_verified",False):
         gate.append(_error("LOOP_SEAM_NOT_REVIEWED"))
-    approval_valid = _verify_approval(approval_file,asset,pixels,review_key)
+    approval_valid = _verify_approval(
+        approval_file,asset,pixels,contract_sha256,review_key)
     if not approval_valid:
         gate.append(_error("NO_EXTERNAL_OWNER_APPROVAL_FOR_EXACT_ART_BYTES"))
     # Even a signed PNG approval is insufficient to claim physics review.
     result={
         "schema": "sprite-foundation/audit-1", "asset_id":asset,
+        "source_contract_sha256":contract_sha256,
         "project_id":manifest.get("project_id","unspecified"),
         "frame_count":count, "canvas":list(size),
         "structure_status":"FAIL" if body_errors else "PASS",
