@@ -28,14 +28,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ngocnhanvo/beast-arena
-          ref: b4b396e2fc87cf7386d97f911e7b62956bb80691
+          ref: 5c6e62cadc93eeb64876803aa4282df401b8df1b
           token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
           persist-credentials: false
           path: private
       - name: Assert exact source pin and six original contour data
         run: |
           set -euo pipefail
-          test "$(git -C private rev-parse HEAD)" = "b4b396e2fc87cf7386d97f911e7b62956bb80691"
+          test "$(git -C private rev-parse HEAD)" = "5c6e62cadc93eeb64876803aa4282df401b8df1b"
           test -f private/tools/pose_lock/base_character_v41/data/pose_shapes.json
           test -f private/tools/pose_lock/base_character_v41/src/authored_neutral.py
           test -f private/tools/pose_lock/base_character_v40/src/native_ase.py
@@ -55,6 +55,29 @@ jobs:
           python private/tools/pose_lock/base_character_v41/src/authored_neutral.py init --root "$RUNNER_TEMP/v41"
           python private/tools/pose_lock/base_character_v41/src/authored_neutral.py audit --root "$RUNNER_TEMP/v41"
           test -f "$RUNNER_TEMP/v41/render/neutral/contact.png"
+      - name: Install shared Sprite Foundation independent validator
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check --no-deps -e pipeline/packages/sprite-foundation
+      - name: Inspect actual editable v4.1 source with release BLOCKED
+        run: |
+          set -euo pipefail
+          python private/tools/pose_lock/base_character_v41/source_quality_adapter.py --root "$RUNNER_TEMP/v41" --out "$RUNNER_TEMP/v41/portable-manifest.json"
+          set +e
+          python -m sprite_foundation audit --manifest "$RUNNER_TEMP/v41/portable-manifest.json" --root "$RUNNER_TEMP/v41" --out "$RUNNER_TEMP/v41/portable-report.json"
+          code=$?
+          set -e
+          test "$code" -eq 3
+          python - <<'PY'
+          from pathlib import Path
+          import os,json
+          doc=json.loads((Path(os.environ["RUNNER_TEMP"])/"v41"/"portable-report.json").read_text())
+          assert doc["structure_status"]=="PASS",doc["structural_errors"]
+          assert doc["release_status"]=="BLOCKED",doc["approval_blockers"]
+          assert doc["visual_review_status"]=="PENDING"
+          assert {e["code"] for e in doc["approval_blockers"]}>={"GROUND_CONTACT_NOT_VERIFIED","LOOP_SEAM_NOT_REVIEWED","NO_EXTERNAL_OWNER_APPROVAL_FOR_EXACT_ART_BYTES"}
+          print("V41_PORTABLE_STRUCTURE_PASS_OWNER_ART_BLOCKED")
+          PY
       - name: Install official pinned LibreSprite
         run: bash pipeline/ci/setup_libresprite.sh
       - name: Independent native ASE editor RGBA test
