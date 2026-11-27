@@ -64,6 +64,22 @@ Project adapters own part definitions and style thresholds; this library owns va
 4. **Owner**, *not the agent*, approves final source via externally signed pixel hashes.
 5. Actual game build/Pages/Chromium must be separately proven against pinned SHAs.
 
+## Source-contract approval v2
+
+Owner signatures now bind an audit-generated `source_contract_sha256` digest, not
+just the flattened RGBA images. The digest covers the entire project manifest,
+every ordered source body layer, every empty neutral gear layer, and every
+rendered frame. A changed hidden body pixel or a changed `motion` flag
+invalidates earlier approval even when the visible PNG looks identical.
+
+Earlier `owner-approval-1` signatures are intentionally rejected; do not
+migrate them automatically. Reaudit the final layered source, complete actual
+owner visual review and ground/loop verification, and only then sign with a
+human-managed external key. The `owner-sign` command is strictly owner-run,
+never an agent or GitHub CI step. A v2 signature remains only a **candidate**
+for manual review and is never sufficient to release a game without native and
+runtime evidence.
+
 Owner operation after full visual signoff, using a private out-of-repo key:
 
 ```sh
