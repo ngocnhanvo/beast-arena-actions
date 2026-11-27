@@ -1,0 +1,95 @@
+name: Beast Arena - Exact Rig Bound Vector Art QA
+
+on:
+  push:
+    branches: [ci/motion-bound-vector-art-prototype]
+    paths: [".github/workflows/motion-bound-vector-art.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: motion-bound-vector-art-qa
+  cancel-in-progress: false
+
+jobs:
+  exact-vector-binding:
+    name: Original rig to SVG six poses and 24 phase animation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          path: pipeline
+      - name: Checkout exact PRIVATE source without publishing art
+        uses: actions/checkout@v4
+        with:
+          repository: ngocnhanvo/beast-arena
+          ref: 88ea760d32d554baf581b1924ed9b5d0f1b2130e
+          token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
+          persist-credentials: false
+          path: private
+      - name: Assert exact source SHA
+        run: |
+          set -euo pipefail
+          test "$(git -C private rev-parse HEAD)" = "88ea760d32d554baf581b1924ed9b5d0f1b2130e"
+          test -f private/.agents/skills/beast-arena-motion-logic/scripts/render_vector.py
+          test -f private/.agents/skills/beast-arena-motion-logic/scripts/test_render_vector.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deterministic vector renderer
+        run: |
+          python -m pip install --disable-pip-version-check "Pillow==11.3.0" "CairoSVG==2.7.1"
+      - name: Execute all 24 original rig and exact-vector adversarial checks
+        run: |
+          set -euo pipefail
+          PYTHONDONTWRITEBYTECODE=1 python -m unittest discover -s private/.agents/skills/beast-arena-motion-logic/scripts -p 'test_*.py' -v
+          echo "EXACT_RIG_VECTOR_24_TESTS_PASS"
+      - name: Export actual six-pose contract from rig source
+        run: |
+          set -euo pipefail
+          python private/.agents/skills/beast-arena-motion-logic/scripts/motion_rig.py build --out "$RUNNER_TEMP/rig" > "$RUNNER_TEMP/rig-status.json"
+      - name: Draw ALL vector poses from exact rig contract not image prompts
+        run: |
+          set -euo pipefail
+          python private/.agents/skills/beast-arena-motion-logic/scripts/render_vector.py --pose-contract "$RUNNER_TEMP/rig/pose-contract.json" --out "$RUNNER_TEMP/art" > "$RUNNER_TEMP/vector-status.json"
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          from PIL import Image
+          root=Path(os.environ["RUNNER_TEMP"])
+          poses=json.loads((root/"rig/pose-contract.json").read_text())
+          binding=json.loads((root/"art/pose-binding.json").read_text())
+          assert binding["frames"]==poses, "VECTOR_POSES_ARE_NOT_IDENTICAL_TO_RIG"
+          assert binding["source"]=="motion_rig.pose_at"
+          assert binding["art_release"]=="BLOCKED"
+          assert binding["gameplay_e2e"]=="NOT_RUN"
+          assert len(list((root/"art").glob("vector_pose_??.svg")))==6
+          with Image.open(root/"art/vector_motion_24.gif") as im: assert im.n_frames==24
+          with Image.open(root/"art/vector_atlas.png") as im: assert im.size==(1920,320)
+          for i,p in enumerate(poses,1):
+              src=json.dumps(p,sort_keys=True,separators=(',',':')).encode()
+              fingerprint=hashlib.sha256(src).hexdigest()
+              svg=(root/"art"/f"vector_pose_{i:02}.svg").read_text()
+              assert f'data-hash="{fingerprint}"' in svg
+              assert svg.count('data-anatomical-leg="right"')==1
+              assert svg.count('data-anatomical-leg="left"')==1
+              assert svg.count('data-anatomical-arm="right"')==1
+              assert svg.count('data-anatomical-arm="left"')==1
+          assert poses[1]["right"]["support"]=="STANCE"
+          assert poses[2]["right"]["support"]=="SWING"
+          assert poses[2]["right"]["toe"][0]<poses[2]["hip"][0]
+          assert poses[2]["left"]["toe"][0]>poses[2]["hip"][0]
+          print("VECTOR_6_SVG_24_INTERPOLATIONS_EXACT_POSE_HASH_BINDING_PASS_ART_BLOCKED")
+          PY
+      - name: Record correct scope and limits
+        run: |
+          {
+            echo 'Motion rig and original smooth line SVG are now mechanically bound by JSON and per-frame hashes.'
+            echo 'The nine additional tests reject altered ground ownership, impossible F2-to-F3 stance/swing, hand teleport and incorrect bone length before art export.'
+            echo 'SVG exports are provisional and visibly rudimentary. Artist acceptance FAIL/PENDING; no native Aseprite/Game/Pages/Chromium E2E.'
+            echo 'No private images or raw character assets uploaded to PUBLIC repository, artifacts or Pages.'
+          } >> "$GITHUB_STEP_SUMMARY"
