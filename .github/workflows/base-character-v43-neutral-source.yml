@@ -26,14 +26,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: ngocnhanvo/beast-arena
-          ref: 75b949d606b230e89bff6165828e054baa4e321b
+          ref: 52c0676aaac5c89210396c387f2efd4f3eeeede4
           token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
           persist-credentials: false
           path: private
       - name: Verify source SHA and art boundary
         run: |
           set -euo pipefail
-          test "$(git -C private rev-parse HEAD)" = "75b949d606b230e89bff6165828e054baa4e321b"
+          test "$(git -C private rev-parse HEAD)" = "52c0676aaac5c89210396c387f2efd4f3eeeede4"
           test -f private/tools/pose_lock/base_character_v43/data/indexed_source.json
           test -f private/tools/pose_lock/base_character_v43/src/neutral.py
       - uses: actions/setup-python@v5
@@ -67,6 +67,9 @@ jobs:
           report=json.loads((Path(os.environ["RUNNER_TEMP"])/"v43/report.json").read_text())
           assert report["structure_status"]=="PASS",report["structural_errors"]
           assert report["release_status"]=="BLOCKED"
+          output=json.loads((Path(os.environ["RUNNER_TEMP"])/"v43/render/neutral/manifest.json").read_text())
+          assert output["self_visual_review"]=="FAIL_REPEATED_HALF_CYCLE"
+          print("V43_SELF_VISUAL_REVIEW_FAIL_HALF_CYCLE_LOCKED")
           assert report["visual_review_status"]=="PENDING"
           assert {item["code"] for item in report["approval_blockers"]}>={"GROUND_CONTACT_NOT_VERIFIED","LOOP_SEAM_NOT_REVIEWED","NO_EXTERNAL_OWNER_APPROVAL_FOR_EXACT_ART_BYTES"}
           print("V43_CONTINUOUS_BODY_SOURCE_PASS_ART_STILL_BLOCKED")
