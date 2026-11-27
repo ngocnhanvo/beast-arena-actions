@@ -49,7 +49,7 @@ jobs:
       - name: Install reproducible SVG and raster dependencies
         run: |
           python -m pip install --disable-pip-version-check "Pillow==11.3.0" "CairoSVG==2.7.1"
-      - name: Test all 55 portable rig art and screenshot-negative conditions
+      - name: Test 50 portable rig and art-binding cases
         run: |
           set -euo pipefail
           PYTHONDONTWRITEBYTECODE=1 python -m unittest discover -s private/.agents/skills/beast-arena-motion-logic/scripts -p 'test_*.py' -v
@@ -93,12 +93,12 @@ jobs:
           assert m.check_motion(600)["rig_status"]=="PASS"
           print("BEAST_V6_SHOULDER_COUNTER_ROTATION_IS_REAL_RIG_GEOMETRY_PASS")
           PY
-          echo "BEAST_CLEARLINE_PORTABLE_55_TESTS_PASS"
-      - name: Test four additional native source and tampering regressions
+          echo "BEAST_CLEARLINE_PORTABLE_50_TESTS_PASS"
+      - name: Test 4 native regressions plus 5 independent screenshot-negative controls
         run: |
           set -euo pipefail
           PYTHONDONTWRITEBYTECODE=1 python -m unittest discover -s private/tools/pose_lock/vector_clearline/tests -p 'test_*.py' -v
-          echo "BEAST_CLEARLINE_NATIVE_4_TESTS_PASS"
+          echo "BEAST_CLEARLINE_NATIVE_AND_SCREENSHOT_9_TESTS_PASS"
       - name: Rebuild source poses from exact FK/IK code and verify committed SVG source
         run: |
           set -euo pipefail
@@ -334,7 +334,7 @@ jobs:
         run: |
           {
             echo "### Exact source-only independent QA"
-            echo "55 portable tests + 4 game-native tests, including 5 adversarial screenshot gates, SVG SHA and identity parity,"
+            echo "50 portable tests + 4 native tests + 5 adversarial screenshot gates = 59 tests, SVG SHA and identity parity,"
             echo "official LibreSprite 1.3 pixel exact, isolated Godot 4.7.2 import, Chromium source canvas."
             echo "ART self review FAIL_NOT_PRODUCTION_QUALITY. Owner signoff missing."
             echo "Real Physics V2 CharacterBody3D staging motor and actual exported Web Chromium E2E executed. Pixel-gated world-region screenshot validates visible change beyond the HUD; Pages deploy NOT DONE, owner art BLOCKED, private assets NOT uploaded."
