@@ -1,0 +1,111 @@
+name: Beast Arena - Base v3.6 agent-neutral source contract QA (isolated)
+
+on:
+  push:
+    branches: [ci/base-character-v36-agent-contract]
+    paths:
+      - ".github/workflows/base-character-v36-agent-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: beast-base-v36-contract-source
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: 16 agent contract tests + v3.5 native source verification
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout PUBLIC CI utilities
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          path: pipeline
+      - name: Checkout exact PRIVATE source transiently
+        uses: actions/checkout@v4
+        with:
+          repository: ngocnhanvo/beast-arena
+          ref: fd4728ba79d03298ee3d06393c250d2e5295e3e3
+          token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
+          persist-credentials: false
+          path: private-source
+      - name: Enforce source pin and no public art
+        run: |
+          set -euo pipefail
+          test "$(git -C private-source rev-parse HEAD)" = "fd4728ba79d03298ee3d06393c250d2e5295e3e3"
+          test -f private-source/tools/pose_lock/base_character_v36/src/sprite_contract.py
+          test -f private-source/tools/pose_lock/base_character_v34/assets/original_v33.png
+          echo "Pinned private source verified; no source sprites uploaded to public CI"
+      - name: Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned Python dependencies
+        run: python -m pip install --disable-pip-version-check "Pillow==11.3.0" "numpy==2.2.6"
+      - name: Rebuild original 6-frame 23-layer source, no art edits
+        run: |
+          set -euo pipefail
+          P="private-source/tools/pose_lock/base_character_v35"
+          python "$P/src/pipeline_v35.py" --output "$RUNNER_TEMP/base-v35"
+          python "$P/src/qa_v35.py" --root "$RUNNER_TEMP/base-v35"
+      - name: Generate machine contract and baseline visual triage
+        run: |
+          set -euo pipefail
+          SCRIPT="private-source/tools/pose_lock/base_character_v36/src/sprite_contract.py"
+          python "$SCRIPT" bootstrap --root "$RUNNER_TEMP/base-v35" > "$RUNNER_TEMP/contract-bootstrap.json"
+          python "$SCRIPT" audit --root "$RUNNER_TEMP/base-v35" --output "$RUNNER_TEMP/contract-qa" > "$RUNNER_TEMP/contract-audit.json"
+          python - <<'PY'
+          from pathlib import Path
+          import json,os
+          p=Path(os.environ["RUNNER_TEMP"])/"contract-qa"/"agent_audit.json"
+          d=json.loads(p.read_text())
+          assert d["art_release_status"]=="BLOCKED"
+          assert d["owner_visual_status"]=="PENDING_OWNER_ART"
+          assert d["source_technical_status"]=="PASS"
+          assert any(x["type"]=="HAIR_SHAPE_EXPANSION_NEEDS_ART_REVIEW" for x in d["flags"])
+          assert any(x["type"]=="OVERSIZED_GEAR_OR_BAD_ANATOMY_MASK" for x in d["flags"])
+          print("V36_VISUAL_TRIAGE_FAIL_CLOSED_SOURCE_PASS")
+          PY
+      - name: Sixteen independent task and negative tests
+        env:
+          BEAST_V35_ART_DIR: ${{ runner.temp }}/base-v35
+        run: |
+          python -m unittest discover -s private-source/tools/pose_lock/base_character_v36/tests -p 'test_agent_contract.py' -v
+      - name: Generate one reproducible work packet and reject release
+        run: |
+          set -euo pipefail
+          SCRIPT="private-source/tools/pose_lock/base_character_v36/src/sprite_contract.py"
+          python "$SCRIPT" task --root "$RUNNER_TEMP/base-v35" --skin skyguard --slot hair --frame 1 --output "$RUNNER_TEMP/skyguard-hair-f1"
+          python - <<'PY'
+          from pathlib import Path
+          import json,os
+          p=Path(os.environ["RUNNER_TEMP"])/"skyguard-hair-f1"
+          t=json.loads((p/"task.json").read_text())
+          assert t["skin"]=="skyguard" and t["slot"]=="hair" and t["frame"]==1
+          assert (p/"allowed_region.png").exists() and (p/"layer.png").exists()
+          print("V36_AGENT_PACKET_VALID")
+          PY
+          set +e
+          python "$SCRIPT" release --root "$RUNNER_TEMP/base-v35" > "$RUNNER_TEMP/release.json"
+          code=$?
+          set -e
+          test "$code" -eq 3
+          python - <<'PY'
+          from pathlib import Path
+          import json,os
+          r=json.loads((Path(os.environ["RUNNER_TEMP"])/"release.json").read_text())
+          assert r["release"]=="BLOCKED"
+          print("V36_OWNER_ART_RELEASE_REMAINS_BLOCKED")
+          PY
+      - name: Honest scoped summary
+        run: |
+          {
+            echo '### Agent-neutral Base Character v3.6 authoring contract SOURCE QA'
+            echo '16 tests, one-slot SHA-pinned task, explicit art-release BLOCK, baseline visual warnings.'
+            echo 'No owner approval, no modified Skyguard art, no game integration, no Pages deployment.'
+            echo 'Private PNG/source images remain transient and are never uploaded to PUBLIC repository/artifacts.'
+          } >> "$GITHUB_STEP_SUMMARY"
