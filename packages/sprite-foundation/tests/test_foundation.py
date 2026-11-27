@@ -128,7 +128,7 @@ class FoundationCoreTests(unittest.TestCase):
         m=json.loads(p.read_text());m['motion']={'ground_contact_verified':True,'loop_review_verified':True}
         p.write_text(json.dumps(m));report=audit_manifest_file(p)
         secret='very-long-out-of-repo-human-reviewer-secret'
-        gold=sign_approval(report['asset_id'],[f['sha256_rgba'] for f in report['frames']],secret)
+        gold=sign_approval(report['asset_id'],[f['sha256_rgba'] for f in report['frames']],secret,report['source_contract_sha256'])
         approval=root/'external_approved.json';approval.write_text(json.dumps(gold))
         checked=audit_manifest_file(p,approval_file=str(approval),review_key=secret)
         self.assertEqual(checked['structure_status'],'PASS')
@@ -179,5 +179,55 @@ class FoundationCoreTests(unittest.TestCase):
         self.assertIn('PROCEDURAL_ART_REQUIRES_INDEPENDENT_REVIEW',codes)
         self.assertIn('OWNER_REJECTED_ART',codes)
         self.assertIn('NO_EXTERNAL_OWNER_APPROVAL_FOR_EXACT_ART_BYTES',codes)
+
+
+    def test_hidden_layer_change_invalidates_approval_without_render_change(self):
+        root,p=self.make_project()
+        m=json.loads(p.read_text());m['motion']={'ground_contact_verified':True,'loop_review_verified':True}
+        p.write_text(json.dumps(m))
+        key='owner-private-long-review-secret-1234'
+        before=audit_manifest_file(p)
+        signature=sign_approval(before['asset_id'],[f['sha256_rgba'] for f in before['frames']],key,before['source_contract_sha256'])
+        approval=root/'external.json';approval.write_text(json.dumps(signature))
+        self.assertEqual(audit_manifest_file(p,approval_file=str(approval),review_key=key)['release_status'],'CANDIDATE_REQUIRES_MANUAL_REVIEW')
+        # Torso is opaque at (13,16); later neck/head layer overlaps this point.
+        torso=root/'source/body/torso/run_01.png'
+        im=Image.open(torso).convert('RGBA')
+        im.putpixel((14,16),(1,2,3,255))
+        im.save(torso)
+        # Render output unchanged: top neck layer still paints same visible byte.
+        after=audit_manifest_file(p,approval_file=str(approval),review_key=key)
+        self.assertEqual(before['frames'][0]['sha256_rgba'],after['frames'][0]['sha256_rgba'])
+        self.assertNotEqual(before['source_contract_sha256'],after['source_contract_sha256'])
+        self.assertEqual(after['release_status'],'BLOCKED')
+
+    def test_manifest_motion_flags_change_invalidates_old_review(self):
+        root,p=self.make_project()
+        m=json.loads(p.read_text());m['motion']={'ground_contact_verified':True,'loop_review_verified':True}
+        p.write_text(json.dumps(m))
+        key='owner-private-long-review-secret-1234'
+        before=audit_manifest_file(p)
+        signature=sign_approval(before['asset_id'],[f['sha256_rgba'] for f in before['frames']],key,before['source_contract_sha256'])
+        approval=root/'external.json';approval.write_text(json.dumps(signature))
+        m['authoring']['source_kind']='licensed'
+        p.write_text(json.dumps(m))
+        after=audit_manifest_file(p,approval_file=str(approval),review_key=key)
+        self.assertEqual(before['frames'][0]['sha256_rgba'],after['frames'][0]['sha256_rgba'])
+        self.assertNotEqual(before['source_contract_sha256'],after['source_contract_sha256'])
+        self.assertEqual(after['release_status'],'BLOCKED')
+
+    def test_legacy_render_only_signature_is_not_trusted(self):
+        root,p=self.make_project()
+        m=json.loads(p.read_text());m['motion']={'ground_contact_verified':True,'loop_review_verified':True}
+        p.write_text(json.dumps(m))
+        key='owner-private-long-review-secret-1234'
+        before=audit_manifest_file(p)
+        import hmac
+        payload=json.dumps({'asset':before['asset_id'],'sha256_rgba_frames':[f['sha256_rgba'] for f in before['frames']]},sort_keys=True,separators=(',',':')).encode()
+        legacy={'schema':'sprite-foundation/owner-approval-1','asset':before['asset_id'],
+                'sha256_rgba_frames':[f['sha256_rgba'] for f in before['frames']],
+                'hmac_sha256':hmac.new(key.encode(),payload,hashlib.sha256).hexdigest()}
+        approval=root/'external.json';approval.write_text(json.dumps(legacy))
+        self.assertEqual(audit_manifest_file(p,approval_file=str(approval),review_key=key)['release_status'],'BLOCKED')
 
 if __name__=='__main__':unittest.main()
