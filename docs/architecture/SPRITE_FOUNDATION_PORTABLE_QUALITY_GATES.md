@@ -72,3 +72,26 @@ Beast Arena repo paths or Godot APIs appear in the library.
    actual game/Web E2E. Jade, gameplay, Pages stay untouched now.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+## Implementation lesson — external approval must cover editable source
+
+The original approval v1 HMAC bound only the visible flattened RGBA cels,
+not the hidden anatomy layers or independent motion and topology contract.
+A cheap/automated agent could edit an occluded part without affecting final
+PNG bytes and retain a previously signed approval. Changing manifest claims
+would similarly avoid invalidation. This is **source-provenance failure**,
+not an art generator problem.
+
+**Verified code fix:** owner-approval-v2 seals `source_contract_sha256`
+derived from full ordered source layer RGBA, exact composite frame hashes
+and the canonical manifest (including project geometry and motion claims).
+V1 signatures are rejected, not silently grandfathered. Three adversarial
+tests simulate hidden-source edits, metadata edits and a valid legacy HMAC.
+The tool remains engine/model/project independent; no visual aesthetic
+judgment is invented by hashes. The signing operation stays human-owned
+and is never invoked by CI.
+
+Future migration: replace prior approval only after the actual artist has
+reviewed the current revision; require frame/loop/foot contact evidence, and
+tie any final gameplay integration to exact repo revisions. The protected v4
+source remains visually rejected and unreleased.
