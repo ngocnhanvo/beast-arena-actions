@@ -1,0 +1,101 @@
+name: Beast Arena - Base v4 neutral mannequin source QA (isolated)
+
+on:
+  push:
+    branches: [ci/base-character-v40-neutral-source-qa]
+    paths: [".github/workflows/base-character-v40-neutral-source-qa.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: beast-v40-neutral-source-qa
+  cancel-in-progress: false
+
+jobs:
+  neutral-source:
+    name: 29 source tests + LibreSprite 31-layer + Godot 4.7.2
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout PUBLIC CI utilities
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          path: pipeline
+      - name: Checkout immutable PRIVATE mannequin source transiently
+        uses: actions/checkout@v4
+        with:
+          repository: ngocnhanvo/beast-arena
+          ref: 2bb301a8f66c9647769f7014e05e17666713e103
+          token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
+          persist-credentials: false
+          path: private-source
+      - name: Verify exact PRIVATE SHA and source boundary
+        run: |
+          set -euo pipefail
+          test "$(git -C private-source rev-parse HEAD)" = "2bb301a8f66c9647769f7014e05e17666713e103"
+          test -f private-source/tools/pose_lock/base_character_v40/assets/base_neutral_v40_6x80.png
+          test -f private-source/tools/pose_lock/base_character_v40/src/mannequin.py
+          echo "Original PRIVATE neutral sprite source verified, never published as PUBLIC artifact"
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned Pillow
+        run: python -m pip install --disable-pip-version-check "Pillow==11.3.0"
+      - name: Run neutral and agent-contract source tests
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s private-source/tools/pose_lock/base_character_v40/tests -p 'test_mannequin.py' -v
+      - name: Rebuild original neutral 6 poses in clean source workspace
+        run: |
+          set -euo pipefail
+          ROOT="private-source/tools/pose_lock/base_character_v40"
+          python "$ROOT/src/mannequin.py" init --root "$RUNNER_TEMP/v40"
+          python "$ROOT/src/mannequin.py" audit --root "$RUNNER_TEMP/v40"
+          python "$ROOT/src/build_preview.py" --root "$RUNNER_TEMP/v40" --output "$RUNNER_TEMP/v40/preview.html"
+      - name: Install pinned official LibreSprite v1.3
+        run: bash pipeline/ci/setup_libresprite.sh
+      - name: Independently verify 31-layer 6-frame ASE RGBA pixel equality
+        run: |
+          set -euo pipefail
+          libresprite -b --sheet-type horizontal "$RUNNER_TEMP/v40/render/neutral/base_v4_31_layers.aseprite" --sheet "$RUNNER_TEMP/native-v40.png"
+          python - <<'PY'
+          from PIL import Image
+          from pathlib import Path
+          import os,json
+          root=Path(os.environ["RUNNER_TEMP"])
+          actual=Image.open(root/"native-v40.png").convert("RGBA")
+          expected=Image.open(root/"v40"/"render"/"neutral"/"run_right.png").convert("RGBA")
+          frozen=Image.open(Path("private-source/tools/pose_lock/base_character_v40/assets/base_neutral_v40_6x80.png")).convert("RGBA")
+          assert actual.size==expected.size==frozen.size==(480,80)
+          assert actual.tobytes()==expected.tobytes()==frozen.tobytes(),"V40 native source RGBA mismatch"
+          meta=json.loads((root/"v40"/"source"/"metadata.json").read_text())
+          assert meta["default_gear"]=="NONE" and meta["hairstyle"]=="BALD"
+          assert meta["top"]=="NONE" and meta["shoes"]=="NONE" and meta["face"]=="BLANK"
+          assert len(meta["body_parts"])==17 and len(meta["gear_slots"])==14
+          assert len(meta["layer_order"])==31
+          print("V40_LIBRESPRITE_31_LAYER_6_CEL_STRICT_RGBA_PASS")
+          PY
+      - name: Install Godot 4.7.2
+        run: bash pipeline/ci/setup_godot.sh
+      - name: Godot 4.7.2 isolated neutral source import (not game)
+        env:
+          BEAST_V40_ART_DIR: ${{ runner.temp }}/v40
+        run: |
+          set -euo pipefail
+          ROOT="private-source/tools/pose_lock/base_character_v40/godot_source_review"
+          godot --headless --path "$ROOT" --script res://check_source.gd > "$RUNNER_TEMP/v40-godot.log" 2>&1 || { cat "$RUNNER_TEMP/v40-godot.log"; exit 1; }
+          cat "$RUNNER_TEMP/v40-godot.log"
+          if grep -Eq 'ERROR:|SCRIPT ERROR:|Parser Error' "$RUNNER_TEMP/v40-godot.log"; then echo "::error::Godot emitted engine error";exit 1;fi
+          grep -q 'V40_GODOT_4_7_2_NEUTRAL_SOURCE_PASS_6_CELS' "$RUNNER_TEMP/v40-godot.log"
+      - name: Scoped QA report, no art release
+        run: |
+          {
+            echo '### Base v4 neutral mannequin source only'
+            echo '29 tests; 17 original anatomical part layers; 14 empty equipment slots; 6x80px cels; 31-layer native editor strict RGBA.'
+            echo 'No body hair, hats, shoes, accessories, facial features or shirt; only minimal underwear shorts.'
+            echo 'Owner motion/art acceptance PENDING. No Pages, no real game Web E2E, no Jade changes or merge.'
+          } >> "$GITHUB_STEP_SUMMARY"
