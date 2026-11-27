@@ -888,3 +888,8 @@ User rejected the skating rear-facing animation. Real game W moves up world -Z w
 ## 2026-11-27 — Private Jade PR #2: no new art build, reviewer requested fixes
 - [Private DRAFT PR #2](https://github.com/ngocnhanvo/beast-arena/pull/2) has native 8+8 source and review GIFs but remains unmerged pending [source-art reviewer changes](https://github.com/ngocnhanvo/beast-arena/pull/2#issuecomment-7208990299). Do not import private PNG/ASE/GIF into this PUBLIC repo for review.
 - Current PUBLIC Pages #45930802938 built old art and Chromium #45930986653 FAIL Arcade timeout. When source is authorized, run pinned LibreSprite and Godot/Pages for exact new PRIVATE SHA then full Chromium 8-phase A+A/D+D, 7→0 seam, idle transition and owner visual review. Status PENDING_ART, not automated source quality PASS.
+
+
+## 2026-11-27 — Isolated Jade draft test parser regression
+
+- #45936492263 and diagnostic #45936854443: PRIVATE SHA 88f74b99ad1064083a205c94dc1ee8bdbfc80273 gave Godot 4.7.2 import PASS but the source smoke failed with duplicate function-scope variable `phase`. A source-only test fix (new SHA 51f3d8e12cb8d46071d9cdbd3ba0ab028b50aad7) renames the second loop iterator `counterphase_index`, no artistic or motor adjustment. Repin `ci/jade-pr2-source-check`; never test PRIVATE main in lieu of exact PR SHA; no public artifacts or deploy.

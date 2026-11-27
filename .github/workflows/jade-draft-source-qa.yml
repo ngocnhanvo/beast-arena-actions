@@ -16,7 +16,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  PRIVATE_SOURCE_SHA: "88f74b99ad1064083a205c94dc1ee8bdbfc80273"
+  PRIVATE_SOURCE_SHA: "51f3d8e12cb8d46071d9cdbd3ba0ab028b50aad7"
 
 jobs:
   source-art:
