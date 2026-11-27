@@ -29,14 +29,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ngocnhanvo/beast-arena
-          ref: 808d7c9459f5bf1f4a3bb9bf46e4bbba33fee46f
+          ref: 9772e7e4a13a1db4d82295ab8f3c3491d2660c9f
           token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
           path: private-source
           persist-credentials: false
       - name: Assert immutable PRIVATE source
         run: |
           set -euo pipefail
-          test "$(git -C private-source rev-parse HEAD)" = "808d7c9459f5bf1f4a3bb9bf46e4bbba33fee46f"
+          test "$(git -C private-source rev-parse HEAD)" = "9772e7e4a13a1db4d82295ab8f3c3491d2660c9f"
           test -f private-source/tools/pose_lock/base_character_v34/src/modular_v34.py
           test -f private-source/tools/pose_lock/base_character_v34/assets/original_v33.png
           test -f private-source/tools/pose_lock/base_character_v35/src/pipeline_v35.py
