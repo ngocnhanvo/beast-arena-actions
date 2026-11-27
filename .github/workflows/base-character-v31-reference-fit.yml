@@ -1,0 +1,84 @@
+name: Beast Arena - Base V3.1 six-pose gait QA (isolated)
+
+on:
+  push:
+    branches: [ci/base-character-v31-reference-fit]
+    paths:
+      - ".github/workflows/base-character-v31-reference-fit.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: beast-base-v31-reference-fit
+  cancel-in-progress: false
+
+jobs:
+  pose-source-only:
+    name: Pin PRIVATE source + planting/gait negative tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout public validator
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          path: pipeline
+      - name: Checkout exact private source to transient runner
+        uses: actions/checkout@v4
+        with:
+          repository: ngocnhanvo/beast-arena
+          ref: 8d3eeb978170bf0fb01f1879c4c201b97906406c
+          token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
+          persist-credentials: false
+          path: private-source
+      - name: Strict pin / no copyrighted reference images
+        run: |
+          set -euo pipefail
+          test "$(git -C private-source rev-parse HEAD)" = "8d3eeb978170bf0fb01f1879c4c201b97906406c"
+          test -f private-source/tools/pose_lock/base_character_v3/pose_fit_revision/src/run_pose_fit.py
+          ! find private-source/tools/pose_lock/base_character_v3/pose_fit_revision -type f -name 'reference_local_only.png' | grep -q .
+          echo "Pinned private source verified; reference pixels stay outside repository."
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Pillow
+        run: python -m pip install --disable-pip-version-check Pillow==11.3.0
+      - name: Run 23 technical and visual fail-closed negative gates
+        run: |
+          python -m unittest discover -s private-source/tools/pose_lock/base_character_v3/pose_fit_revision/tests -v
+      - name: Rebuild six native poses and enforce source-only gates
+        run: |
+          set -euo pipefail
+          ROOT="private-source/tools/pose_lock/base_character_v3/pose_fit_revision"
+          python "$ROOT/src/run_pose_fit.py" --output "$RUNNER_TEMP/posefit"
+          python "$ROOT/src/build_preview.py" --output "$RUNNER_TEMP/posefit/preview.html"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          from PIL import Image
+          root=Path(os.environ["RUNNER_TEMP"])/"posefit"
+          qa=json.loads((root/"qa_report.json").read_text())
+          assert qa["planted_sole_world_drift_px"]==0.0
+          assert qa["visual_acceptance"]=="REJECTED_BY_OWNER_2026_11_27"
+          assert qa["loop_seam_max_joint_jump_px"]<15
+          for i in range(1,7):
+              with Image.open(root/f"rig_{i:02}.png") as frame:
+                  assert frame.size==(80,80) and frame.mode=="RGBA"
+          art=json.loads((root/"visual_gate_report.json").read_text())
+          assert art["art_gate"]=="BLOCKED", "CI must never auto-approve art without private reference"
+          assert art["final_owner_approval"]=="NOT_GRANTED"
+          assert len(art["summary"]["floor_penetrating_frames"])==4
+          assert art["summary"]["ground_penetrating_ink_total"]==152
+          print("V31_POSE_TECHNICAL_PASS_ART_RELEASE_BLOCKED")
+          PY
+      - name: Source-only summary
+        run: |
+          {
+            echo "### V3.1 source gait constraints PASS"
+            echo "23 tests, world ankle plant 0px; 6 native cels. Visual gate BLOCKED without user's local reference."
+            echo "Owner REJECTED image; four grounded phases penetrate y72 by 152 alpha pixels; this must remain ART FAIL/BLOCKED, never PASS."
+            echo "No LibreSprite Aseprite/native test, no Godot game, Pages, or user art acceptance."
+          } >> "$GITHUB_STEP_SUMMARY"
