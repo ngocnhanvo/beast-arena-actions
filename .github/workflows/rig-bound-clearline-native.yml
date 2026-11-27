@@ -28,14 +28,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ngocnhanvo/beast-arena
-          ref: 6f0af07b32c59cc780150b7ca829904b063abec9
+          ref: 4ad0ddcbcf1ec01b97a7b54ecafbb07ee612e353
           token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
           persist-credentials: false
           path: private
       - name: Verify pinned source and full asset contract
         run: |
           set -euo pipefail
-          test "$(git -C private rev-parse HEAD)" = "6f0af07b32c59cc780150b7ca829904b063abec9"
+          test "$(git -C private rev-parse HEAD)" = "4ad0ddcbcf1ec01b97a7b54ecafbb07ee612e353"
           test -f private/.agents/skills/beast-arena-motion-logic/scripts/render_vector_pro.py
           test -f private/tools/pose_lock/vector_clearline/native_bridge.py
           test -f private/tools/pose_lock/vector_clearline/source/pose-contract.json
@@ -259,6 +259,27 @@ jobs:
           assert data.count(old)==1, 'EXPORT_INCLUDE_FILTER_UNEXPECTED'
           cfg.write_text(data.replace(old,new))
           print('STAGING_DYNAMIC_ATLAS_AND_JSON_INCLUDED_IN_WEB_PCK')
+          PY
+          # Godot Web imports PNG as Texture2D and excludes raw JSON from PCK.
+          # Bake the exact verified motion JSON and preloaded source Texture2D
+          # only into this ephemeral runner's staging scene, never PRIVATE Git.
+          python - <<'PY'
+          from pathlib import Path
+          import base64,json,hashlib
+          source=Path('private/experiments/physics_v2/assets/clearline_staging_motion24.json')
+          raw=source.read_bytes()
+          doc=json.loads(raw)
+          assert doc['source']=='motion_rig.pose_at' and doc['art_release']=='BLOCKED'
+          assert len(doc['frames'])==24 and doc['authored_original_cels']==6
+          script=Path('private/experiments/physics_v2/scripts/clearline_web_staging.gd')
+          data=script.read_text()
+          old_json='const CLEARLINE_MOTION_BASE64: String = "STAGING_MOTION_CONTRACT_NOT_EMBEDDED"'
+          new_json='const CLEARLINE_MOTION_BASE64: String = "'+base64.b64encode(raw).decode('ascii')+'"'
+          old_png='const CLEARLINE_WEB_TEXTURE: Texture2D = null'
+          new_png='const CLEARLINE_WEB_TEXTURE: Texture2D = preload("res://assets/clearline_staging_24.png")'
+          assert data.count(old_json)==1 and data.count(old_png)==1
+          script.write_text(data.replace(old_json,new_json).replace(old_png,new_png))
+          print('BEAST_WEB_STAGING_EXACT_SOURCE_EMBEDDED_'+hashlib.sha256(raw).hexdigest()[:12])
           PY
           # Export is transient on this CI runner; the staged sprite comes
           # from the same authenticated rig art made for real motor smoke.
