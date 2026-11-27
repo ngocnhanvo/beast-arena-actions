@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   original-neutral:
-    name: Eight adversarial tests + 31-layer LibreSprite + isolated Godot
+    name: Sixteen adversarial tests + 31-layer LibreSprite + isolated Godot
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
@@ -28,14 +28,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ngocnhanvo/beast-arena
-          ref: 5c6e62cadc93eeb64876803aa4282df401b8df1b
+          ref: ec66e40b25ea86abee66ca169d68999e631ee400
           token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
           persist-credentials: false
           path: private
       - name: Assert exact source pin and six original contour data
         run: |
           set -euo pipefail
-          test "$(git -C private rev-parse HEAD)" = "5c6e62cadc93eeb64876803aa4282df401b8df1b"
+          test "$(git -C private rev-parse HEAD)" = "ec66e40b25ea86abee66ca169d68999e631ee400"
           test -f private/tools/pose_lock/base_character_v41/data/pose_shapes.json
           test -f private/tools/pose_lock/base_character_v41/src/authored_neutral.py
           test -f private/tools/pose_lock/base_character_v40/src/native_ase.py
@@ -45,7 +45,7 @@ jobs:
           python-version: "3.12"
       - name: Install Pillow only
         run: python -m pip install --disable-pip-version-check "Pillow==11.3.0"
-      - name: Eight positive and adversarial source tests
+      - name: Sixteen source and one-part-edit adversarial tests
         run: |
           set -euo pipefail
           python -m unittest discover -s private/tools/pose_lock/base_character_v41/tests -v
