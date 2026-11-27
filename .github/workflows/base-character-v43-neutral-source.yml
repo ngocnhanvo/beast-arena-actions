@@ -1,0 +1,111 @@
+name: Beast Arena - V4.3 Continuous Neutral Body Source QA
+
+on:
+  push:
+    branches: [ci/base-character-v43-continuous-neutral-source]
+    paths: [".github/workflows/base-character-v43-neutral-source.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v43-neutral-independent-source
+  cancel-in-progress: false
+
+jobs:
+  original-neutral:
+    name: V4.3 12 tests, portable QA, native LibreSprite and Godot
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          path: pipeline
+      - uses: actions/checkout@v4
+        with:
+          repository: ngocnhanvo/beast-arena
+          ref: 75b949d606b230e89bff6165828e054baa4e321b
+          token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
+          persist-credentials: false
+          path: private
+      - name: Verify source SHA and art boundary
+        run: |
+          set -euo pipefail
+          test "$(git -C private rev-parse HEAD)" = "75b949d606b230e89bff6165828e054baa4e321b"
+          test -f private/tools/pose_lock/base_character_v43/data/indexed_source.json
+          test -f private/tools/pose_lock/base_character_v43/src/neutral.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Pillow and engine independent QA
+        run: |
+          python -m pip install --disable-pip-version-check "Pillow==11.3.0"
+          python -m pip install --disable-pip-version-check --no-deps -e pipeline/packages/sprite-foundation
+      - name: Test exact source, editable body and gear isolation
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s private/tools/pose_lock/base_character_v43/tests -v
+      - name: Build private source in runner temporary directory
+        run: |
+          set -euo pipefail
+          python private/tools/pose_lock/base_character_v43/src/neutral.py init --root "$RUNNER_TEMP/v43"
+          python private/tools/pose_lock/base_character_v43/src/neutral.py audit --root "$RUNNER_TEMP/v43"
+          python private/tools/pose_lock/base_character_v43/source_quality_adapter.py --root "$RUNNER_TEMP/v43" --out "$RUNNER_TEMP/v43/portable.json"
+      - name: Independently verify release remains blocked
+        run: |
+          set -euo pipefail
+          set +e
+          python -m sprite_foundation audit --manifest "$RUNNER_TEMP/v43/portable.json" --root "$RUNNER_TEMP/v43" --out "$RUNNER_TEMP/v43/report.json"
+          result=$?
+          set -e
+          test "$result" -eq 3
+          python - <<'PY'
+          import os,json
+          from pathlib import Path
+          report=json.loads((Path(os.environ["RUNNER_TEMP"])/"v43/report.json").read_text())
+          assert report["structure_status"]=="PASS",report["structural_errors"]
+          assert report["release_status"]=="BLOCKED"
+          assert report["visual_review_status"]=="PENDING"
+          assert {item["code"] for item in report["approval_blockers"]}>={"GROUND_CONTACT_NOT_VERIFIED","LOOP_SEAM_NOT_REVIEWED","NO_EXTERNAL_OWNER_APPROVAL_FOR_EXACT_ART_BYTES"}
+          print("V43_CONTINUOUS_BODY_SOURCE_PASS_ART_STILL_BLOCKED")
+          PY
+      - name: Run pinned official LibreSprite
+        run: bash pipeline/ci/setup_libresprite.sh
+      - name: Independent native 15-layer RGBA comparison
+        run: |
+          set -euo pipefail
+          libresprite -b --sheet-type horizontal "$RUNNER_TEMP/v43/render/neutral/neutral_15layers.aseprite" --sheet "$RUNNER_TEMP/v43-native.png"
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          import os
+          p=Path(os.environ["RUNNER_TEMP"])
+          native=Image.open(p/"v43-native.png").convert("RGBA")
+          expected=Image.open(p/"v43/render/neutral/run_right.png").convert("RGBA")
+          assert native.size==expected.size==(480,80)
+          assert native.tobytes()==expected.tobytes(),"V43_NATIVE_RGBA_MISMATCH"
+          print("V43_LIBRESPRITE_15_LAYER_STRICT_RGBA_PASS")
+          PY
+      - name: Install pinned Godot 4.7.2
+        run: bash pipeline/ci/setup_godot.sh
+      - name: Godot isolated source smoke, NOT game E2E
+        env:
+          BEAST_V40_ART_DIR: ${{ runner.temp }}/v43
+        run: |
+          set -euo pipefail
+          REVIEW=private/tools/pose_lock/base_character_v40/godot_source_review
+          godot --headless --path "$REVIEW" --script res://check_source.gd > "$RUNNER_TEMP/v43-godot.log" 2>&1 || { cat "$RUNNER_TEMP/v43-godot.log";exit 1; }
+          cat "$RUNNER_TEMP/v43-godot.log"
+          if grep -Eq 'ERROR:|SCRIPT ERROR:|Parser Error' "$RUNNER_TEMP/v43-godot.log"; then exit 1;fi
+          grep -q 'V40_GODOT_4_7_2_NEUTRAL_SOURCE_PASS_6_CELS' "$RUNNER_TEMP/v43-godot.log"
+          echo "V43_GODOT_SOURCE_IMPORT_PASS"
+      - name: Release hard block evidence
+        run: |
+          {
+            echo 'V4.3 80px six-frame continuous body with 14 blank gear slots.'
+            echo 'Technical source passes do not confer visual acceptance.'
+            echo 'Frame half-cycle repetition and foot-world tracking remain unverified.'
+            echo 'No owner art signoff, no private assets in public artifacts, no game/Pages release.'
+          } >> "$GITHUB_STEP_SUMMARY"
