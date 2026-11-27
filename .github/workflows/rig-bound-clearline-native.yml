@@ -28,14 +28,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ngocnhanvo/beast-arena
-          ref: 6bd48b209ae92f59c298fbcc4cae8ad738bd50dc
+          ref: 1e838e9b7067e3c446fff3bff4f4477cb9e73f56
           token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
           persist-credentials: false
           path: private
       - name: Verify pinned source and full asset contract
         run: |
           set -euo pipefail
-          test "$(git -C private rev-parse HEAD)" = "6bd48b209ae92f59c298fbcc4cae8ad738bd50dc"
+          test "$(git -C private rev-parse HEAD)" = "1e838e9b7067e3c446fff3bff4f4477cb9e73f56"
           test -f private/.agents/skills/beast-arena-motion-logic/scripts/render_vector_pro.py
           test -f private/tools/pose_lock/vector_clearline/native_bridge.py
           test -f private/tools/pose_lock/vector_clearline/source/pose-contract.json
@@ -234,6 +234,57 @@ jobs:
           assert r["release"]=="BLOCKED"
           assert len(list(root.glob("browser_pose_??.png")))==3
           print("BEAST_CHROMIUM_6_SOURCE_FRAMES_VISIBLE_BUTTON_WRAP_PASS_GAMEPLAY_NOT_TESTED")
+          PY
+      - name: Export actual isolated Physics V2 Web game with unapproved clearline overlay
+        run: |
+          set -euo pipefail
+          REVIEW=private/experiments/physics_v2
+          python - <<'PY'
+          from pathlib import Path
+          p=Path("private/experiments/physics_v2/project.godot")
+          old='run/main_scene="res://scenes/demo.tscn"'
+          new='run/main_scene="res://scenes/clearline_web_staging.tscn"'
+          text=p.read_text()
+          assert text.count(old)==1
+          p.write_text(text.replace(old,new))
+          PY
+          # Export is transient on this CI runner; the staged sprite comes
+          # from the same authenticated rig art made for real motor smoke.
+          bash pipeline/ci/install_templates.sh
+          godot --headless --editor --path "$REVIEW" --import --quit > "$RUNNER_TEMP/web-staging-import.log" 2>&1 || {
+            tail -n 90 "$RUNNER_TEMP/web-staging-import.log"; exit 1;
+          }
+          if grep -Eq 'SCRIPT ERROR:|ERROR: Failed to load script|Parser Error' "$RUNNER_TEMP/web-staging-import.log"; then
+            tail -n 90 "$RUNNER_TEMP/web-staging-import.log"; exit 1;
+          fi
+          mkdir -p "$RUNNER_TEMP/web-staging"
+          godot --headless --path "$REVIEW" --export-release "Web" "$RUNNER_TEMP/web-staging/index.html" > "$RUNNER_TEMP/web-staging-export.log" 2>&1 || {
+            tail -n 100 "$RUNNER_TEMP/web-staging-export.log"; exit 1;
+          }
+          test -s "$RUNNER_TEMP/web-staging/index.html"
+          test -s "$RUNNER_TEMP/web-staging/index.wasm"
+          test -s "$RUNNER_TEMP/web-staging/index.pck"
+          echo "BEAST_CLEARLINE_REAL_PHYSICS_V2_WEB_STAGING_EXPORT_PASS_NO_PAGES"
+      - name: Real Chromium Godot Web game canvas, keyboard and motor E2E
+        run: |
+          set -euo pipefail
+          python -m http.server 8765 --bind 127.0.0.1 --directory "$RUNNER_TEMP/web-staging" > "$RUNNER_TEMP/staging-http.log" 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          python private/tools/pose_lock/vector_clearline/staging/playwright_actual_game_staging.py \
+            --url "http://127.0.0.1:8765/index.html?clearline=1&e2e=1" \
+            --out "$RUNNER_TEMP/web-motor-screenshots"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          r=json.loads((Path(os.environ["RUNNER_TEMP"])/"web-motor-screenshots/actual-game-web-report.json").read_text())
+          assert r["web_game"]=="PASS"
+          assert r["physics"]=="REAL_CHARACTERBODY3D"
+          assert r["sampled_frames"]>=6
+          assert r["screenshots"]==3
+          assert r["art_release"]=="BLOCKED"
+          assert r["production_pages_deploy"]=="NOT_DONE"
+          print("BEAST_CLEARLINE_ACTUAL_GODOT_WEB_GAMEPLAY_E2E_PASS_NO_DEPLOY")
           PY
       - name: Declare source PASS, visual FAIL, gameplay/Pages blocked
         run: |
