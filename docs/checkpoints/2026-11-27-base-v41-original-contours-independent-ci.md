@@ -73,3 +73,34 @@ was used to make CI green. Public repository still contains no
 PRIVATE raw source or rendered artwork. No gameplay, Pages, merge.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+
+## Final independently pinned real v4.1 pixel-motion diagnostic
+
+PUBLIC shared `sprite-foundation` motion tool
+`31991e608ed58f93341d215d3ad515b712ae1a73`
+was validated in [generic Actions #46035667624](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/46035667624)
+COMPLETED SUCCESS (19/19 synthetic/adversarial core tests and one
+real old owner-rejected v4 blocking adapter test).
+The tool produces objective raster/frame statistics without
+pretending to prove world-space planted feet or artistic acceptance.
+
+Independent actual v4.1 pipeline [#46035739118](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/46035739118)
+COMPLETED SUCCESS on exact public SHA
+`232a95356100d12cc2fd6cee3e3cdf70502d9478`,
+private authored v4.1 SHA
+`d363b7ae89940d9e7f3c52f443190c10140c9197`,
+job `140630554884`. Runtime logs:
+- 16/16 authored source and scoped one-part editing negative tests PASS.
+- Portable source integrity STRUCTURE PASS, owner visual PENDING,
+  release BLOCKED.
+- Source `motion-diagnose` reports seam/internal median pixel-change
+  ratio 1.0928, bottom painted y rows [72,72,71,72,72,72].
+  Explicit `GROUND_CONTACT=UNVERIFIED`,
+  `LOOP_ART_REVIEW=UNVERIFIED`, `release_authorization=NONE`.
+- Pinned official LibreSprite 1.3 native strict RGBA PASS
+  for 6 editable 31-layer cels; isolated Godot 4.7.2 import PASS.
+No new PRIVATE sprite art persisted in PUBLIC repo/artifacts/Pages.
+No auto-merge, no game build or gameplay Chromium E2E.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
