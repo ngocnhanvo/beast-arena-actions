@@ -8,3 +8,11 @@
 - Next: specialist updates outdated PR body/checkpoint, then owner-authorized integration preview on one https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/ , pinned PRIVATE+PUBLIC SHAs and Godot/Pages/Chromium full gameplay; owner accepts/rejects art. No new private art copied to public source or public artifacts. Status PARTIAL.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+## Reviewer metadata sync — 2026-11-27
+
+- PRIVATE [Draft PR #2](https://github.com/ngocnhanvo/beast-arena/pull/2) description now links actual source-only CI PASS, tested PRIVATE SHA `51f3d8e12cb8d46071d9cdbd3ba0ab028b50aad7` and [run #45936962296](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45936962296). PRIVATE specialist branch docs-only HEAD `07e2a9111e887e873290f0fd206480fb6f915921`; source/asset/runtime unchanged after test.
+- Earlier "next: specialist updates outdated PR body/checkpoint" above is now **DONE** for reviewer-owned metadata, but does NOT alter QA test coverage. No PUBLIC build/deploy was initiated and no new game E2E exists for the private draft. PRIVATE owner art acceptance remains pending, run→idle Issue #3 remains open.
+- Next: owner-authorized preview only if separately permitted; pinned source, public pipeline and **in-game** browser verification, then explicit `autocheck:false` visual review. Do not merge/deploy just because docs were synced.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
