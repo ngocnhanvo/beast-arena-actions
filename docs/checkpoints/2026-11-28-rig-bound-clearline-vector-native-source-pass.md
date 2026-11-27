@@ -52,3 +52,18 @@ PUBLIC tested exact runner SHA `c68429c62d901f4035318446a9509b750f6acbff` with p
 Art remains `FAIL_NOT_PRODUCTION_QUALITY`, release `BLOCKED`, owner signoff absent; Private PR #18, Public Draft PR #17 still unmerged. The previous #46048568171 is historical (before browser gate). Next: actual game staging motor and Web/Playwright E2E only after new visual source quality review; do not claim source/browser smoke is game deployed.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+
+## 2026-11-28 v4 latest verified CI — oriented knee solution and rounded SVG forms
+
+Exact PRIVATE tested original rig/Skill/art SHA `3d00e95bfcb31942840c8e990d5cf866e8a7be6a`, PUBLIC workflow tested SHA `a3a94c61942457fde3f2de9eb0b8899c26c6f9d8`; [GitHub Actions #46051334378](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/46051334378) **COMPLETED SUCCESS**, job `140683111724` **COMPLETED SUCCESS**.
+
+Observed root issue was a knee IK branch flip at the trailing ankle crossing hip height. The PRIVATE engine-neutral Skill now uses one oriented branch and tests the signed solution continuously, including a malicious external-pose wrong-side knee. Actual original artwork six editable 480px SVGs and 24 interpolated motion samples regenerated from the exact rig; fists and swing feet are smooth rounded curves rather than detached rectangles/fins. The new source manifest remains explicitly ART BLOCKED.
+
+Actual runner logs: `BEAST_V4_ORIENTED_IK_REAR_KNEE_CONTINUITY_PASS`, `BEAST_CLEARLINE_PORTABLE_37_TESTS_PASS` plus `BEAST_CLEARLINE_NATIVE_4_TESTS_PASS` = **41/41** Python rig/native tests, six committed SVG byte parity, world visible support-foot lock, official pinned LibreSprite independent strict ASE RGBA source re-export PASS, isolated Godot 4.7.2 original 480px atlas import PASS, `BEAST_CHROMIUM_6_SOURCE_FRAMES_VISIBLE_BUTTON_WRAP_PASS_GAMEPLAY_NOT_TESTED` PASS.
+
+PUBLIC workflow contains no PRIVATE SVG/PNG/ASE/GIF or screenshot artifact. This verifies **source/native/browser-source QA** only. Actual fighting-game motor/Web gameplay E2E, owner artist review, 8+ approved frame gameplay clip, Pages deploy/merge remain NOT DONE. PRIVATE `visual_self_review=FAIL_NOT_PRODUCTION_QUALITY`, `art_release=BLOCKED`. Older CI #46049081789 is superseded, not invalidated.
+
+**NEXT:** Continue original rig-driven actual vector art review and eventually staged Godot fighter motor+Chromium in-game E2E, preserving public/private boundary. No unattended release of unfinished art.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
