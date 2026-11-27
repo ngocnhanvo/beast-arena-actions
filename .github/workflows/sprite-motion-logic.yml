@@ -1,0 +1,86 @@
+name: Beast Arena - FK/IK sprite motion logic contract
+
+on:
+  push:
+    branches: [ci/sprite-motion-logic-ik-first]
+    paths: [".github/workflows/sprite-motion-logic.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sprite-motion-logic-ik-first
+  cancel-in-progress: false
+
+jobs:
+  motion-rig:
+    name: Independent 15 test FK/IK rig gate and 24-frame visual preview
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          path: pipeline
+      - name: Checkout source-pinned PRIVATE Skill without exposing pixels
+        uses: actions/checkout@v4
+        with:
+          repository: ngocnhanvo/beast-arena
+          ref: 288a25acd1268d64fcc9a64658bc92057e72fe5b
+          token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
+          persist-credentials: false
+          path: private
+      - name: Verify immutable private source pin
+        run: |
+          set -euo pipefail
+          test "$(git -C private rev-parse HEAD)" = "288a25acd1268d64fcc9a64658bc92057e72fe5b"
+          test -f private/.agents/skills/beast-arena-motion-logic/SKILL.md
+          test -f private/.agents/skills/beast-arena-motion-logic/scripts/motion_rig.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install only Pillow 11.3
+        run: python -m pip install --disable-pip-version-check "Pillow==11.3.0"
+      - name: Test external keyframes and intentionally injected bad poses
+        run: |
+          set -euo pipefail
+          PYTHONDONTWRITEBYTECODE=1 python -m unittest discover -s private/.agents/skills/beast-arena-motion-logic/scripts -p 'test_*.py' -v
+          echo "MOTION_IK_FK_15_ADVERSARIAL_TESTS_PASS"
+      - name: Render all 6 authored motion phases plus 24 interpolated poses
+        run: |
+          set -euo pipefail
+          PYTHONDONTWRITEBYTECODE=1 python private/.agents/skills/beast-arena-motion-logic/scripts/motion_rig.py build --out "$RUNNER_TEMP/motion" > "$RUNNER_TEMP/report-stdout.json"
+          python - <<'PY'
+          from pathlib import Path
+          import json,os
+          from PIL import Image
+          root=Path(os.environ["RUNNER_TEMP"])/"motion"
+          r=json.loads((root/"motion-report.json").read_text())
+          assert r["rig_status"]=="PASS",r["issues"]
+          assert r["world_space_stance_lock"]=="MATH_VERIFIED"
+          assert r["art_release"]=="BLOCKED"
+          assert r["visual_quality"]=="NOT_REVIEWED"
+          assert r["gameplay_e2e"]=="NOT_RUN"
+          p=json.loads((root/"pose-contract.json").read_text())
+          assert p[1]["right"]["support"]=="STANCE"
+          assert p[2]["right"]["support"]=="SWING"
+          assert p[2]["right"]["toe"][0] < p[2]["hip"][0]
+          assert p[2]["left"]["toe"][0] > p[2]["hip"][0]
+          with Image.open(root/"neutral_atlas_6x80.png") as im:
+              assert im.mode=="RGBA" and im.size==(480,80)
+          with Image.open(root/"motion_probe.gif") as im:
+              assert im.n_frames==6
+          with Image.open(root/"rig_24_subframes.gif") as im:
+              assert im.n_frames==24
+          print("MOTION_RIG_6_PHASES_24_SUBFRAMES_STANCE_LOCK_PASS_ART_BLOCKED")
+          PY
+      - name: Report strictly limited technical success
+        run: |
+          {
+            echo '### Original two-bone IK + FK preview gate'
+            echo '15/15 tests verify bone lengths, left/right identities, planted-foot math, frame 2-to-3 transitions and 6-to-1 wrap.'
+            echo '6 original motion poses, 24 interpolated guide poses and naive skin-colored underpaint were generated transiently.'
+            echo 'This does not approve actual character art, true Godot physics or game/Web E2E; source output is not published.'
+            echo 'All private preview art and machine output remain on runner temp and are not uploaded as public artifacts.'
+          } >> "$GITHUB_STEP_SUMMARY"
