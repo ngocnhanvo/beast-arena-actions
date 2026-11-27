@@ -29,14 +29,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ngocnhanvo/beast-arena
-          ref: 5c05b370e6de47ed54337ea29a6eb6fcbfa3a4ea
+          ref: 2d4dadd53b70bad5abe22f83d15236ba54bf7722
           token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
           path: private-source
           persist-credentials: false
       - name: Assert exact source pin (no public image artifacts)
         run: |
           set -euo pipefail
-          test "$(git -C private-source rev-parse HEAD)" = "5c05b370e6de47ed54337ea29a6eb6fcbfa3a4ea"
+          test "$(git -C private-source rev-parse HEAD)" = "2d4dadd53b70bad5abe22f83d15236ba54bf7722"
           test -f private-source/tools/pose_lock/base_character_v34/src/modular_v34.py
           test -f private-source/tools/pose_lock/base_character_v33/assets/base_run_right_6x80.png
           echo "Pinned private source verified; output not uploaded"
