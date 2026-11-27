@@ -16,7 +16,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  PRIVATE_SOURCE_SHA: "89e85277189eb5ea406ef91f0b8aef6e1d8124d3"
+  PRIVATE_SOURCE_SHA: "f0c1feab04649abd31cb899e6ca4e3074e4c8970"
 
 jobs:
   source-art:
@@ -53,8 +53,8 @@ jobs:
           node-version: "22"
       - name: Reconstruct every native Jade cel, exact ASE/PNG and review media from authored source
         run: |
-          node private-game/tools/jade_run_guard_swing_v3.js --check
-          node private-game/tools/jade_run_review_media_v3.js --check
+          node private-game/tools/jade_run_guard_swing_v4.js --check
+          node private-game/tools/jade_run_review_media_v4.js --check
       - name: Run independent Python verifier from reviewed SHA
         id: verify
         run: python ci/jade_draft_source_qa.py verify private-game

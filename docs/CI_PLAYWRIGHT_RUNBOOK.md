@@ -904,3 +904,9 @@ User rejected the skating rear-facing animation. Real game W moves up world -Z w
 ## 2026-11-27 — Jade arm-swing v3 exact-SHA isolated QA COMPLETE
 
 - [Run #45939974579](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45939974579) public QA `3faf0c09131f18f127e461585734b401c864d7c0` checked private `89e85277189eb5ea406ef91f0b8aef6e1d8124d3`. All 3 jobs completed SUCCESS (Node/pinned LibreSprite/Python, native Godot, local Chromium GIF). No public Pages artifacts or deployment; approved user art still PENDING. Reproducibility driver stored in private `tools/jade_run_*_v3.js`, no private pixel assets in PUBLIC repo.
+
+
+## 2026-11-27 — Jade source v4 from approved illustrated PNG
+
+- The 1254px owner-approved PNG is a visual reference, not a native 80px sprite atlas. Draft PR #2 private `f0c1feab04649abd31cb899e6ca4e3074e4c8970` reauthors native upper body and preserves face/feet bytewise. The public CI only consumes exact committed private SHA, no asset export or release.
+- QA branch uses `tools/jade_run_guard_swing_v4.js` and `tools/jade_run_review_media_v4.js` for reproducibility; independent Python verifier now expects rear fist near hip and lead fist clearly forward (old v3 crossing rule invalid). Godot/LibreSprite/Chromium still required. No reuse of v3 PASS #45939974579 as v4 proof.
