@@ -17,6 +17,10 @@ def main(argv=None) -> int:
     audit.add_argument("--approval", help="independently signed approval, stored outside source")
     audit.add_argument("--technical-only", action="store_true", help="0 when structure passes, even if art is blocked; CI must still assert status")
     audit.add_argument("--review-sheet", help="optional local-only annotated PNG (never publish private art in public CI)")
+    motion = sub.add_parser("motion-diagnose", help="measure pixels and loop seam WITHOUT certifying foot contact or visual art")
+    motion.add_argument("--manifest", required=True)
+    motion.add_argument("--root", help="override render source root")
+    motion.add_argument("--out", required=True)
     sign = sub.add_parser("owner-sign", help="requires an OUT-OF-REPO secret; never call from an AI task")
     sign.add_argument("--report", required=True)
     sign.add_argument("--out", required=True)
@@ -37,6 +41,20 @@ def main(argv=None) -> int:
         print(json.dumps(summary,ensure_ascii=False))
         if report["structure_status"]=="FAIL":return 2
         if report["release_status"]=="BLOCKED" and not args.technical_only:return 3
+        return 0
+    if args.command == "motion-diagnose":
+        from .motion import analyze_motion
+        report = analyze_motion(args.manifest, root=args.root)
+        output = Path(args.out)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(json.dumps(report, indent=2, sort_keys=True)+"\n", encoding="utf-8")
+        print(json.dumps({
+            "asset_id": report["asset_id"],
+            "frame_count": report["frame_count"],
+            "ground_contact_status": report["ground_contact_status"],
+            "loop_art_review_status": report["loop_art_review_status"],
+            "seam_vs_internal_median_ratio": report["seam_vs_internal_median_ratio"]
+        }))
         return 0
     if args.command == "owner-sign":
         # This option exists only for owner-operated release tooling, not agents.
