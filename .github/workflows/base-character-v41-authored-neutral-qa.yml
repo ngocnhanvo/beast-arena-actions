@@ -28,14 +28,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ngocnhanvo/beast-arena
-          ref: d363b7ae89940d9e7f3c52f443190c10140c9197
+          ref: 1afe499ae67691bd850d9de4352f078e50810b1e
           token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
           persist-credentials: false
           path: private
       - name: Assert exact source pin and six original contour data
         run: |
           set -euo pipefail
-          test "$(git -C private rev-parse HEAD)" = "d363b7ae89940d9e7f3c52f443190c10140c9197"
+          test "$(git -C private rev-parse HEAD)" = "1afe499ae67691bd850d9de4352f078e50810b1e"
           test -f private/tools/pose_lock/base_character_v41/data/pose_shapes.json
           test -f private/tools/pose_lock/base_character_v41/src/authored_neutral.py
           test -f private/tools/pose_lock/base_character_v40/src/native_ase.py
@@ -74,9 +74,10 @@ jobs:
           doc=json.loads((Path(os.environ["RUNNER_TEMP"])/"v41"/"portable-report.json").read_text())
           assert doc["structure_status"]=="PASS",doc["structural_errors"]
           assert doc["release_status"]=="BLOCKED",doc["approval_blockers"]
-          assert doc["visual_review_status"]=="PENDING"
+          assert doc["visual_review_status"]=="REJECTED"
           assert {e["code"] for e in doc["approval_blockers"]}>={"GROUND_CONTACT_NOT_VERIFIED","LOOP_SEAM_NOT_REVIEWED","NO_EXTERNAL_OWNER_APPROVAL_FOR_EXACT_ART_BYTES"}
-          print("V41_PORTABLE_STRUCTURE_PASS_OWNER_ART_BLOCKED")
+          assert "OWNER_REJECTED_ART" in {e["code"] for e in doc["approval_blockers"]}
+          print("V41_PORTABLE_SOURCE_PASS_VISUAL_REJECTED_RELEASE_BLOCKED")
           PY
       - name: Checkout pinned public cross-project motion diagnostics
         uses: actions/checkout@v4
@@ -141,6 +142,6 @@ jobs:
           {
             echo '### Base v4.1 original neutral body - source-only checks'
             echo '6 individually authored outlines, 17 editable body parts, 14 empty gear slots, 31-layer native file.'
-            echo 'Owner art acceptance and foot contact/loop review remain PENDING; source technical PASS is NOT artistic quality.'
+            echo 'Self-review of V4.1 screenshot FAIL: anatomy/pose quality rejected, foot contact/loop unverified; source technical PASS does NOT certify art.'
             echo 'No private art uploaded, no Pages, no source merge, no live game build.'
           } >> "$GITHUB_STEP_SUMMARY"
