@@ -899,3 +899,8 @@ User rejected the skating rear-facing animation. Real game W moves up world -Z w
 
 - PRIVATE Draft PR #2 v3 source `89e85277189eb5ea406ef91f0b8aef6e1d8124d3` regenerates 8+8 full-body sprite cels inspired by supplied six-pose running arm rhythm (no art copied). Isolated branch `ci/jade-pr2-source-check` repins exact SHA. New Node22 source-art and media check required before Python/LibreSprite; Godot4.7.2 and Chromium GIF playback independent. No Pages deploy, no public artifacts.
 - Old #45936962296 PASSED v2 and must not be reused as v3 evidence. Report exact run/job outcomes only once complete; owner art PENDING, Issues #1/#3 separate source and run→idle handoff.
+
+
+## 2026-11-27 — Jade arm-swing v3 exact-SHA isolated QA COMPLETE
+
+- [Run #45939974579](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45939974579) public QA `3faf0c09131f18f127e461585734b401c864d7c0` checked private `89e85277189eb5ea406ef91f0b8aef6e1d8124d3`. All 3 jobs completed SUCCESS (Node/pinned LibreSprite/Python, native Godot, local Chromium GIF). No public Pages artifacts or deployment; approved user art still PENDING. Reproducibility driver stored in private `tools/jade_run_*_v3.js`, no private pixel assets in PUBLIC repo.
