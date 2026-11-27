@@ -884,3 +884,7 @@ User rejected the skating rear-facing animation. Real game W moves up world -Z w
 ## 2026-11-27 — Jade sprite specialist ACK, no new art CI
 - PRIVATE Issue #1 specialist created branch but no source changes or PR at review. Reviewer posted https://github.com/ngocnhanvo/beast-arena/issues/1#issuecomment-7208739403 with 8-frame editable native asset, animated loop and owner acceptance requirements.
 - Existing art build/Pages #45930802938 SUCCESS; Chromium #45930986653 FAIL in Arcade V2 `Page.wait_for_function: Timeout 4000ms exceeded` (after P1.5/Physics V2 PASS), independent from sprite handoff. Do not confuse pipeline success of old art with quality/availability of future new cels. No new deploy by this documentation commit.
+
+## 2026-11-27 — Private Jade PR #2: no new art build, reviewer requested fixes
+- [Private DRAFT PR #2](https://github.com/ngocnhanvo/beast-arena/pull/2) has native 8+8 source and review GIFs but remains unmerged pending [source-art reviewer changes](https://github.com/ngocnhanvo/beast-arena/pull/2#issuecomment-7208990299). Do not import private PNG/ASE/GIF into this PUBLIC repo for review.
+- Current PUBLIC Pages #45930802938 built old art and Chromium #45930986653 FAIL Arcade timeout. When source is authorized, run pinned LibreSprite and Godot/Pages for exact new PRIVATE SHA then full Chromium 8-phase A+A/D+D, 7→0 seam, idle transition and owner visual review. Status PENDING_ART, not automated source quality PASS.
