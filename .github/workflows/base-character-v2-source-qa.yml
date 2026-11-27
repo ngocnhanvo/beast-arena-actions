@@ -1,0 +1,71 @@
+name: Beast Arena - Base Character V2 source fidelity (isolated)
+
+on:
+  push:
+    branches: [ci/base-character-v2-source-qa]
+    paths:
+      - ".github/workflows/base-character-v2-source-qa.yml"
+      - "ci/base_character_v2_source_qa.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: beast-base-character-v2-source-only
+  cancel-in-progress: false
+
+jobs:
+  source-check:
+    name: Python tests + pinned LibreSprite strict RGBA (no game deploy)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out PUBLIC validator only
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          path: pipeline
+      - name: Read exact PRIVATE source on test-only runner
+        uses: actions/checkout@v4
+        with:
+          repository: ngocnhanvo/beast-arena
+          ref: 0be70455dc7cbc439ab21459c8e22c2134983a71
+          token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
+          persist-credentials: false
+          path: private-source
+      - name: Verify exact source commit and v2 path
+        env:
+          SOURCE_SHA: 0be70455dc7cbc439ab21459c8e22c2134983a71
+        run: |
+          set -euo pipefail
+          test "$(git -C private-source rev-parse HEAD)" = "$SOURCE_SHA"
+          test -f private-source/tools/pose_lock/base_character_v2/src/modular_v2.py
+          echo "Pinned private source verified (no source files uploaded or logged)."
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned test-only Pillow
+        run: python -m pip install --disable-pip-version-check "Pillow==11.3.0"
+      - name: Run 11 independent positive and negative regression tests
+        run: python -m unittest discover -s private-source/tools/pose_lock/base_character_v2/tests -v
+      - name: Prepare native Aseprite/PNG source and hybrid recipe
+        run: |
+          set -euo pipefail
+          python private-source/tools/pose_lock/base_character_v2/src/modular_v2.py build --output "$RUNNER_TEMP/base-v2"
+          python private-source/tools/pose_lock/base_character_v2/src/modular_v2.py mix --output "$RUNNER_TEMP/base-v2" --recipe private-source/tools/pose_lock/base_character_v2/recipe_hybrid.json
+          for skin in neutral aegis ranger hybrid; do
+            python private-source/tools/pose_lock/base_character_v2/src/modular_v2.py verify --output "$RUNNER_TEMP/base-v2" --skin "$skin"
+          done
+      - name: Install OFFICIAL SHA256-pinned LibreSprite v1.3
+        run: bash pipeline/ci/setup_libresprite.sh
+      - name: Independently decode all native 9-layer 6-cel sources
+        env:
+          BASE_V2_ROOT: ${{ runner.temp }}/base-v2
+        run: python pipeline/ci/base_character_v2_source_qa.py
+      - name: Report source-only status
+        run: |
+          echo '### Base Character v2 isolated source QA PASS' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Python 11 tests, 4 source exports and independent pinned LibreSprite RGBA checks passed.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'NO Godot/Web/Pages deploy, NO in-game Chrome E2E, owner art remains PENDING.' >> "$GITHUB_STEP_SUMMARY"
