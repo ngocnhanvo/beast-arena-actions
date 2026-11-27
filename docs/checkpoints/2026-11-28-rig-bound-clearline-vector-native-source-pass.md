@@ -19,3 +19,14 @@ Artwork uses clean line vector / cel shading per owner request and is materially
 Next: self-review/edit actual rig-driven art, preserve documented contact and source hash; then rerun exact source native and actual game motor/Web E2E; obtain owner art acceptance before merging or releasing. Keep this pinned checkpoint in both repos.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+
+## Latest terminal run — world-space rendered foot-lock QA
+
+Source-only extension, not a game Pages deployment. In-place animation with fixed root can visually resemble foot skating even if world-toe mathematics are fixed; an independent review picture must include character root displacement and a fixed world floor. The PRIVATE exact code now emits 24-frame `vector_world_motion_24.gif` and `world-contact-trace.json`, and its test asserts **actual review pixels** for RIGHT stance at X=510/Y=432 and LEFT stance at X=690/Y=432, constant within each support interval. These coordinates are in the temporary 1200×480 review canvas.
+
+**Final pinned evidence:** PRIVATE exact code SHA `eaa64cfa19201d639f3a631d7a5bea586d89a62a`, PUBLIC workflow SHA `8ae130d00f162e7f3a51544630b4caa2d0b7bac1`. [GitHub Actions #46047066962](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/46047066962) **COMPLETED SUCCESS**, job `140668853271` COMPLETED SUCCESS; logs `BEAST_CLEARLINE_PORTABLE_28_TESTS_PASS`, `BEAST_CLEARLINE_NATIVE_4_TESTS_PASS`, `BEAST_WORLD_MOTION_VISIBLE_BOTH_STANCE_FOOT_LOCKS_PASS`, source SVG exact rerender PASS, official LibreSprite native strict RGBA PASS, Godot 4.7.2 isolated 480px source import PASS. Source-code tests total 32/32. Earlier 31/31 successful #46046387150 was before the world-motion test and is superseded.
+
+Nothing from this PRIVATE art is stored in the PUBLIC repo or published to Pages/Artifacts. Actual gameplay/physics/Chromium E2E and owner art review are still blocked; source marks `FAIL_NOT_PRODUCTION_QUALITY`, release `BLOCKED`. No merge/deploy, Jade/physics unmodified.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
