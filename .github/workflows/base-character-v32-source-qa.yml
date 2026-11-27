@@ -1,0 +1,84 @@
+name: Beast Arena - V3.2 contour locked source QA (isolated)
+
+on:
+  push:
+    branches: [ci/base-character-v32-source-qa]
+    paths:
+      - ".github/workflows/base-character-v32-source-qa.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: beast-base-v32-contour-source-only
+  cancel-in-progress: false
+
+jobs:
+  source-only:
+    name: 9 synthetic tests + local-reference hard stop
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout public validator
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          path: pipeline
+      - name: Checkout exact private source transiently
+        uses: actions/checkout@v4
+        with:
+          repository: ngocnhanvo/beast-arena
+          ref: bf71544cd0f4caa64a85ca329ef50c115da043c8
+          token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
+          persist-credentials: false
+          path: private-source
+      - name: Strict source SHA and copyright boundary
+        run: |
+          set -euo pipefail
+          test "$(git -C private-source rev-parse HEAD)" = "bf71544cd0f4caa64a85ca329ef50c115da043c8"
+          test -f private-source/tools/pose_lock/base_character_v32/src/locked_frame_art.py
+          ! find private-source/tools/pose_lock/base_character_v32 -type f \( -name '*reference_local*' -o -name 'base_run_atlas.png' \) | grep -q .
+          echo "Source code only: no uploaded reference art or derivative preview."
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned dependencies
+        run: python -m pip install --disable-pip-version-check -r private-source/tools/pose_lock/base_character_v32/requirements.txt
+      - name: Nine source and negative tests
+        run: python -m unittest discover -s private-source/tools/pose_lock/base_character_v32/tests -v
+      - name: Synthetic source demo and art-release boundary
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import sys,tempfile,json
+          from pathlib import Path
+          from PIL import Image,ImageDraw
+          root=Path('private-source/tools/pose_lock/base_character_v32')
+          sys.path.insert(0,str(root/'src'))
+          from locked_frame_art import export
+          with tempfile.TemporaryDirectory() as t:
+              out=Path(t)
+              im=Image.new('RGBA',(240,60),(0,128,128,255))
+              d=ImageDraw.Draw(im)
+              for i in range(6):
+                  x=40*i+9
+                  d.ellipse((x,20,x+19,47),fill=(210,110,67))
+                  d.rectangle((x+7,10,x+16,24),fill=(18,17,21))
+              source=out/'synthetic.png';im.save(source)
+              qa=export(source,out/'render')
+              assert qa['preview_visual_geometry_pass']
+              assert qa['owner_aesthetic_approval']=='PENDING'
+              assert qa['source_rights']=='REFERENCE_DERIVED_REVIEW_ONLY_NOT_RELEASE_CLEARED'
+              assert len(qa['frames'])==6 and all(f['floor_penetrating_ink']==0 for f in qa['frames'])
+              print('V32_SOURCE_QA_PASS__ART_RELEASE_BLOCKED')
+          PY
+      - name: Source-only honest summary
+        run: |
+          {
+            echo "### V3.2 CODE/SYNTHETIC tests PASS; ART NOT ACCEPTED"
+            echo "9 tests and 6 synthetic contours; user reference not on runner."
+            echo "Contour IoU=1 is by construction, not valid original rig or anatomical gait proof."
+            echo "No user copyright image, no release asset, no game integration, no Pages deployment."
+          } >> "$GITHUB_STEP_SUMMARY"
