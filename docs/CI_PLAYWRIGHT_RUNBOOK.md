@@ -876,3 +876,7 @@ User rejected the skating rear-facing animation. Real game W moves up world -Z w
 ## 2026-11-27 — PRIVATE Codex Issue/PR art handoff and PUBLIC CI boundary
 - Private Jade expert Issue #1 https://github.com/ngocnhanvo/beast-arena/issues/1 has accepted head/legs, editable native Aseprite, 8+8 frame, video evidence, draft PR and owner signoff contract. Keep raw art, issue content and user MP4 PRIVATE; no PUBLIC mirror.
 - This documentation commit does not trigger tests. After approved artwork integration, verify PRIVATE and PUBLIC source SHAs, real pinned LibreSprite export, Godot/Web, Pages and exact Chromium A+A/D+D. Pre-existing flaky Physics V2 J-key E2E #45885316036 is a separate test issue, not evidence of bad new Jade sprites.
+
+## 2026-11-27 — no-copy Codex and ChatGPT API bridge in PRIVATE repo
+- PRIVATE `.github/workflows/jade-agent-bridge.yml` runs two Codex edit turns with one independent GPT API review, posts Issue #1 feedback and opens PRIVATE draft PR only. Uses PRIVATE secret `BEAST_AGENT_OPENAI_API_KEY` and only an owner-authorized trigger; not installed in this PUBLIC repo and not equivalent to a finished sprite change.
+- GitHub GITHUB_TOKEN bot comments do not trigger arbitrary new Issue workflows: the bridge sequences roles inside one run with bound 2+1, thus no comment polling or circular model loops. No public source leakage or auto-merge/deploy. Public native Godot/LibreSprite and actual Chromium must run only after authorized source integration; old E2E cannot validate new art.
