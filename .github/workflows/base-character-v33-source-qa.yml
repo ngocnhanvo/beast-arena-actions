@@ -1,0 +1,88 @@
+name: Beast Arena - Base V3.3 original 14-part source QA (isolated)
+
+on:
+  push:
+    branches: [ci/base-character-v33-native-source-qa]
+    paths:
+      - ".github/workflows/base-character-v33-source-qa.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: beast-base-v33-original-source-only
+  cancel-in-progress: false
+
+jobs:
+  source-only:
+    name: Original six poses + 15 gates + pinned LibreSprite 1.3
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Public validator checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          path: pipeline
+      - name: Transient exact private source checkout
+        uses: actions/checkout@v4
+        with:
+          repository: ngocnhanvo/beast-arena
+          ref: b688dc14f165f1071fc625542495e2cd15f3380e
+          token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
+          persist-credentials: false
+          path: private-source
+      - name: Verify pinned private SHA and source boundary
+        run: |
+          set -euo pipefail
+          test "$(git -C private-source rev-parse HEAD)" = "b688dc14f165f1071fc625542495e2cd15f3380e"
+          test -f private-source/tools/pose_lock/base_character_v33/assets/base_run_right_6x80.png
+          echo "Pinned original private art, not exposed in public repository or uploaded artifacts."
+      - name: Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned Pillow and numpy
+        run: python -m pip install --disable-pip-version-check "Pillow==11.3.0" "numpy==2.2.6"
+      - name: Run source/negative regression tests
+        run: python -m unittest discover -s private-source/tools/pose_lock/base_character_v33/tests -v
+      - name: Bake original 6 frame 14 layers ASE / ORA source
+        run: |
+          set -euo pipefail
+          ROOT="private-source/tools/pose_lock/base_character_v33"
+          python "$ROOT/src/body_source.py" --atlas "$ROOT/assets/base_run_right_6x80.png" --output "$RUNNER_TEMP/base-v33"
+          python "$ROOT/src/anatomy_gate.py" --output "$RUNNER_TEMP/base-v33"
+          python "$ROOT/src/build_preview.py" --source "$RUNNER_TEMP/base-v33" --output "$RUNNER_TEMP/base-v33"
+      - name: Install official SHA256 pinned LibreSprite
+        run: bash pipeline/ci/setup_libresprite.sh
+      - name: Independently re-export ASE six native frames, compare original RGBA
+        run: |
+          set -euo pipefail
+          ROOT="$RUNNER_TEMP/base-v33"
+          libresprite -b --sheet-type horizontal "$ROOT/base_body_14_layers.aseprite" --sheet "$RUNNER_TEMP/native-v33.png"
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          from PIL import Image
+          root=Path(os.environ["RUNNER_TEMP"])
+          with Image.open(root/"native-v33.png") as a:
+              actual=a.convert("RGBA")
+          assert actual.size==(480,80), f"Unexpected native editor sheet size {actual.size}"
+          for i in range(6):
+              with Image.open(root/"base-v33"/f"base_{i+1:02}.png") as b:
+                  expected=b.convert("RGBA")
+              native=actual.crop((i*80,0,(i+1)*80,80))
+              if native.tobytes()!=expected.tobytes():
+                  pix=sum(x!=y for x,y in zip(native.getdata(),expected.getdata()))
+                  raise AssertionError(f"Native ASE frame {i+1} source RGBA mismatch: {pix}")
+          print("V33_OFFICIAL_LIBRESPRITE_ALL_6_SOURCE_PIXELS_PASS")
+          PY
+      - name: Honest source-only evidence
+        run: |
+          {
+            echo '### Base v3.3 source-only QA PASS, owner art still PENDING'
+            echo '15 synthetic/source/negative gates and pinned LibreSprite six frames exact RGBA.'
+            echo 'Independent visual acceptance, hidden full anatomy, frame-to-frame natural motion, Godot Web and Pages NOT verified.'
+            echo 'Private art stays in transient job, no public assets uploaded.'
+          } >> "$GITHUB_STEP_SUMMARY"
