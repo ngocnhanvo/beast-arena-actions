@@ -1,0 +1,94 @@
+name: Beast Arena - Base Character V3 rig-first source QA (isolated)
+
+on:
+  push:
+    branches: [ci/base-character-v3-rig-source-qa]
+    paths:
+      - '.github/workflows/base-character-v3-rig-source-qa.yml'
+      - 'ci/base_character_v3_native_qa.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: beast-base-character-v3-rig-source-only
+  cancel-in-progress: false
+
+jobs:
+  rig-source-check:
+    name: IK, gear isolation, official LibreSprite and Godot editor-only
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - name: Checkout public validator (no private assets in public repository)
+        uses: actions/checkout@v4
+        with:
+          path: pipeline
+          persist-credentials: false
+      - name: Checkout exact PRIVATE rig source, temporary runner only
+        uses: actions/checkout@v4
+        with:
+          repository: ngocnhanvo/beast-arena
+          ref: 7c1e785c3231f9821131cb8699293ef0ccb9e79c
+          token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
+          path: private-source
+          persist-credentials: false
+      - name: Assert pinned PRIVATE source SHA and rig source paths
+        env:
+          PINNED_SHA: 7c1e785c3231f9821131cb8699293ef0ccb9e79c
+        run: |
+          set -euo pipefail
+          test "$(git -C private-source rev-parse HEAD)" = "$PINNED_SHA"
+          test -f private-source/tools/pose_lock/base_character_v3/src/rig_pipeline.py
+          test -f private-source/tools/pose_lock/base_character_v3/godot_review/project.godot
+          echo 'Exact private source verified; no private files uploaded.'
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned Pillow 11.3.0
+        run: python -m pip install --disable-pip-version-check 'Pillow==11.3.0'
+      - name: Run 20 independent regression, anatomy and negative tests
+        run: python -m unittest discover -s private-source/tools/pose_lock/base_character_v3/tests -v
+      - name: Reproduce exact native 80px rig/gear source and Godot editor review assets
+        env:
+          BASE_V3_OUTPUT: ${{ runner.temp }}/base-v3
+        run: |
+          set -euo pipefail
+          python private-source/tools/pose_lock/base_character_v3/src/rig_pipeline.py --output "$BASE_V3_OUTPUT"
+          python private-source/tools/pose_lock/base_character_v3/src/prepare_godot_review.py --output "$BASE_V3_OUTPUT"
+          test -f "$BASE_V3_OUTPUT/qa_report.json"
+      - name: Install SHA256-pinned official LibreSprite 1.3
+        run: bash pipeline/ci/setup_libresprite.sh
+      - name: Independent LibreSprite native ASE to PNG strict RGBA for all four skins
+        env:
+          BASE_V3_OUTPUT: ${{ runner.temp }}/base-v3
+        run: python pipeline/ci/base_character_v3_native_qa.py
+      - name: Setup Godot 4.7.2 stable source editor diagnostic
+        run: bash pipeline/ci/setup_godot.sh
+      - name: Parse and import isolated Godot Skeleton2D project
+        shell: bash
+        run: |
+          set -euo pipefail
+          REVIEW=private-source/tools/pose_lock/base_character_v3/godot_review
+          godot --headless --editor --path "$REVIEW" --import --quit 2>&1 | tee /tmp/base-v3-godot-import.log
+          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load script|Parser Error:' /tmp/base-v3-godot-import.log; then
+            echo '::error::Godot rig review import has script parse errors.'
+            exit 1
+          fi
+      - name: Run isolated Godot editor rig diagnostic (NOT actual game)
+        shell: bash
+        run: |
+          set -euo pipefail
+          REVIEW=private-source/tools/pose_lock/base_character_v3/godot_review
+          godot --headless --path "$REVIEW" --quit-after 12 2>&1 | tee /tmp/base-v3-godot-runtime.log
+          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load script|Parser Error:' /tmp/base-v3-godot-runtime.log; then
+            echo '::error::Godot rig diagnostic reported script errors.'
+            exit 1
+          fi
+      - name: Source QA summary, never owner art or game deploy PASS
+        run: |
+          echo '### Base Character V3 source-only QA PASS' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Exact pinned PRIVATE source, 20 tests, LibreSprite strict RGBA and isolated Godot editor smoke passed.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Still PENDING_OWNER_ART; 6-frame authoring prototype does not satisfy 8+ game guard-run contract. NO game build, public art artifact or Pages deploy.' >> "$GITHUB_STEP_SUMMARY"
