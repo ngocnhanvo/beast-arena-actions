@@ -239,6 +239,14 @@ jobs:
         run: |
           set -euo pipefail
           REVIEW=private/experiments/physics_v2
+          # The separate headless motor step deliberately removes the
+          # transient input assets. Rebuild them before Web export, rather
+          # than depending on leftover files in runner state.
+          python private/tools/pose_lock/vector_clearline/staging/build_24_frame_atlas.py "$RUNNER_TEMP/web-art-source"
+          cp "$RUNNER_TEMP/web-art-source/clearline_staging_24.png" "$REVIEW/assets/"
+          cp "$RUNNER_TEMP/web-art-source/clearline_staging_motion24.json" "$REVIEW/assets/"
+          test -s "$REVIEW/assets/clearline_staging_24.png"
+          test -s "$REVIEW/assets/clearline_staging_motion24.json"
           python - <<'PY'
           from pathlib import Path
           p=Path("private/experiments/physics_v2/project.godot")
