@@ -67,3 +67,18 @@ PUBLIC workflow contains no PRIVATE SVG/PNG/ASE/GIF or screenshot artifact. This
 **NEXT:** Continue original rig-driven actual vector art review and eventually staged Godot fighter motor+Chromium in-game E2E, preserving public/private boundary. No unattended release of unfinished art.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+
+## Latest v5 — source-exact FK elbow flexion, 43 regression tests and all native/browser gates
+
+Original PRIVATE `beast-arena` source/art/Skill tested exact SHA `9eb3d4d45564bc416ec82f6fde75a8aac3581ef3` on PUBLIC isolated runner code SHA `8bb9bf235b9589c596ab64220b455b7749ba0d62`. [Real terminal Actions #46052297767](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/46052297767) **COMPLETED SUCCESS**, actual job `140686339088` SUCCESS.
+
+Source fixes previous broad elbow-bend variability in 24-frame smooth-line loop by consistently bent original FK arm key angles (about 70–80°), preserving the previous signed-knee IK, ground-world foot lock and right/left anatomical identity. External edited-pose tests compute real shoulder/elbow/wrist bend (not self-declared angle metadata), rejecting straight arm even with correct arm bone lengths. Actual rig/source still authors six independent editable 480px SVG sample frames and 24 GIF subframes from a single time-continuous model, no unrelated text-to-image prompts.
+
+**Observed runner evidence:** `BEAST_V5_FK_ELBOW_FLEXION_CONTINUITY_PASS`, `BEAST_CLEARLINE_PORTABLE_39_TESTS_PASS` plus `BEAST_CLEARLINE_NATIVE_4_TESTS_PASS` = **43/43 tests PASS**; six private Git SVG bytes match exact regenerations, original world-space stance support pixel lock PASS; external LibreSprite 1.3 six-cel/15-layer/14 blank gear pixel-exact RGBA PASS; isolated Godot 4.7.2 high-res transparent 480px atlas import PASS; Chromium source Canvas six visually different frames, 6→1/1→6 UI controls and no JS errors PASS. PRIVATE artwork, previews and screenshots never published to PUBLIC.
+
+**Limits:** This is solely animation source, editor and source-browser QA, NOT verified gameplay in authoritative fighter physics, Godot Web PCK/Pages/Chromium game E2E. Owner has not visually accepted the artwork. Private art explicitly reports `FAIL_NOT_PRODUCTION_QUALITY`, release BLOCKED, gameplay E2E NOT RUN. Both Draft PRs remain unmerged, no actual production deployment. The previous v4 #46051334378 is historical.
+
+Next continue actual shoulder artistry and establish a protected isolated game staging motor/Web acceptance test, without any premature source cutover or Pages deployment. Read corresponding latest PRIVATE checkpoint and Skill.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
