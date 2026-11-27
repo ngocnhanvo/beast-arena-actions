@@ -101,6 +101,17 @@ def godot(root):
         errors = len(re.findall(r"SCRIPT ERROR:|ERROR: Failed to load script", log))
         jade_codes = sorted(set(re.findall(r"JADE-34-(\d+)", log)))
         print(f"GODOT_SMOKE {name} script_errors={errors} jade_codes={','.join(jade_codes)}")
+        if code or errors:
+            # Log only Godot parser/engine diagnostics and source line numbers,
+            # never source snippets, tokens, sprites or entire private logs.
+            for line in log.splitlines():
+                if "SCRIPT ERROR:" in line:
+                    diagnostic = line.split("SCRIPT ERROR:", 1)[-1].strip()
+                    diagnostic = re.sub(r"[^a-zA-Z0-9 _.:,'()/-]", "?", diagnostic)
+                    print("GODOT_DIAGNOSTIC: " + diagnostic[:240])
+                m = re.search(r"res://tests/three_quarter_preview_smoke.gd:(\\d+)", line)
+                if m:
+                    print("GODOT_SOURCE_LINE=" + m.group(1))
         passed = code == 0 and errors == 0
         if name.startswith("three_quarter"):
             passed = passed and "JADE RUN GUARD ARM COUNTERSWING SOURCE PASS" in log and "JADE THREE-QUARTER PREVIEW PASS" in log
