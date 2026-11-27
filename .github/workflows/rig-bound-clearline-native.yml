@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   source-native:
-    name: Exact SVG motion, 38 tests, LibreSprite 1.3, Godot 4.7.2
+    name: Exact SVG motion, 41 tests, LibreSprite 1.3, Godot 4.7.2
     runs-on: ubuntu-24.04
     timeout-minutes: 22
     steps:
@@ -28,14 +28,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ngocnhanvo/beast-arena
-          ref: 08b3f6b512679e1227738723be56be1667c8e8ad
+          ref: 3d00e95bfcb31942840c8e990d5cf866e8a7be6a
           token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
           persist-credentials: false
           path: private
       - name: Verify pinned source and full asset contract
         run: |
           set -euo pipefail
-          test "$(git -C private rev-parse HEAD)" = "08b3f6b512679e1227738723be56be1667c8e8ad"
+          test "$(git -C private rev-parse HEAD)" = "3d00e95bfcb31942840c8e990d5cf866e8a7be6a"
           test -f private/.agents/skills/beast-arena-motion-logic/scripts/render_vector_pro.py
           test -f private/tools/pose_lock/vector_clearline/native_bridge.py
           test -f private/tools/pose_lock/vector_clearline/source/pose-contract.json
@@ -49,7 +49,7 @@ jobs:
       - name: Install reproducible SVG and raster dependencies
         run: |
           python -m pip install --disable-pip-version-check "Pillow==11.3.0" "CairoSVG==2.7.1"
-      - name: Test all 34 portable rig and art-binding adversarial conditions
+      - name: Test all 37 portable rig and art-binding adversarial conditions
         run: |
           set -euo pipefail
           PYTHONDONTWRITEBYTECODE=1 python -m unittest discover -s private/.agents/skills/beast-arena-motion-logic/scripts -p 'test_*.py' -v
@@ -65,7 +65,22 @@ jobs:
           assert m.check_motion(600)['rig_status']=='PASS'
           print("BEAST_CLEARLINE_KNEE_BOB_RECOVERY_VISUAL_GAIT_GATES_PASS")
           PY
-          echo "BEAST_CLEARLINE_PORTABLE_34_TESTS_PASS"
+          python - <<'PY'
+          import sys
+          from pathlib import Path
+          sys.path.insert(0,str(Path("private/.agents/skills/beast-arena-motion-logic/scripts").resolve()))
+          import motion_rig as m
+          h=m.Point(40,43)
+          a=m.knee_ik(h,m.Point(27,42.9))
+          b=m.knee_ik(h,m.Point(27,43.1))
+          assert m.length(a,b)<0.6,"KNEE_IK_BRANCH_SWITCHED_ACROSS_HIP"
+          ps=m.six_frames()
+          for i,side in ((0,"left"),(2,"right"),(3,"right"),(5,"left")):
+              assert ps[i][side]["knee"][0]<ps[i]["hip"][0]-1,"TRAILING_KNEE_AHEAD_OF_PELVIS"
+          assert m.check_motion(600)["rig_status"]=="PASS"
+          print("BEAST_V4_ORIENTED_IK_REAR_KNEE_CONTINUITY_PASS")
+          PY
+          echo "BEAST_CLEARLINE_PORTABLE_37_TESTS_PASS"
       - name: Test four additional native source and tampering regressions
         run: |
           set -euo pipefail
@@ -184,7 +199,7 @@ jobs:
         run: |
           {
             echo "### Exact source-only independent QA"
-            echo "34 portable tests + 4 game-native tests, SVG SHA and identity parity,"
+            echo "37 portable tests + 4 game-native tests, SVG SHA and identity parity,"
             echo "official LibreSprite 1.3 pixel exact, isolated Godot 4.7.2 import, Chromium source canvas."
             echo "ART self review FAIL_NOT_PRODUCTION_QUALITY. Owner signoff missing."
             echo "No game/physics/Web E2E, no release/Pages, no private art uploaded."
