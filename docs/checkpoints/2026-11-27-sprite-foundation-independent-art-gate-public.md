@@ -66,3 +66,28 @@ Next: inspect terminal CI, then update this checkpoint with exact run and SHA.
 Keep PRIVATE v4 rejected, owner art signoff required. No deployment.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+
+## Terminal verified continuation — approval-v2
+
+**PUBLIC CI #46033318504 COMPLETED SUCCESS** at exact workflow/code SHA
+`39e451b7abdc98757c9b6e6b71d05894c7a8049b`. Real job IDs:
+- `140622346341`: Generic 14/14 adversarial tests PASS, including three
+  new attacks against signed hidden body, manifest mutation, and legacy HMAC.
+- `140622503783`: PRIVATE immutable v4 adapter/source regression 1/1 PASS;
+  correctly outputs `V40_OWNER_REJECTED_ART_HARD_BLOCK_SOURCE_VALID`.
+- Prior complete code revision #46033190502 also SUCCESS; one intermediate
+  partial commit #46033147416 failed and some queued superseded pushes were
+  cancelled. Do not use those as release evidence.
+
+Code/docs on this PUBLIC draft only. Source SHA pin for PRIVATE adapter
+remains `a57a723088595e2153a6304aa1c4f17c631d41c5`.
+The neutral v4 ART is still **REJECTED_BY_OWNER**, not repaired; no actual
+new skin, no live game QA, no merge or Pages release. Approval v2 is a
+fail-closed technical security/quality contract, not art/aesthetic acceptance.
+
+Next: separately author and obtain owner review of an anatomically sound
+neutral six-pose source and real running loop, then test its exact source
+under the generic validator; do not auto-sign from an agent.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
