@@ -48,7 +48,7 @@ def main(argv=None) -> int:
         if report["structure_status"]!="PASS" or report["visual_review_status"]=="REJECTED":
             print("Cannot sign a structurally broken or explicitly rejected source")
             return 2
-        data=sign_approval(report["asset_id"],[f["sha256_rgba"] for f in report["frames"]],secret)
+        data=sign_approval(report["asset_id"],[f["sha256_rgba"] for f in report["frames"]],secret,report["source_contract_sha256"])
         Path(args.out).write_text(json.dumps(data,indent=2)+"\n",encoding="utf-8")
         print("Owner approval signed; source/frame hashes are immutable for this signature")
         return 0
