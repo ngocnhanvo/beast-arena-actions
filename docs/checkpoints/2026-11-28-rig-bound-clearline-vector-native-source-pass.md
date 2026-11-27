@@ -30,3 +30,14 @@ Source-only extension, not a game Pages deployment. In-place animation with fixe
 Nothing from this PRIVATE art is stored in the PUBLIC repo or published to Pages/Artifacts. Actual gameplay/physics/Chromium E2E and owner art review are still blocked; source marks `FAIL_NOT_PRODUCTION_QUALITY`, release `BLOCKED`. No merge/deploy, Jade/physics unmodified.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+
+## Latest terminal v3 — corrected articulated load, flight and rear recovery
+
+PUBLIC tested workflow SHA `976155e03991f05e8da517196b0f005830f52476` pins exact PRIVATE source/art SHA `d07fc8ac6fd13b40f1cb3a3d8f864f6257cbe8a3`. [GitHub Actions #46048568171](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/46048568171) **COMPLETED SUCCESS**, job `140673881390` **COMPLETED SUCCESS** (log independently inspected). The actual Private art has revised rig biomechanics: load frames 2/5 hip visually drops; flight frames 3/6 hips rise; the forward knee does not exceed pelvis height and the rear recovery shin folds instead of dragging. All six committed SVG bytes and canonical pose-contract/source binding are exactly reproducible from the same time-continuous FK/IK source.
+
+New external-pose adversarial gates: `LOAD_HIP_FAILED_TO_DESCEND`, `FLIGHT_HIP_FAILED_TO_RISE`, `FRONT_FLIGHT_KNEE_ABOVE_PELVIS`, `FRONT_FLIGHT_TOE_UNNATURALLY_HIGH`, `REAR_RECOVERY_SHIN_NOT_FOLDED`; dense 601 samples check joint teleport. Real CI shows `BEAST_CLEARLINE_KNEE_BOB_RECOVERY_VISUAL_GAIT_GATES_PASS`, `BEAST_CLEARLINE_PORTABLE_34_TESTS_PASS`, `BEAST_CLEARLINE_NATIVE_4_TESTS_PASS` (38/38), exact six SVG source rerender+world foot contact PASS, official LibreSprite 1.3 bitwise ASE RGBA PASS, Godot 4.7.2 isolated 480px import PASS.
+
+**Scope remains source QA, NOT gameplay acceptance**: artifact is still `FAIL_NOT_PRODUCTION_QUALITY`, `art_release=BLOCKED`, `gameplay_e2e=NOT_RUN`. No live-game motor collision verification, Web/Chromium tests, owner art signoff, native production cutover, Pages deploy or merge. No private artwork uploaded to PUBLIC repo or artifacts. The older #46047066962 32-test run remains historical; this 38-test run is the latest verified one. Follow exact PRIVATE checkpoint for next art revision.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
