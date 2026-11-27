@@ -910,3 +910,8 @@ User rejected the skating rear-facing animation. Real game W moves up world -Z w
 
 - The 1254px owner-approved PNG is a visual reference, not a native 80px sprite atlas. Draft PR #2 private `f0c1feab04649abd31cb899e6ca4e3074e4c8970` reauthors native upper body and preserves face/feet bytewise. The public CI only consumes exact committed private SHA, no asset export or release.
 - QA branch uses `tools/jade_run_guard_swing_v4.js` and `tools/jade_run_review_media_v4.js` for reproducibility; independent Python verifier now expects rear fist near hip and lead fist clearly forward (old v3 crossing rule invalid). Godot/LibreSprite/Chromium still required. No reuse of v3 PASS #45939974579 as v4 proof.
+
+
+## 2026-11-27 — Jade concept-v4 source QA terminal PASS
+
+- https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/45942733770: PRIVATE `f0c1feab04649abd31cb899e6ca4e3074e4c8970` tested in PUBLIC `a3ae236ea2c7b4b4c0a68726cbbc0b53861590de`; Node native ASE/PNG + GIF reproduction, independent Python, LibreSprite1.3 zero diff RIGHT+LEFT, Godot4.7.2 two smokes, Chromium full 8/8 actual GIF loop all PASS. No private raw asset/artifacts in public repo or Pages deployment. Draft art source is NOT a published gameplay preview. Owner only approved illustrated enlarged concept; native 80px aesthetic review pending.
