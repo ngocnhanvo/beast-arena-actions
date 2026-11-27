@@ -104,3 +104,13 @@ No new PRIVATE sprite art persisted in PUBLIC repo/artifacts/Pages.
 No auto-merge, no game build or gameplay Chromium E2E.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+
+## 2026-11-27 — real screenshot self-review FAIL now enforced in CI
+
+Actual source sprite v4.1 was visually judged **FAIL** because of disproportioned head, mannequin-like limbs, incorrect arm/leg connections, awkward feet and unconvincing run pose. Do not ask owner to approve it; asset is REJECTED, not merely pending. Independent machine QA still checks source integrity, not art.
+
+Exact PRIVATE tested code SHA `1afe499ae67691bd850d9de4352f078e50810b1e`, PUBLIC workflow tested SHA `856f5d30720ea7a1d9ed2179f9795a506cce1a8e`.
+[GitHub Actions #46036954371](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/46036954371) **COMPLETED SUCCESS** job `140634658621`: `Ran 16 tests` / OK, shared external gate `V41_PORTABLE_SOURCE_PASS_VISUAL_REJECTED_RELEASE_BLOCKED` with `OWNER_REJECTED_ART` blocker, native LibreSprite 31-layer strict pixel parity PASS and Godot 4.7.2 isolated source import PASS. Workflow success means rejection was reliably enforced; it is NOT art pass. No new sprite source merged/deployed. New actual body art and cycle are required from scratch before skin production.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
