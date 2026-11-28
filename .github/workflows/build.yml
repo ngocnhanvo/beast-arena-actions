@@ -22,9 +22,11 @@ on:
 permissions:
   contents: read
 
+# A hung native test must not pin the only standard runner for hours.
+# New source head supersedes a previous build of an older private SHA.
 concurrency:
   group: beast-arena-public-ci
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   preflight:
