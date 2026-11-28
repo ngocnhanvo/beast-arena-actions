@@ -1,0 +1,97 @@
+name: Beast Arena - Owner Approved Base Walk 4 Native QA
+
+on:
+  push:
+    branches: [ci/base-walk-4-integration]
+    paths:
+      - ".github/workflows/base-walk-4-qa.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: beast-approved-base-walk-4-source-qa
+  cancel-in-progress: false
+
+jobs:
+  native-source-godot:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          path: pipeline
+      - name: Checkout exact private owner-approved walk source
+        uses: actions/checkout@v4
+        with:
+          repository: ngocnhanvo/beast-arena
+          ref: 79a4fcafca5e553e15deef6c584a3fcfc2706056
+          token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
+          persist-credentials: false
+          path: private
+      - name: Verify source pin and all four Base actors
+        run: |
+          set -euo pipefail
+          test "$(git -C private rev-parse HEAD)" = "79a4fcafca5e553e15deef6c584a3fcfc2706056"
+          test -s private/experiments/physics_v2/art/base/base_walk_4_80.png
+          test -s private/art/source/base_walk_4_approved.gif
+          python - <<'PY'
+          from pathlib import Path
+          script=Path("private/experiments/physics_v2/scripts/demo.gd").read_text()
+          assert script.count('BASE_ATLAS, &"base_human")') == 4
+          assert 'enable_base_character_walk(BASE_WALK_ATLAS)' in script
+          assert 'JADE_SCARF_ATLAS' not in script
+          print("BASE_WALK_4_FOUR_ACTORS_SOURCE_PASS")
+          PY
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check exact approved native art source and all four foot pivots
+        run: |
+          python -m pip install --disable-pip-version-check "Pillow==11.3.0"
+          python - <<'PY'
+          from pathlib import Path
+          from hashlib import sha256
+          from PIL import Image,ImageSequence
+          root=Path("private")
+          p=root/"experiments/physics_v2/art/base/base_walk_4_80.png"
+          assert sha256(p.read_bytes()).hexdigest()=="cd4e482f5db5964f2b1906ea1ca72f3fbd6aae913f07290eec5bc43cbee6ce80"
+          atlas=Image.open(p).convert("RGBA")
+          assert atlas.size==(320,80)
+          cells=[atlas.crop((i*80,0,(i+1)*80,80)) for i in range(4)]
+          assert all(c.getchannel("A").getbbox()[3]==76 for c in cells)
+          assert len(set(c.tobytes() for c in cells))>=3
+          gif=Image.open(root/"art/source/base_walk_4_approved.gif")
+          assert gif.n_frames==4
+          assert [fr.info["duration"] for fr in ImageSequence.Iterator(gif)]==[180]*4
+          print("BASE_WALK_4_ORIGINAL_GIF_AND_NATIVE_FOOT_ANCHOR_PASS")
+          PY
+      - name: Install Godot 4.7.2
+        run: bash pipeline/ci/setup_godot.sh
+      - name: Strict Godot import and parser gate
+        run: |
+          set -euo pipefail
+          godot --headless --editor --path private/experiments/physics_v2 --import --quit 2>&1 | tee /tmp/walk-import.log
+          if grep -E 'SCRIPT ERROR:|Parser Error:|Failed to load script' /tmp/walk-import.log; then exit 1; fi
+          echo "BASE_WALK_4_GODOT_IMPORT_PASS"
+      - name: Real four-cel walk and twelve-cel idle restoration
+        run: |
+          set -euo pipefail
+          godot --headless --path private/experiments/physics_v2 --script res://tests/base_walk_4_smoke.gd 2>&1 | tee /tmp/walk-smoke.log
+          grep -q 'BASE_WALK_4_REAL_GAME_PASS' /tmp/walk-smoke.log
+      - name: Old idle, physics and combat regressions
+        run: |
+          set -euo pipefail
+          cd private/experiments/physics_v2
+          for test in base_only_idle_12_smoke.gd physics_smoke.gd combat_v2_test.gd map_editor_smoke.gd match_scene_smoke.gd obstacle_collision_smoke.gd; do
+            godot --headless --path . --script "res://tests/$test" 2>&1 | tee "/tmp/base-walk-$test.log"
+            if grep -E 'SCRIPT ERROR:|Parser Error:' "/tmp/base-walk-$test.log"; then exit 1; fi
+            echo "TEST_PASS $test"
+          done
+          echo "BASE_WALK_4_REGRESSIONS_PASS"
+      - name: Source QA only - never publish raw private sprite
+        run: |
+          echo "PRIVATE 79a4fcafca5e553e15deef6c584a3fcfc2706056" >> "$GITHUB_STEP_SUMMARY"
+          echo "No Pages or public art artifacts from this QA." >> "$GITHUB_STEP_SUMMARY"
