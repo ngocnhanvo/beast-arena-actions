@@ -22,3 +22,14 @@ Owner refuses workaround of forcing upright Walk to crouch like Idle. A characte
 4. Next separate visual-art deliverable: create/approve ONE common body model sheet, redraw all whole-body Idle/Walk frames to that proportion, then rerun strict anatomy and owner visual review. Do not change pose by forced crouch or scale per-animation to fill bounding box.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+## FINAL verified release and owner-visible limitation (2026-11-28)
+
+- PRIVATE compiled `c99c02ec2fc598975ed8581d5d1fb930ae8a4d2d`, PUBLIC compiled pipeline `5ec083a8a35051a0bd66791465899efef56b0519`. Private MAIN may now have a docs-only later SHA: do not confuse with actually deployed source.
+- [Production Godot 4.7.2/Web/Windows/Pages #46130966383](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/46130966383) **COMPLETED SUCCESS** with mandatory PUBLIC static PCK include filter `art/base/character_scale_contract.json`; earlier first QA build #46130793545 PASSED but was superseded to secure export metadata inclusion.
+- [Real Chromium #46131126049](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/46131126049) **COMPLETED SUCCESS** root P1.5 and Physics V2. [Public screenshot + JSON artifact #15258161112](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/46131126049/artifacts/15258161112). JSON verified exact source SHA/Pipeline SHA/build run ID, `pose_scale_contract={schema:1,native_meters_per_pixel:0.02,auto_fit:false,known_legacy_anatomy_status:PENDING_ANATOMY_REAUTHOR}`, Idle frame indexes sampled [0,1,2,3,5,6,7,8,9,10,11], Walk [0,1,2,3], native shoe offset -4, 4 Base fighters, D real movement +26.524785m (software renderer sampling, NOT speed metric), F light_punch #1, G front_kick #2, no JavaScript exceptions.
+- Original RGBA Idle12 + Walk4 are pixel-identical to pre-change authored source; shared source ratio/point mapping and synthetic wide 128x80 lying contact/mirror geometry PASS. Owner-visible head-size 26 vs 29 px and crouched Idle vs standing Walk discrepancy STILL exists in original art; strict art audit expected FAIL/PENDING_ANATOMY_REAUTHOR. This cannot be fixed by Canvas bounds, fixed silhouette-height normalization or by forcing upright Walk to crouch. Need ONE anatomical model sheet and independent whole-body art redraw with owner approval.
+- Motion action artwork run/punch/kick/jump, physical prone collider and genuine lying source, independent W/S walk and old private asset purge also remain outside this partial source-scale architectural milestone.
+- Follow-up: begin from fresh two repo heads and this checkpoint, approve the common body sheet and repair artist images, then strict art QA + source pinned Godot/Pages/real Web screenshots. Never interpret technical PASS as final aesthetic approval.
+
+**Trạng thái: PARTIAL — chưa hoàn tất phần thống nhất artwork theo cùng giải phẫu.**
