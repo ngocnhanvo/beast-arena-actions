@@ -28,14 +28,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ngocnhanvo/beast-arena
-          ref: 265975f977f6b787a41ac6298302502ad63ab1ab
+          ref: 45255013e6e4285e76d40f6d3f9f2ecab5db7188
           token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
           persist-credentials: false
           path: private
       - name: Verify pinned source and full asset contract
         run: |
           set -euo pipefail
-          test "$(git -C private rev-parse HEAD)" = "265975f977f6b787a41ac6298302502ad63ab1ab"
+          test "$(git -C private rev-parse HEAD)" = "45255013e6e4285e76d40f6d3f9f2ecab5db7188"
           test -f private/.agents/skills/beast-arena-motion-logic/scripts/render_vector_pro.py
           test -f private/tools/pose_lock/vector_clearline/native_bridge.py
           test -f private/tools/pose_lock/vector_clearline/source/pose-contract.json
@@ -147,6 +147,39 @@ jobs:
           print("BEAST_WORLD_MOTION_VISIBLE_BOTH_STANCE_FOOT_LOCKS_PASS")
           print("BEAST_CLEARLINE_GIT_SVG_ALL_6_EXACT_RIG_AND_GIF_24_PASS")
           PY
+      - name: Isolated organic FK-IK silhouette art study (no production asset replacement)
+        run: |
+          set -euo pipefail
+          S=private/.agents/skills/beast-arena-motion-logic/scripts
+          python "$S/render_organic_v7_candidate.py" --out "$RUNNER_TEMP/organic-v7"
+          python - <<'PY'
+          import json,os,hashlib
+          from pathlib import Path
+          from PIL import Image
+          t=Path(os.environ["RUNNER_TEMP"])/"organic-v7"
+          trace=json.loads((t/"organic_trace.json").read_text())
+          assert trace["source"]=="motion_rig.pose_at"
+          assert trace["reused_rig_keyframes"]==6
+          assert trace["original_authored_frames"]==0
+          assert trace["timing_samples"]==24
+          assert len(trace["samples"])==24
+          assert trace["release"]=="BLOCKED"
+          for i in range(1,7):
+            s=(t/f"organic_pose_{i:02}.svg").read_text()
+            assert 'data-source="motion_rig.pose_at"' in s
+            for side in ('left','right'):
+              for part in ('arm','leg'):
+                assert s.count(f'data-anatomical-{part}="{side}"')==1
+            with Image.open(t/f"organic_pose_{i:02}.png") as im:
+              assert im.size==(480,480) and im.mode=="RGBA"
+          with Image.open(t/"organic_contact.png") as im:
+            assert im.size==(1470,1060)
+          with Image.open(t/"organic_motion_24.gif") as im:
+            assert im.n_frames==24
+          print("BEAST_ORGANIC_V7_RIG_BOUND_STUDY_6_SVG_24_SAMPLES_PASS_ART_BLOCKED")
+          PY
+          # Do NOT upload any PRIVATE generated source/Pixels to public artifacts/logs.
+
       - name: Export source-based 15-layer neutral ASE and six ORA
         run: |
           set -euo pipefail
