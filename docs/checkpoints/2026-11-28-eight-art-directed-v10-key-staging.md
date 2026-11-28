@@ -9,3 +9,13 @@
 - Owner approval NOT GIVEN. Eight art-directed source keys are NOT equivalent to eight independently illustrated/corrected production cels. No merge, public Pages or production deployment.
 
 Trạng thái: PARTIAL — chưa hoàn tất.
+
+## Actual pinned v10 terminal QA evidence
+- [Run #46093305706](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/46093305706) job 140818961795, exact workflow commit 61b031ef8380746c1eb120c6acbfe3e1eec8191e, exact pinned PRIVATE source 782ec69fda9ace6af89261e9fe474cf95aa298c3: **COMPLETED SUCCESS**.
+- Logs: Ran 56 portable rig tests PASS, Ran 9 native/screenshot PASS, Ran 5 isolated v10 art-key tests PASS = **70/70 tests**; source eight SVG keys with anatomical right/left/14 joints and separate art-direction SHA PASS; original canonical v6 file-byte parity, official LibreSprite native RGBA and real Godot motor PASS.
+- V10 actual Godot Web proof: BEAST_V10_ACTUAL_WEB_ATLAS_EXACT_SOURCE_SHA_AND_PIXELS_DIFFER_FROM_V6_PASS, BEAST_V10_ORGANIC_ATLAS_ACTUALLY_DISPLAYED_BY_GODOT_WEB_PASS_ART_BLOCKED. Active real Sprite3D Web atlas SHA 3e3f8dde093fae43ad376996b9720c5b0cbf68910a7a240b88a47a93725a8802, matches generated PNG, manifest and browser-reported snapshot.
+- Real Chromium motor/screenshot: art_style organic-v10-eight-key-study, X -11.300000 to -4.553435m, 216 physics ticks, 24 visual samples, brake speed -0.030505m/s, three screenshots, 0 JS errors, world-region changed pixels 111488 (required >=495), HUD excluded.
+- **Explicit limitation:** Eight original artist-specified surface-direction key records produce eight different editable vector SVG studies, but **independently painted/finished production art cels remain ZERO**. One continuous rig still supplies joint geometry. This does not complete owner-required 8+ final artwork cels; art remains FAIL_NOT_PRODUCTION_QUALITY, art_release BLOCKED, owner signoff NOT_GIVEN, no Pages release/main merge.
+- NEXT: reconstruct/finalize each 8+ source cel's whole-body anatomy and occlusion manually in editable vector masters (not solely contour parameter variants), review each of 12+ transitions and run-to-idle against actual game sprites, require owner acceptance before production.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
