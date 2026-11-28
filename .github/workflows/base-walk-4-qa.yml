@@ -27,14 +27,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ngocnhanvo/beast-arena
-          ref: 79a4fcafca5e553e15deef6c584a3fcfc2706056
+          ref: 13ff17879a97950df3736ef6c54ffe96f253a88e
           token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
           persist-credentials: false
           path: private
       - name: Verify source pin and all four Base actors
         run: |
           set -euo pipefail
-          test "$(git -C private rev-parse HEAD)" = "79a4fcafca5e553e15deef6c584a3fcfc2706056"
+          test "$(git -C private rev-parse HEAD)" = "13ff17879a97950df3736ef6c54ffe96f253a88e"
           test -s private/experiments/physics_v2/art/base/base_walk_4_80.png
           test -s private/art/source/base_walk_4_approved.gif
           python - <<'PY'
@@ -93,5 +93,5 @@ jobs:
           echo "BASE_WALK_4_REGRESSIONS_PASS"
       - name: Source QA only - never publish raw private sprite
         run: |
-          echo "PRIVATE 79a4fcafca5e553e15deef6c584a3fcfc2706056" >> "$GITHUB_STEP_SUMMARY"
+          echo "PRIVATE 13ff17879a97950df3736ef6c54ffe96f253a88e" >> "$GITHUB_STEP_SUMMARY"
           echo "No Pages or public art artifacts from this QA." >> "$GITHUB_STEP_SUMMARY"
