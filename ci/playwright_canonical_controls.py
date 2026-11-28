@@ -1,4 +1,4 @@
-"""Verify real G input and drawn Kick2 on the user's EXACT no-query URL."""
+"""Verify real G input and all four actually drawn Kick4 frames on the user's EXACT no-query URL."""
 import json
 from pathlib import Path
 from playwright.sync_api import sync_playwright
@@ -43,6 +43,8 @@ def main():
             report["start"] = start
             if start.get("kick_native_cell_height") != 80:
                 raise AssertionError("Kick must use native 80px frame height: " + str(start.get("kick_native_cell_height")))
+            if start.get("kick_native_frame_count") != 4:
+                raise AssertionError("Kick4 must have four 120x80 source frames: " + str(start.get("kick_native_frame_count")))
             focus = page.evaluate("document.activeElement && document.activeElement.tagName")
             report["focus"] = focus
             if focus != "CANVAS":
@@ -57,14 +59,16 @@ def main():
                 + " && s.last_attack_id === 'front_kick'")
             report["attack"] = attack
             report["steps"].append("real_kick_accepted")
-            drawn = await_proof(page, "s.kick_drawn_frames.includes(0) && s.kick_drawn_frames.includes(1)")
+            drawn = await_proof(page, "s.kick_drawn_frames.includes(0) && s.kick_drawn_frames.includes(1) && s.kick_drawn_frames.includes(2) && s.kick_drawn_frames.includes(3)")
+            if not all(i in drawn.get("kick_presented_frames", []) for i in (0, 1, 2, 3)):
+                raise AssertionError("Kick4 was drawn but not all four phases presented")
             report["drawn"] = drawn
-            report["steps"].append("both_kick_cels_drawn_by_PixelView")
+            report["steps"].append("four_right_leg_kick_cels_actually_drawn_by_PixelView")
             page.screenshot(path=str(OUT / "after-g.png"), full_page=True)
             if errors:
                 raise AssertionError("Browser errors: " + repr(errors))
             report["status"] = "PASS_CANONICAL_G_REAL_INPUT_AND_DRAW"
-            print("CANONICAL_G_REAL_INPUT_AND_DRAW_PASS: root OK, no query, no canvas click, actual G, actual contact art")
+            print("CANONICAL_KICK4_REAL_INPUT_AND_DRAW_PASS: no query, no click, actual G, ALL four kick poses drawn")
         except Exception as exc:
             report["status"] = "FAIL"
             report["reason"] = str(exc)

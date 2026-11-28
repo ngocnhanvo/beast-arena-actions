@@ -1,3 +1,9 @@
+# Owner Kick4 canonical 4-frame E2E
+
+Owner explicitly asked to integrate the newly revised right-leg kick with curved navy shorts folds. Private source `70b85d8e99edd709bb3cd2b05cced9dc6969fc00` embeds the source master and native RGBA atlas 4×120×80. Public fastlane now pins exactly that SHA and browser must confirm native cell 80, frame count 4, canonical no-query G accepted, and every source phase [0,1,2,3] actually DRAWN by PixelView as well as presented. Native test also requires 4 frames and idle restore. All prior Idle/Walk/Punch and old 2-cel Kick2 source remain unchanged. Images are owner-requested **in-game visual review**; owner must confirm aesthetics. Native/Pages/Chromium results pending as of checkpoint.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
+
 
 ### Kick2 native 80px — final release evidence
 Private game source `0d18d3f2c7224d033419cda341b3fef060f2faa5` (private docs-only head `a845007c8e235163890353822a73821432b7340e`), Public pipeline `e6228cac84bca7aaa58e860703fdf1a47a11d34d`. Godot+Web root+Physics V2 export+Pages #46166188666 SUCCESS. Canonical no-query G Playwright #46166327247 SUCCESS, artifact #15271931772, status PASS_CANONICAL_G_REAL_INPUT_AND_DRAW, kick_native_cell_height=80, G down 0→1, front_kick accepted 0→1, PixelView drew both [0,1], root HTTP200 and no JS errors. Native Kick atlas `base_kick_2_120x80.png` 240x80; legacy owner GitHub filename `base_kick_2_120x104.png` also now contains identical 240x80 pixels, old 104px version archived in Private source. User requested uniform reduction: head-size parity remains owner-review pending, not an anatomical QA PASS. Public docs-only followup must NOT trigger CI.
