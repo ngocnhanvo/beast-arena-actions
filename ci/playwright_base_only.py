@@ -22,12 +22,16 @@ def snap(page):
 
 
 def until(page, description, predicate, timeout=7000):
-    page.wait_for_function(
-        "() => {const s=window.__beastPhysicsDebug; return !!s && (" +
-        predicate + ");}", polling=50, timeout=timeout)
-    result = snap(page)
-    if not result:
-        raise AssertionError(description + ": debug state missing")
+    # Return the ACTUAL state that satisfied the predicate. Calling snap()
+    # after wait_for_function would perform a second, asynchronous read:
+    # the attack can finish in between and falsely record an empty attack ID.
+    handle = page.wait_for_function(
+        "() => {const s=window.__beastPhysicsDebug; return "
+        "s && (" + predicate + ") ? s : false;}",
+        polling=50, timeout=timeout)
+    result = handle.json_value()
+    if not isinstance(result, dict):
+        raise AssertionError(description + ": matched state unavailable")
     return result
 
 
