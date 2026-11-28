@@ -28,14 +28,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ngocnhanvo/beast-arena
-          ref: 45255013e6e4285e76d40f6d3f9f2ecab5db7188
+          ref: ec8e22379bcbd08d52486f94036c828626640c2d
           token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
           persist-credentials: false
           path: private
       - name: Verify pinned source and full asset contract
         run: |
           set -euo pipefail
-          test "$(git -C private rev-parse HEAD)" = "45255013e6e4285e76d40f6d3f9f2ecab5db7188"
+          test "$(git -C private rev-parse HEAD)" = "ec8e22379bcbd08d52486f94036c828626640c2d"
           test -f private/.agents/skills/beast-arena-motion-logic/scripts/render_vector_pro.py
           test -f private/tools/pose_lock/vector_clearline/native_bridge.py
           test -f private/tools/pose_lock/vector_clearline/source/pose-contract.json
@@ -179,6 +179,46 @@ jobs:
           print("BEAST_ORGANIC_V7_RIG_BOUND_STUDY_6_SVG_24_SAMPLES_PASS_ART_BLOCKED")
           PY
           # Do NOT upload any PRIVATE generated source/Pixels to public artifacts/logs.
+
+      - name: Isolated v8 continuous organic knees and elbows visual-source proof
+        run: |
+          set -euo pipefail
+          S=private/.agents/skills/beast-arena-motion-logic/scripts
+          python "$S/render_organic_v8_candidate.py" --out "$RUNNER_TEMP/organic-v8"
+          python - <<'PY'
+          import json,os,hashlib,sys
+          from pathlib import Path
+          from PIL import Image,ImageChops
+          t=Path(os.environ["RUNNER_TEMP"])
+          study=json.loads((t/"organic-v8/organic_v8_trace.json").read_text())
+          assert study['schema']=='beast-arena/rig-organic-knee-study-2'
+          assert study['source']=='motion_rig.pose_at'
+          assert study['timing_samples']==24
+          assert study['original_authored_frames']==0 and study['reused_rig_keyframes']==6
+          assert study['release']=='BLOCKED'
+          sys.path.insert(0,str(Path("private/.agents/skills/beast-arena-motion-logic/scripts").resolve()))
+          import motion_rig as m
+          for i,p in enumerate(m.six_frames(),1):
+              svg=(t/f"organic-v8/organic_v8_pose_{i:02}.svg").read_text()
+              digest=hashlib.sha256(json.dumps(p,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+              assert f'data-hash="{digest}"' in svg
+              assert svg.count('<circle data-joint=')==14
+              for side in ('left','right'):
+                  assert svg.count(f'data-anatomical-leg="{side}"')==1
+                  assert svg.count(f'data-anatomical-arm="{side}"')==1
+                  for j in ('hip','knee','ankle','toe','shoulder','elbow','hand'):
+                      assert f'data-joint="{j}" data-side="{side}"' in svg
+              with Image.open(t/f"organic-v8/organic_v8_pose_{i:02}.png") as b:
+                  assert b.size==(480,480) and b.mode=='RGBA'
+                  with Image.open(t/f"organic-v7/organic_pose_{i:02}.png") as a:
+                      assert ImageChops.difference(a.convert('RGB'),b.convert('RGB')).getbbox(),f'NO_NEW_ARTWORK_FRAME_{i}'
+          with Image.open(t/"organic-v8/organic_v8_contact.png") as c:
+              assert c.size==(1470,1060)
+          with Image.open(t/"organic-v8/organic_v8_motion_24.gif") as c:
+              assert c.n_frames==24
+          print("BEAST_ORGANIC_V8_EXACT_RIG_SHA_14_JOINTS_6_CHANGED_SVG_AND_24_SAMPLES_PASS_ART_BLOCKED")
+          PY
+          # PRIVATE artwork remains solely on transient isolated runner; no upload.
 
       - name: Export source-based 15-layer neutral ASE and six ORA
         run: |
