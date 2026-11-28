@@ -1,0 +1,47 @@
+name: Base Only Live Chromium Proof (Existing Pages)
+
+on:
+  push:
+    branches: [ci/base-only-live-e2e-proof]
+    paths:
+      - ".github/workflows/base-only-live-e2e-proof.yml"
+      - "ci/playwright_base_only.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: beast-base-only-proof-on-published-pages
+  cancel-in-progress: false
+
+jobs:
+  chromium:
+    name: Pinned deployed source exact idle and F/G physics
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned Chromium software renderer
+        run: |
+          python -m pip install "playwright==1.56.0" "Pillow==11.3.0"
+          python -m playwright install --with-deps chromium
+      - name: Test EXACT latest existing Pages without redeploying any art
+        env:
+          BEAST_EXPECT_BUILD_RUN_ID: "46118965628"
+          BEAST_EXPECT_PIPELINE_SHA: "a06d6ef16ad8adedcd2f5b12c144ec24ad18a15c"
+          BEAST_EXPECT_PRIVATE_SHA: "f4e654de48337510a5c774f80a9fb3b47c73433b"
+        run: python ci/playwright_base_only.py
+      - name: Upload only public canvas screenshots and numeric results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: beast-base-only-live-chromium-proof
+          path: playwright-report/base-only/
+          retention-days: 7
+          if-no-files-found: warn
