@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   source-native:
-    name: Exact SVG motion, 75 tests, native/editor/Godot Chromium
+    name: Exact SVG motion, 85 tests, native/editor/Godot Chromium
     runs-on: ubuntu-24.04
     timeout-minutes: 22
     steps:
@@ -28,14 +28,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ngocnhanvo/beast-arena
-          ref: c286efe70d3e02b7d0d3bbc95f5d6e0e4aebad2b
+          ref: 2c89dd62211f35d5aacc1b708edf45534ffab82a
           token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
           persist-credentials: false
           path: private
       - name: Verify pinned source and full asset contract
         run: |
           set -euo pipefail
-          test "$(git -C private rev-parse HEAD)" = "c286efe70d3e02b7d0d3bbc95f5d6e0e4aebad2b"
+          test "$(git -C private rev-parse HEAD)" = "2c89dd62211f35d5aacc1b708edf45534ffab82a"
           test -f private/.agents/skills/beast-arena-motion-logic/scripts/render_vector_pro.py
           test -f private/tools/pose_lock/vector_clearline/native_bridge.py
           test -f private/tools/pose_lock/vector_clearline/source/pose-contract.json
@@ -304,6 +304,44 @@ jobs:
           PY
           # No source SVG/PNG/GIF are uploaded to PUBLIC GitHub artifacts or Pages.
 
+      - name: Experimental 2.5D depth punch 3-axis IK and fail-closed art proof
+        run: |
+          set -euo pipefail
+          P=private/tools/pose_lock/punch25d
+          PYTHONDONTWRITEBYTECODE=1 python "$P/test_punch25d.py" -v
+          python "$P/punch25d.py" --out "$RUNNER_TEMP/punch25d-proof" > "$RUNNER_TEMP/punch25d-cli.log"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          from PIL import Image
+          t=Path(os.environ["RUNNER_TEMP"])/"punch25d-proof"
+          d=json.loads((t/"punch25d_report.json").read_text())
+          assert d["source"]=="true-3d-two-bone-ik-per-arm"
+          assert d["owner_b1_style_reference_sha"]=="579784d916f5e2c6869061c945261c57bfa33d0f78c93a37af79340957f775c9"
+          assert d["punch_axis_world"]=="X+Z with positive Z toward viewer"
+          assert d["pose_samples"]==21 and d["preview_keys"]==3
+          assert d["projection_fist_magnification"]>1.20
+          assert d["right_wrist_z"][1]>d["right_wrist_z"][0]+50
+          assert d["right_wrist_z"][0]==d["right_wrist_z"][2]
+          assert not d["identical_approved_b1_pixels_used"]
+          assert not d["approved_b1_layered_master_available"]
+          assert d["b2_art_acceptance"]=="PENDING_OWNER" and d["art_release"]=="BLOCKED"
+          assert d["godot_game_integration"]=="NOT_RUN"
+          for i in range(1,4):
+              svg=(t/f"punch25d_pose_{i:02}.svg").read_text()
+              assert 'data-origin="2.5D_3D_FK_IK"' in svg
+              assert 'data-art-gate="B2_PROTOTYPE_NOT_OWNER_APPROVED"' in svg
+              with Image.open(t/f"punch25d_pose_{i:02}.png") as im:
+                  assert im.mode=="RGBA" and im.size==(480,480)
+                  assert im.getpixel((0,0))[3]==0
+          with Image.open(t/"punch25d_21frames.gif") as im:
+              assert im.n_frames==21
+          with Image.open(t/"punch25d_game_80px.png") as im:
+              assert im.size==(240,96)
+          print("BEAST_PUNCH_25D_THREE_AXES_3D_IK_10_TESTS_PASS_VISUAL_UNAPPROVED_NO_DEPLOY")
+          PY
+          # Keep all PRIVATE derived SVG/PNG/GIF local to transient runner.
+          # This test does NOT prove exact owner-approved pixels are skinned.
       - name: Export source-based 15-layer neutral ASE and six ORA
         run: |
           set -euo pipefail
@@ -522,7 +560,7 @@ jobs:
         run: |
           {
             echo "### Exact source-only independent QA"
-            echo "56 portable tests + 4 native tests + 5 adversarial screenshot gates = 65 tests, plus 5 isolated v10 style-key authoring tests + 5 synthetic B1/B2 fail-closed tests = 75 total, SVG SHA and identity parity,"
+            echo "56 portable tests + 4 native tests + 5 adversarial screenshot gates = 65 tests, plus 5 isolated v10 style-key authoring tests + 5 synthetic B1/B2 fail-closed tests + 10 new 3D IK punch prototype tests = 85 total, SVG SHA and identity parity,"
             echo "official LibreSprite 1.3 pixel exact, isolated Godot 4.7.2 import, Chromium source canvas."
             echo "ART self review FAIL_NOT_PRODUCTION_QUALITY. Owner signoff missing."
             echo "Real Physics V2 CharacterBody3D motor, Web Chromium E2E and V8 source-atlas identity SHA verified; pixel-gated screenshot still does not certify anatomy. Pages deploy NOT DONE, owner art BLOCKED, private assets NOT uploaded."
