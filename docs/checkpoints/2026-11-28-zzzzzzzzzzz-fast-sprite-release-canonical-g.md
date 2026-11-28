@@ -7,3 +7,6 @@
 - Open issue: no-query G unresponsive for owner, even after diagnostic test PASS. Source fix private d7ec67d3068179bc2bedda5c33ee25be93b2237d standardizes Web controls and uses _input instead of _unhandled_key_input, but only exact successful build and owner-url E2E can confirm.
 
 Baseline last verified before fix: Private 842f3c1876e44e851d1d47753ee00f418ff17e7c public 3c9d68c656bdbc8536cab67188b99938db5ca61a Godot/Pages #46162967616 PASS, Chromium #46163162919 PASS only on query-specific environment. New source d7ec67... requires exact fresh runs. **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+### Repair after first fastlane run
+Build #46163994715 PASS including native BASE_KICK_G_INPUT_PASS and Pages. Browser #46164132268 FAIL in the **legacy root P1.5 route** with GitHub Pages not HTTP 200, before canonical G test. Verified root cause in new workflow: fastlane exported only /physics-v2/ and Pages upload replaced entire site; root / index missing. Corrective workflow imports/exports the root Web route on sprite fastlane, preserves two routes, still skips Windows, unrelated map tests, private release. Must rerun exact root and /physics-v2/ E2E; no source/art changes.

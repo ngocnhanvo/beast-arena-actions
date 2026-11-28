@@ -191,7 +191,7 @@ jobs:
         shell: bash
         run: bash pipeline/ci/setup_godot.sh
       - name: Import project headlessly (fail on script compile errors)
-        if: steps.change-gate.outputs.skip_build != 'true' && steps.lane.outputs.fastlane != 'true'
+        if: steps.change-gate.outputs.skip_build != 'true'
         shell: bash
         run: |
           set -eo pipefail
@@ -281,6 +281,17 @@ jobs:
           test -s game/build/windows/BeastArena.exe
           test -s game/build/windows/BeastArena.pck
           echo "All export checks passed."
+      - name: Export root P1.5 Web for route integrity (sprite fastlane)
+        if: steps.change-gate.outputs.skip_build != 'true' && steps.lane.outputs.fastlane == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p game/build/web
+          godot --headless --path game --export-release "Web" build/web/index.html
+          test -s game/build/web/index.html
+          test -s game/build/web/index.wasm
+          test -s game/build/web/index.pck
+          echo "Fastlane preserves the existing / route and /physics-v2/ route."
       - name: Export isolated Physics V2 Web preview (does not replace main game)
         if: steps.change-gate.outputs.skip_build != 'true'
         shell: bash
