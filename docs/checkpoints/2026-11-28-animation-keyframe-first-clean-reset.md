@@ -20,3 +20,10 @@ NEXT: produce six original rough hand-authored full-body punching key poses and 
 - This validates **ONLY** the NEW minimal storyboard contract and negative gates. No 6 original drawn poses or motion simulation exists yet. Do not claim animation, visual, Pages, Web game or author acceptance.
 - Local 4-file source ZIP `/mnt/data/Beast_Arena_Animation_Clean_Restart.zip` (9,317 uncompressed bytes; SHA256 `8a1f17701bc4c491ea5634d220d1d55a84e1ad477ebb79f0ab63d9c22c37c234`). Re-ran 9/9 local tests. This is a conversation attachment, not a PUBLIC art asset.
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+## REJECTED DRAFT PRs CLOSED, NEW MAIN-BASED PRs OPEN
+- Old rejected PRIVATE [PR #18](https://github.com/ngocnhanvo/beast-arena/pull/18) and old PUBLIC [PR #17](https://github.com/ngocnhanvo/beast-arena-actions/pull/17) now **CLOSED WITHOUT MERGE**. Old source branches remain recoverable; no force-delete, no old workflow merged into `main`.
+- Fresh PRIVATE [Draft PR #19](https://github.com/ngocnhanvo/beast-arena/pull/19) and PUBLIC [Draft PR #18](https://github.com/ngocnhanvo/beast-arena-actions/pull/18) target respective `main`, based on **unchanged** main snapshots; no game, physics, combat or Pages deployment.
+- CI [#46107042607](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/46107042607): terminal SUCCESS with 9 structural tests and NO legacy imports. Animation artwork and physics remain NOT TESTED. This is a **cleanup milestone only**, not a completed animation project.
+- User's originally approved B1 character remains exactly SHA256 `579784d916f5e2c6869061c945261c57bfa33d0f78c93a37af79340957f775c9`, stored as a conversation attachment, not falsely migrated into the new code.
+**Trạng thái: PARTIAL — chưa hoàn tất.**
