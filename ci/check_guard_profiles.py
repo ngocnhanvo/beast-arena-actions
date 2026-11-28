@@ -87,6 +87,8 @@ def main():
             "Web export must bundle guard fighter profiles JSON")
     require("art/export/*.json" in exported,
             "Web export must bundle authored Aseprite JSON frames")
+    require("art/base/character_scale_contract.json" in exported,
+            "Web export must include pose-invariant JSON read by FileAccess")
     print(f"GUARD PROFILE STATIC PASS: {len(fighters)} fighters, "
           f"{len(tags)} combat-stance clips; {len(pending)} PENDING_ART")
     print("ART VISUAL REVIEW: NOT PASSED; static contract cannot inspect hands")
