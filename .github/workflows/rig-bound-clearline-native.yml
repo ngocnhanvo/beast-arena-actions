@@ -28,14 +28,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ngocnhanvo/beast-arena
-          ref: b2827035c547c6cb6217f5523d110de81ec6b53d
+          ref: 022e9c2fff22036cbffa2b0d05253c0c1400feb6
           token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
           persist-credentials: false
           path: private
       - name: Verify pinned source and full asset contract
         run: |
           set -euo pipefail
-          test "$(git -C private rev-parse HEAD)" = "b2827035c547c6cb6217f5523d110de81ec6b53d"
+          test "$(git -C private rev-parse HEAD)" = "022e9c2fff22036cbffa2b0d05253c0c1400feb6"
           test -f private/.agents/skills/beast-arena-motion-logic/scripts/render_vector_pro.py
           test -f private/tools/pose_lock/vector_clearline/native_bridge.py
           test -f private/tools/pose_lock/vector_clearline/source/pose-contract.json
@@ -578,6 +578,122 @@ jobs:
           print("BEAST_V10_ORGANIC_ATLAS_ACTUALLY_DISPLAYED_BY_GODOT_WEB_PASS_ART_BLOCKED")
           print("BEAST_CLEARLINE_ACTUAL_GODOT_WEB_GAMEPLAY_E2E_PASS_NO_DEPLOY")
           PY
+      - name: Build B2 true-3D punch two-key atlas in PRIVATE transient source (not old run)
+        run: |
+          set -euo pipefail
+          P=private/tools/pose_lock/punch25d
+          python "$P/punch25d_stage_export.py" \
+            --assets "$P/assets" --out "$RUNNER_TEMP/b2-punch-art"
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image, ImageChops
+          import os,json,hashlib
+          p=Path(os.environ["RUNNER_TEMP"])/"b2-punch-art"
+          doc=json.loads((p/"punch25d_staging_motion24.json").read_text())
+          png=p/"punch25d_staging_24.png"
+          assert doc["schema"]=="beast-arena/punch25d-web-staging-1"
+          assert doc["source"]=="keyed_corrective_rig.pose_at"
+          assert doc["art_style"]=="b2-punch25d-two-key-depth-cel"
+          assert doc["atlas_png_sha256"]==hashlib.sha256(png.read_bytes()).hexdigest()
+          assert doc["independently_painted_finished_cels"]==2
+          assert doc["full_body_mesh_skinning"] is False
+          assert doc["art_release"]=="BLOCKED"
+          assert doc["owner_B2_approval"]=="NOT_GIVEN"
+          assert doc["sample_frames"]==24 and len(doc["frames"])==24
+          assert doc["frames"][0]["corrective_key"]==0
+          assert any(x["corrective_key"]==1 for x in doc["frames"])
+          assert doc["frames"][-1]["corrective_key"]==0
+          assert max(x["right_wrist_z"] for x in doc["frames"])-min(x["right_wrist_z"] for x in doc["frames"])>100
+          with Image.open(png) as a:
+            assert a.mode=="RGBA" and a.size==(2880,1920)
+            assert a.getpixel((0,0))[3]==0
+            guard=a.crop((0,0,480,480)).convert("RGB")
+            impact=a.crop((0,480,480,960)).convert("RGB")
+            assert ImageChops.difference(guard,impact).getbbox() is not None, "PUNCH_ATLAS_STILL_ONE_FRAME"
+          print("BEAST_B2_PUNCH_SOURCE_24_FRAMES_2_REAL_ART_CELS_Z_AXIS_PASS_NOT_OWNER_APPROVED")
+          PY
+          # PRIVATE base-character artworks remain only in isolated runner.
+      - name: Export B2 Punch atlas into real Godot Physics V2 transient Web (not production)
+        run: |
+          set -euo pipefail
+          REVIEW=private/experiments/physics_v2
+          cp "$RUNNER_TEMP/b2-punch-art/punch25d_staging_24.png" "$REVIEW/assets/"
+          # The existing transient clearline stage scene is already the
+          # main scene of the runner checkout. Swap the staging script ONLY.
+          cp private/tools/pose_lock/punch25d/punch25d_web_staging.gd \
+             "$REVIEW/scripts/clearline_web_staging.gd"
+          python - <<'PY'
+          from pathlib import Path
+          import os,base64,json,hashlib
+          root=Path("private/experiments/physics_v2")
+          doc_path=Path(os.environ["RUNNER_TEMP"])/"b2-punch-art/punch25d_staging_motion24.json"
+          raw=doc_path.read_bytes()
+          doc=json.loads(raw)
+          assert doc["art_release"]=="BLOCKED"
+          script=root/"scripts/clearline_web_staging.gd"
+          text=script.read_text()
+          old='const PUNCH_MOTION_BASE64: String = "PUNCH_MOTION_NOT_EMBEDDED"'
+          new='const PUNCH_MOTION_BASE64: String = "'+base64.b64encode(raw).decode("ascii")+'"'
+          old_tex='const PUNCH_WEB_TEXTURE: Texture2D = null'
+          new_tex='const PUNCH_WEB_TEXTURE: Texture2D = preload("res://assets/punch25d_staging_24.png")'
+          assert text.count(old)==1 and text.count(old_tex)==1
+          script.write_text(text.replace(old,new).replace(old_tex,new_tex))
+          # Include original and punch assets in this isolated PCK only.
+          cfg=root/"export_presets.cfg"
+          data=cfg.read_text()
+          old_path="assets/clearline_staging_24.png"
+          assert old_path in data
+          cfg.write_text(data.replace(old_path,old_path+",assets/punch25d_staging_24.png"))
+          p=root/"project.godot"
+          assert 'run/main_scene="res://scenes/clearline_web_staging.tscn"' in p.read_text()
+          print("BEAST_B2_REAL_GODOT_WEB_PUNCH_MANIFEST_EMBEDDED_"+hashlib.sha256(raw).hexdigest()[:12])
+          PY
+          godot --headless --editor --path "$REVIEW" --import --quit > "$RUNNER_TEMP/punch-godot-import.log" 2>&1 || {
+             tail -n 90 "$RUNNER_TEMP/punch-godot-import.log"; exit 1;
+          }
+          if grep -Eq 'SCRIPT ERROR:|ERROR: Failed to load script|Parser Error' "$RUNNER_TEMP/punch-godot-import.log"; then
+             tail -n 90 "$RUNNER_TEMP/punch-godot-import.log"; exit 1;
+          fi
+          mkdir -p "$RUNNER_TEMP/b2-punch-web"
+          godot --headless --path "$REVIEW" --export-release "Web" "$RUNNER_TEMP/b2-punch-web/index.html" \
+             > "$RUNNER_TEMP/punch-web-export.log" 2>&1 || {
+             tail -n 90 "$RUNNER_TEMP/punch-web-export.log"; exit 1;
+          }
+          test -s "$RUNNER_TEMP/b2-punch-web/index.html"
+          test -s "$RUNNER_TEMP/b2-punch-web/index.wasm"
+          test -s "$RUNNER_TEMP/b2-punch-web/index.pck"
+          echo "BEAST_B2_PUNCH_REAL_GODOT_WEB_EXPORT_STAGING_ONLY_PASS"
+      - name: Actual Godot Web Chromium F input changes B2 punch avatar then recovers
+        run: |
+          set -euo pipefail
+          python -m http.server 8766 --bind 127.0.0.1 --directory "$RUNNER_TEMP/b2-punch-web" \
+             > "$RUNNER_TEMP/punch-web-http.log" 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          python private/tools/pose_lock/punch25d/playwright_punch25d_real_game.py \
+            --url "http://127.0.0.1:8766/index.html?b2_punch=1" \
+            --out "$RUNNER_TEMP/b2-punch-web-screenshots"
+          python - <<'PY'
+          from pathlib import Path
+          import json,os
+          p=Path(os.environ["RUNNER_TEMP"])
+          source=json.loads((p/"b2-punch-art/punch25d_staging_motion24.json").read_text())
+          r=json.loads((p/"b2-punch-web-screenshots/b2-25d-godot-web-report.json").read_text())
+          assert r["web_game"]=="PASS" and r["source"]==source["source"]
+          assert r["art_style"]==source["art_style"]
+          assert r["atlas_png_sha256"]==source["atlas_png_sha256"]
+          assert r["punch_count"]>=1
+          assert r["peak_right_wrist_z"]>125
+          assert r["observed_visual_frames"]>=12
+          assert r["punch_world_pixels_changed"]>500
+          assert r["return_to_guard_world_pixels_diff"]<r["punch_world_pixels_changed"]*.35
+          assert r["js_errors"]==[]
+          assert r["art_release"]=="BLOCKED" and r["owner_B2_approval"]=="NOT_GIVEN"
+          assert r["production_pages_deploy"]=="NOT_DONE"
+          assert r["full_body_mesh_skinning"] is False
+          print("BEAST_B2_25D_REAL_GAMEPLAY_CHROMIUM_F_DEPTH_PUNCH_SOURCE_SHA_PASS_OWNER_BLOCKED")
+          PY
+          # No screenshots or PCK from PRIVATE staging uploaded to PUBLIC artifacts/Pages.
       - name: Declare source PASS, visual FAIL, gameplay/Pages blocked
         run: |
           {
