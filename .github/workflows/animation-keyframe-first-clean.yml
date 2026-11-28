@@ -1,0 +1,53 @@
+name: Animation Keyframe-First Clean Baseline QA
+
+on:
+  push:
+    branches: [ci/animation-keyframe-first-clean]
+    paths: [".github/workflows/animation-keyframe-first-clean.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: beast-animation-keyframe-first-clean
+  cancel-in-progress: false
+
+jobs:
+  storyboard-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - name: Checkout exact PRIVATE animation clean draft
+        uses: actions/checkout@v4
+        with:
+          repository: ngocnhanvo/beast-arena
+          ref: 900241f1641339ff30bf7c2b521a8a5aac0e390b
+          token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
+          persist-credentials: false
+          path: private
+      - name: Verify isolated main-based source and forbid rejected rig dependency
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C private rev-parse HEAD)" = "900241f1641339ff30bf7c2b521a8a5aac0e390b"
+          cd private
+          test -f tools/animation_keyframe_first/punch_blueprint.json
+          test -f tools/animation_keyframe_first/validate_blueprint.py
+          test -f tools/animation_keyframe_first/test_validate_blueprint.py
+          if grep -ER 'from (motion_rig|render_organic|keyed_corrective_rig)|import (motion_rig|render_organic|keyed_corrective_rig)' tools/animation_keyframe_first; then
+            echo "CLEAN_SOURCE_DEPENDS_ON_REJECTED_RIG"; exit 1
+          fi
+          echo "CLEAN_SOURCE_NO_LEGACY_RIG_IMPORTS_PASS"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate intended motion plan and 9 fail-closed tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd private/tools/animation_keyframe_first
+          PYTHONDONTWRITEBYTECODE=1 python validate_blueprint.py
+          PYTHONDONTWRITEBYTECODE=1 python -m unittest -v test_validate_blueprint
+          echo "KEYFRAME_FIRST_9_BLUEPRINT_TESTS_PASS_ART_AND_PHYSICS_NOT_TESTED"
+      # Source-only: no public art, render, build, upload or deploy.
