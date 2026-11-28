@@ -1,3 +1,14 @@
+# Canonical owner G and fast sprite release: production evidence (2026-11-28)
+
+- Private gameplay code `131d77eb84149b7d89eb1c90ecac98497b19010d`; new Private docs-only checkpoint HEAD `a74ec1b56cc441a8cac9343764f3d9f770631a33` does NOT alter compiled game content. Public workflow code `4dd00566fdb91ebb4e1b2efa4df34a9b5f5e7d6f`.
+- Godot native gameplay + Web root/Physics V2 export + GitHub Pages: [#46164999940](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/46164999940) completed SUCCESS. `BASE_KICK_G_INPUT_PASS` proves actual native G down/up routed to front_kick (not just directly calling request_attack).
+- Canonical *no-query* Playwright: [#46165143974](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/46165143974) completed SUCCESS, artifact #15271307376. Browser report `PASS_CANONICAL_G_REAL_INPUT_AND_DRAW`: HTTP200 root and Physics V2, URL exact, activeElement=CANVAS, no test click, g_keydown_count 0→1, accepted_kick_count 0→1, last_attack_id `front_kick`, source SHA matches, PixelView actually drew kick poses [0,1], no JS errors. The screenshot after the fact is not evidence of an exact visual frame; actual PixelView draw recorder is.
+- First custom screenshot sampler #46164495394 FAIL was not proof kick did not fire: repeated synchronous screenshots in SwiftShader were slower than 180ms contact and sampled idle. Replaced by two-stage durable G input and actual rendered frame evidence on canonical URL. Old testing depended on ?e2e=1 and missed user's no-query mode.
+- Fastlane from public `ci/sprite-release-source.sha` requires exact pinned private source hash or fails closed. Build checks native sprite/combat/render geometry, exports root AND Physics V2, deploys Pages; no Windows export, private release upload, unrelated map regressions per sprite push. Browser push runs exact canonical action. Hourly scheduled/manual full testing stays available. Public docs-only pushes do NOT trigger build. Observed sample run durations: build+Pages 129s old vs 95s fast, browser 97s old vs 48s fast; no promise same runtime every run.
+- No new CSS/screens, sprite art, damage, hitboxes, physics, movement altered by this fix. Owner must visually confirm G appearance/feel; technical PASS not visual acceptance. Canonical link only: https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/.
+
+**Trạng thái: PARTIAL — chưa hoàn tất owner manual visual signoff.**
+
 
 # Sprite-release fastlane (2026-11-28)
 - Public pushes in ci/ carry exact private-source SHA in ci/sprite-release-source.sha; mismatch blocks deployment before import.
