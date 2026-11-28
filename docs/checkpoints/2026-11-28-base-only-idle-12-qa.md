@@ -23,3 +23,13 @@ Latest earlier GitHub Actions `#46105044735` had cache SUCCESS but Pages SKIPPED
 - Real public Pages and real Chromium remain **NOT_RUN for this release**. Prepared `ci/playwright_base_only.py` to exercise four Base actors, actual idle frame cycle, no old art toggles, movement and combat. Do NOT claim deployment from this QA alone.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+## FINAL verified 2026-11-28 — Base-only actual Pages + Chromium
+- Exact functional PRIVATE game source `814f088b7735c53a2d8c5076dd110f02f2357651`; PUBLIC pipeline SHA `5d7df02c9af17f72728b52e7a48039290958a776`.
+- [Full Godot/Web/Windows/Pages #46119628413](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/46119628413) **COMPLETED SUCCESS**, all build and Pages jobs PASS with fresh private functional SHA. [Real Chromium #46119796147](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/46119796147) **COMPLETED SUCCESS**, both P1.5 Web and Base-only Physics V2 E2E tests PASS. Evidence [screenshot+JSON artifact #15252958649](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/46119796147/artifacts/15252958649).
+- Actual `base-only/result.json`: `PASS_BASE_ONLY_PHYSICS_ART_PENDING`; private+public SHAs and build run exact, all 4 visible and HUD fighters Base (old Jade/Azure/Crimson/Amber NOT selected), existing F6/F7/P old-art hotkeys BLOCKED. Native 12×80 frame source PASS, 10 distinct real-browser idle cel samples in terminal run, grounded feet. Physical D +2.685824394m, F `light_punch` accepted #1, G `front_kick` accepted #2; no uncaught JS errors.
+- Prior failures (#46118422392, #46119099279, isolated #46119303856/#46119405588) remain documented: physical attack is 60Hz transient, JS debug snapshot approx 120ms; changed game to **read-only** `last_attack_id` and reused monotonic `attack_instance`, so Browser tests check durable accepted attack provenance. No changes to damage/hitbox/motor/feet to pass art checks.
+- The user requested to remove previous fighters from game: that runtime/Pages appearance scope is DONE, **not** delete every archived PRIVATE file. Historical art still in repo and perhaps all-resources PCK for rollback/compatibility until separate audited purge. Actual newly authored locomotion and F/G strike *images* still PENDING_ART; visible static guard while moving/striking is intentional temporary fallback. Do not mark whole game or complete animations DONE.
+- THIS docs-only checkpoint commit (after compiled SHA) does NOT certify a new build. Follow-up should use exact compiled SHAs above until new code/art runtime commit and its own Chromium proof.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
