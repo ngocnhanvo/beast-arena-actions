@@ -90,6 +90,7 @@ def main():
                     and start.get("base_idle_frame_duration_ms") == 100
                     and start.get("base_walk_attached_count") == 4
                     and start.get("base_punch_attached_count") == 4
+                    and start.get("base_kick_attached_count") == 4
                     and start.get("base_walk_frame_count") == 4
                     and start.get("base_walk_reference_frame_duration_ms") == 180
                     and start.get("visual_contract_schema") == 1
@@ -202,11 +203,12 @@ def main():
             for hand, expected in (("right", {0,1,2}), ("left", {2,3})):
                 before_punch_instance = int(snap(page)["human_attack_instance"])
                 page.keyboard.press("f")
-                punch = until(page, "Real F attack and rendered punch",
+                punch = until(page, "Real F attack with visible PixelView contact",
                               "s.human_attack_instance > " + str(before_punch_instance)
                               + " && s.human_last_attack_id === 'light_punch'"
                               + " && s.base_punch_hand === '" + hand + "'"
-                              + " && s.base_punch_rendered_frames.includes(" + str(1 if hand=="right" else 3) + ")")
+                              + " && s.base_punch_rendered_frames.includes(" + str(1 if hand=="right" else 3) + ")"
+                              + " && s.base_punch_drawn_frames.includes(" + str(1 if hand=="right" else 3) + ")")
                 canvas.screenshot(path=str(OUT / ("base-punch-"+hand+".png")))
                 final = until(page, "Punch restores idle", "s.human_attack_id === '' && s.human_sprite_hframes === 12 && s.visual_contract_clip === 'idle_guard_front'")
                 if not expected.issubset(set(final.get("base_punch_rendered_frames", []))):
@@ -215,23 +217,32 @@ def main():
             report["evidence"]["real_punch"] = "light_punch"
             report["evidence"]["punch_history"] = punch_history
             before_kick_instance = int(snap(page)["human_attack_instance"])
-            page.keyboard.down("g")
-            try:
-                kick = until(page, "Real G front kick event recorded",
-                             "s.human_attack_instance > " + str(before_kick_instance)
-                             + " && s.human_last_attack_id === 'front_kick'"
-                             + " && s.human_sprite_hframes === 12")
-                report["evidence"]["real_kick"] = kick.get("human_last_attack_id")
-                report["evidence"]["kick_instance"] = kick.get("human_attack_instance")
-                canvas.screenshot(path=str(OUT / "base-kick-physics.png"))
-            finally:
-                page.keyboard.up("g")
+            page.keyboard.press("g")
+            kick = until(page, "Real G kick with actual extended leg on PixelView",
+                         "s.human_attack_instance > " + str(before_kick_instance)
+                         + " && s.human_last_attack_id === 'front_kick'"
+                         + " && s.base_kick_count >= 1"
+                         + " && s.base_kick_rendered_frames.includes(0)"
+                         + " && s.base_kick_rendered_frames.includes(1)"
+                         + " && s.base_kick_drawn_frames.includes(1)",
+                         timeout=12000)
+            if kick.get("human_sprite_pixel_size") != 0.020 and kick.get("visual_contract_meters_per_art_pixel") != 0.020:
+                raise AssertionError("Kick2 changed character native source scale")
+            report["evidence"]["real_kick"] = kick.get("human_last_attack_id")
+            report["evidence"]["kick_instance"] = kick.get("human_attack_instance")
+            report["evidence"]["kick_frames_rendered"] = kick.get("base_kick_rendered_frames")
+            report["evidence"]["kick_frames_actually_drawn"] = kick.get("base_kick_drawn_frames")
+            canvas.screenshot(path=str(OUT / "base-kick-extended-live.png"))
+            idle_after_kick = until(page, "Kick returns to original Idle12",
+                                    "s.human_attack_id === '' && s.human_sprite_hframes === 12"
+                                    " && s.visual_contract_clip === 'idle_guard_front'")
+            report["evidence"]["kick_idle_restored"] = idle_after_kick.get("visual_contract_clip")
             if report["js_errors"]:
                 raise AssertionError("Uncaught browser JavaScript errors")
-            report["status"] = "PASS_BASE_IDLE_12_AND_WALK_4_PHYSICS"
-            print("BASE_WALK_4_CHROMIUM_PASS: four Base fighters, idle 12, "
-                  "all four original grounded walk cels, physical D/F/G, "
-                  "old Jade retired; run/strike art pending")
+            report["status"] = "PASS_BASE_IDLE_WALK_PUNCH_KICK_REAL_PIXELS"
+            print("BASE_KICK_2_CHROMIUM_PASS: actual G kick knee and extension drawn, "
+                  "right/left F punch visible, Idle12/Walk4 preserved, "
+                  "four Base fighters and 60Hz physical combat")
         except Exception as exc:
             report["status"] = "FAIL"
             report["error"] = str(exc)
