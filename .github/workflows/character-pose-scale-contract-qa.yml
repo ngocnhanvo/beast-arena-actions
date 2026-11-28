@@ -1,0 +1,90 @@
+name: Beast Arena - Pose Invariant Scale Contract Source QA
+
+on:
+  push:
+    branches: [ci/character-pose-scale-contract-v1]
+    paths: [".github/workflows/character-pose-scale-contract-qa.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: beast-character-scale-v1-source-qa
+  cancel-in-progress: false
+
+jobs:
+  source-godot:
+    name: Exact private pose contract - native Godot physics regression
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          path: pipeline
+      - name: Checkout pinned PRIVATE source for audit (no raw art published)
+        uses: actions/checkout@v4
+        with:
+          repository: ngocnhanvo/beast-arena
+          ref: 00b8555a96b21b9080cb6fe6f76d9406a853e00b
+          token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
+          persist-credentials: false
+          path: private
+      - name: Verify exact source and original art hashes
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C private rev-parse HEAD)" = "00b8555a96b21b9080cb6fe6f76d9406a853e00b"
+          test "$(sha256sum private/experiments/physics_v2/art/base/base_idle_12_80.png | cut -d' ' -f1)" = "ac395d4c108047538d0898033d10d6e785b10f6e84ba764304eb786b35caf954"
+          test "$(sha256sum private/experiments/physics_v2/art/base/base_walk_4_80.png | cut -d' ' -f1)" = "cd4e482f5db5964f2b1906ea1ca72f3fbd6aae913f07290eec5bc43cbee6ce80"
+          echo "POSE_ORIGINAL_ART_NOT_RESIZED_PASS"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install independent source measurement
+        run: python -m pip install --disable-pip-version-check "Pillow==11.3.0"
+      - name: Verify source + truthful known anatomical discrepancy
+        shell: bash
+        run: |
+          set -euo pipefail
+          python private/tools/pose_scale_audit.py --project private/experiments/physics_v2 --report /tmp/pose-audit.json
+          PYTHONPATH=private/tools python -m unittest discover -s private/tools/tests -p test_pose_scale_audit.py -v
+          set +e
+          python private/tools/pose_scale_audit.py --project private/experiments/physics_v2 --strict-anatomy > /tmp/pose-strict.log 2>&1
+          CODE=$?
+          set -e
+          test "$CODE" -eq 3
+          grep -q "STRICT_ANATOMY_FAIL" /tmp/pose-strict.log
+          echo "POSE_STRICT_GATE_HONEST_PENDING_ART_PASS"
+      - name: Install exact Godot
+        run: bash pipeline/ci/setup_godot.sh
+      - name: Strict parser and native image import
+        shell: bash
+        run: |
+          set -euo pipefail
+          godot --headless --editor --path private/experiments/physics_v2 --import --quit 2>&1 | tee /tmp/pose-import.log
+          if grep -E 'SCRIPT ERROR:|Parser Error:|Failed to load script' /tmp/pose-import.log; then exit 1; fi
+          echo "POSE_CONTRACT_GODOT_IMPORT_PASS"
+      - name: Run real active scene and synthetic lying-pivot contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          godot --headless --path private/experiments/physics_v2 --script res://tests/character_visual_contract_smoke.gd 2>&1 | tee /tmp/pose-contract.log
+          grep -q "CHARACTER_SCALE_CONTRACT_PASS" /tmp/pose-contract.log
+      - name: Verify old Idles, Walk, renderer and physics unchanged
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd private/experiments/physics_v2
+          for test in base_only_idle_12_smoke.gd base_walk_4_smoke.gd pixel_projection_smoke.gd physics_smoke.gd combat_v2_test.gd map_editor_smoke.gd match_scene_smoke.gd obstacle_collision_smoke.gd; do
+            godot --headless --path . --script "res://tests/$test" 2>&1 | tee "/tmp/pose-$test.log"
+            if grep -E 'SCRIPT ERROR:|Parser Error:' "/tmp/pose-$test.log"; then exit 1; fi
+            echo "TEST_PASS $test"
+          done
+          echo "POSE_CONTRACT_PHYSICS_REGRESSIONS_PASS"
+      - name: Record accurate source vs art readiness
+        run: |
+          echo "Private source exact 00b8555a96b21b9080cb6fe6f76d9406a853e00b" >> "$GITHUB_STEP_SUMMARY"
+          echo "Source/renderer geometry PASS. Strict artist anatomy STILL FAIL: head span 26 vs 29 pixels." >> "$GITHUB_STEP_SUMMARY"
+          echo "No new Pages, no public art upload, no source disclosure." >> "$GITHUB_STEP_SUMMARY"
