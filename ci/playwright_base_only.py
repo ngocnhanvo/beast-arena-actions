@@ -88,6 +88,9 @@ def main():
                     and start.get("base_idle_active") is True
                     and start.get("base_idle_frame_count") == 12
                     and start.get("base_idle_frame_duration_ms") == 100
+                    and start.get("base_walk_attached_count") == 4
+                    and start.get("base_walk_frame_count") == 4
+                    and start.get("base_walk_reference_frame_duration_ms") == 180
                     and start.get("human_sprite_hframes") == 12
                     and start.get("human_sprite_vframes") == 1
                     and start.get("hero_atlas_frame_size") == 80
@@ -127,21 +130,42 @@ def main():
             report["evidence"]["retired_art_shortcuts"] = "BLOCKED"
 
             before = snap(page)["player"]
+            walk_seen = set()
             page.keyboard.down("d")
-            moved = until(page, "Real movement on D with pending art",
-                          "s.player.vx > 0.30 && s.human_sprite_hframes === 12 && "
-                          "s.animation_clip_intent === 'base_guard_art_pending'")
-            page.wait_for_timeout(300)
-            page.keyboard.up("d")
-            if float(snap(page)["player"]["x"]) <= float(before["x"]):
-                raise AssertionError("D did not change physical world X")
-            if moved.get("animation_clip_intent") != "base_guard_art_pending":
-                raise AssertionError("Unpainted locomotion falsely marked as authored")
+            try:
+                moved = until(page, "Real D movement selects owner 4-cel walk",
+                              "s.player.vx > 0.30 && s.base_walk_active === true && "
+                              "s.human_sprite_hframes === 4 && "
+                              "s.animation_clip_intent === 'base_walk_4_approved'")
+                walk_seen.add(int(moved["human_sprite_frame"]))
+                # Observe REAL game-originated pose indices and moving X.
+                # 4 frames span 3.024m of real world travel; no browser
+                # injection into velocity or animation timer is permitted.
+                for _ in range(18):
+                    page.wait_for_timeout(95)
+                    state = snap(page)
+                    if state and state.get("base_walk_active") is True:
+                        if (state.get("human_sprite_hframes") != 4 or
+                                state.get("human_sprite_offset_y") != -4):
+                            raise AssertionError("Walk atlas or shoe anchor changed")
+                        walk_seen.add(int(state.get("human_sprite_frame", -1)))
+                canvas.screenshot(path=str(OUT / "base-walk-4-live.png"))
+            finally:
+                page.keyboard.up("d")
+            if walk_seen != set(range(4)):
+                raise AssertionError("Real world walk did not play all 4 "
+                                     "owner poses: " + str(sorted(walk_seen)))
+            current = snap(page)
+            if float(current["player"]["x"]) <= float(before["x"]) + 1.0:
+                raise AssertionError("D did not cause real 3D X movement")
             report["evidence"]["real_world_move_dx"] = (
-                float(snap(page)["player"]["x"]) - float(before["x"]))
-            canvas.screenshot(path=str(OUT / "base-moving-guard.png"))
-            until(page, "Stop on the same physics motor",
-                  "Math.abs(s.player.vx) < 0.2 && s.player.grounded")
+                float(current["player"]["x"]) - float(before["x"]))
+            report["evidence"]["walk_frames_sampled"] = sorted(walk_seen)
+            idle_again = until(page, "Stopping restores 12 original idle poses",
+                               "Math.abs(s.player.vx) < 0.2 && s.player.grounded && "
+                               "s.human_sprite_hframes === 12 && "
+                               "s.base_walk_active === false")
+            canvas.screenshot(path=str(OUT / "base-idle-after-walk.png"))
 
             # A short 60Hz attack is faster than some 120ms Web snapshots.
             # Its ACCEPTED attack_instance and last_attack_id are durable real
@@ -173,10 +197,10 @@ def main():
                 page.keyboard.up("g")
             if report["js_errors"]:
                 raise AssertionError("Uncaught browser JavaScript errors")
-            report["status"] = "PASS_BASE_ONLY_PHYSICS_ART_PENDING"
-            print("BASE_ONLY_CHROMIUM_PASS: 4 Base fighters; 12 original idle "
-                  "cels, real 3D movement/F/G, legacy sprites retired; "
-                  "independent locomotion/attack art PENDING")
+            report["status"] = "PASS_BASE_IDLE_12_AND_WALK_4_PHYSICS"
+            print("BASE_WALK_4_CHROMIUM_PASS: four Base fighters, idle 12, "
+                  "all four original grounded walk cels, physical D/F/G, "
+                  "old Jade retired; run/strike art pending")
         except Exception as exc:
             report["status"] = "FAIL"
             report["error"] = str(exc)
