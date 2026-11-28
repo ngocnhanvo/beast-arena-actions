@@ -165,12 +165,13 @@ def main():
                     state = snap(page)
                     if state and state.get("base_walk_active") is True:
                         if (state.get("human_sprite_hframes") != 4 or
-                                state.get("human_sprite_offset_y") != -4 or
+                                state.get("human_sprite_offset_y") != -2 or
                                 state.get("visual_contract_cell") != [80, 80] or
                                 state.get("visual_contract_clip") != "base_walk_4_approved" or
                                 abs(float(state.get("human_sprite_pixel_size", 0.0)) - 0.020) > 0.00001):
                             raise AssertionError("Walk atlas or shoe anchor changed")
                         walk_seen.add(int(state.get("human_sprite_frame", -1)))
+                report["evidence"]["walk_ground_anchor_offset_px"] = -2
                 canvas.screenshot(path=str(OUT / "base-walk-4-live.png"))
             finally:
                 page.keyboard.up("d")
@@ -189,6 +190,8 @@ def main():
                                "s.base_walk_active === false && "
                                "s.visual_contract_clip === 'idle_guard_front' && "
                                "Math.abs(s.human_sprite_pixel_size - 0.020) < 0.00001")
+            if idle_again.get("human_sprite_offset_y") != -4:
+                raise AssertionError("Idle must restore original foot anchor")
             canvas.screenshot(path=str(OUT / "base-idle-after-walk.png"))
 
             # A short 60Hz attack is faster than some 120ms Web snapshots.

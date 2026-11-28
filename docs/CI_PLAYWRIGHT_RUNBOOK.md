@@ -923,3 +923,7 @@ Verified source PRIVATE `c99c02ec2fc598975ed8581d5d1fb930ae8a4d2d`, PUBLIC compi
 ### 2026-11-28 — Owner-authorized Walk +2px trial (verification requested)
 
 Private source `3143db3e78a531806bcdeab254eb214f9192795d` contains the approved image-only change, exact four-frame RGBA comparison, unchanged idle and source contact/width/cadence. Existing pipeline runs private source audit and updated native scene assertions (Walk heights 76/74/76/75) before deployment. Keep strict anatomy discrepancy as pending; this is not authorization for procedural redraw or auto-fit. Verify exact source and pipeline SHA, public build+Pages terminal result, downstream actual browser result, all four actors and four walk phases, idle return, F/G, floor screenshot, zero JS errors. No raw private sprites published as CI artifacts. This docs commit requests the unchanged build workflow; no workflow changes.
+
+
+## Second Walk +2px (2026-11-28)
+Prior build #46141254963 and Chromium #46141414052 PASS. New source bc8b5249f00e754d61660f1125bf419c9f39f9d4; verify all four walk cels, offset -2 during walk and original -4 upon idle return. No physical changes. Wait for actual new Pages and Chromium.
