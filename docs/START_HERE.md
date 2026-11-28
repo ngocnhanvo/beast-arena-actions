@@ -1,3 +1,7 @@
+
+## 2026-11-28 — Kick2 actual native, Pages, Chromium PASS
+Private source 5cb142fb15a6b53bc62874e6f9eec0f332c757b6, public pipeline 946606a0b4f5e1bcae9961d5682ab31f79ac77ce. Native+Pages #46162460977 SUCCESS; Chromium #46162634773 SUCCESS. Source logs: BASE_KICK_2_REAL_GAME_PASS, BASE_PUNCH_4_REAL_GAME_PASS. Browser artifact #15270083840 result `PASS_BASE_IDLE_WALK_PUNCH_KICK_REAL_PIXELS`: real kick selected [0,1], actually PixelView drawn [0,1], real accepted kick instance3, Idle12 restored; right/left punch [0,1,2]/[2,3], stable Walk4. Screenshot saved after kick shows Idle because capture latency; drawn-pose telemetry is distinct evidence, not a visible strike still. Latest Private 842f3c1876e44e851d1d47753ee00f418ff17e7c only updates stale HUD source label, must reverify build/Pages/Web on this exact SHA. No art/motor/hitbox change; owner may review canonical /physics-v2/.
+
 # Kick2 native QA watchdog (2026-11-28)
 
 Previous private 0df2fbdcbf951d0fe71c13f8eb014ba55ccc7f21, public 6ca7bf2da19e189b2c46adcebb0b0c76e3d7306c, build #46161904467 was still IN_PROGRESS at native Character Visual Contract smoke (Godot command produced no terminal result in initial polling). Corrective Private 18368f820aa234ef229f19690dce76ed71e3f53d adds native SceneTree 18-second watchdog; public adds 45-second shell timeout on exactly this smoke step (not skips). The stale run cannot establish deploy success. New build must test actual smoke and Pages + Chromium with expected Private SHA. Strict visual authoring of legacy Idle/Walk remains pending. 
