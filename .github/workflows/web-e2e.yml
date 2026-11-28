@@ -89,6 +89,8 @@ jobs:
           BEAST_EXPECT_PIPELINE_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || '' }}
           BEAST_EXPECT_BUILD_RUN_ID: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.id || '' }}
         run: python ci/playwright_base_only.py
+      - name: Verify owner canonical URL with no query and immediate G input
+        run: python ci/playwright_canonical_controls.py
       - name: Save public screenshots
         if: always()
         uses: actions/upload-artifact@v4

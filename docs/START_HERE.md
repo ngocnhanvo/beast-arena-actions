@@ -1,4 +1,12 @@
 
+# Sprite-release fastlane (2026-11-28)
+- Public pushes in ci/ carry exact private-source SHA in ci/sprite-release-source.sha; mismatch blocks deployment before import.
+- Public docs-only changes do not trigger a new Godot build. Full coverage still available on hourly schedule and manual workflow_dispatch.
+- Fastlane retains Godot 4.7.2, native Base Idle/Walk/Punch/Kick actual scene tests, source scale audit, combat timing/pixel projection, isolated Web export, Pages deployment, actual Chromium E2E. Skips unrelated root P1/P1.5/Windows export/map-grid tests and private release upload only on fastlane; scheduled/full runs retain these.
+- Verification MUST include a separate browser test at EXACT canonical no-query URL: ?e2e=1 is a distinct instrumented environment and its PASS does not certify the user's experience.
+- Open issue: no-query G unresponsive for owner, even after diagnostic test PASS. Source fix private d7ec67d3068179bc2bedda5c33ee25be93b2237d standardizes Web controls and uses _input instead of _unhandled_key_input, but only exact successful build and owner-url E2E can confirm.
+
+
 ## 2026-11-28 — Kick2 actual native, Pages, Chromium PASS
 Private source 5cb142fb15a6b53bc62874e6f9eec0f332c757b6, public pipeline 946606a0b4f5e1bcae9961d5682ab31f79ac77ce. Native+Pages #46162460977 SUCCESS; Chromium #46162634773 SUCCESS. Source logs: BASE_KICK_2_REAL_GAME_PASS, BASE_PUNCH_4_REAL_GAME_PASS. Browser artifact #15270083840 result `PASS_BASE_IDLE_WALK_PUNCH_KICK_REAL_PIXELS`: real kick selected [0,1], actually PixelView drawn [0,1], real accepted kick instance3, Idle12 restored; right/left punch [0,1,2]/[2,3], stable Walk4. Screenshot saved after kick shows Idle because capture latency; drawn-pose telemetry is distinct evidence, not a visible strike still. Latest Private 842f3c1876e44e851d1d47753ee00f418ff17e7c only updates stale HUD source label, must reverify build/Pages/Web on this exact SHA. No art/motor/hitbox change; owner may review canonical /physics-v2/.
 

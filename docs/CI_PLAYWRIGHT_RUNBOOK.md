@@ -934,3 +934,10 @@ Owner-approved four complete punch poses, 96x80 cells at Idle calibrated source 
 
 ## 2026-11-28 — Kick2 browser proof / Punch render safety
 Private `0df2fbdcbf951d0fe71c13f8eb014ba55ccc7f21` captures authoritative 60Hz attack phases to reusable presentation FIFO so 3-tick contact cannot be skipped under slow WebGL. Owner-approved kick two whole-body 120×104 cels, root (52,100), same native 0.02m/pixel, right leg kick while left supports. In canonical /physics-v2/ E2E, require actual F right+left contact drawn by PixelView, actual G kick both frames and extended contact actually drawn, post-kick Idle12, plus prior Walk4 and zero JS errors. Asset master and game source stay PRIVATE; public pipeline contains only assertion code. Build, Pages, Chromium pending.
+
+# Sprite-release fastlane (2026-11-28)
+- Public pushes in ci/ carry exact private-source SHA in ci/sprite-release-source.sha; mismatch blocks deployment before import.
+- Public docs-only changes do not trigger a new Godot build. Full coverage still available on hourly schedule and manual workflow_dispatch.
+- Fastlane retains Godot 4.7.2, native Base Idle/Walk/Punch/Kick actual scene tests, source scale audit, combat timing/pixel projection, isolated Web export, Pages deployment, actual Chromium E2E. Skips unrelated root P1/P1.5/Windows export/map-grid tests and private release upload only on fastlane; scheduled/full runs retain these.
+- Verification MUST include a separate browser test at EXACT canonical no-query URL: ?e2e=1 is a distinct instrumented environment and its PASS does not certify the user's experience.
+- Open issue: no-query G unresponsive for owner, even after diagnostic test PASS. Source fix private d7ec67d3068179bc2bedda5c33ee25be93b2237d standardizes Web controls and uses _input instead of _unhandled_key_input, but only exact successful build and owner-url E2E can confirm.
