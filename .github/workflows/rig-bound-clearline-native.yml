@@ -28,14 +28,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ngocnhanvo/beast-arena
-          ref: ec8e22379bcbd08d52486f94036c828626640c2d
+          ref: 1f48ab01d21388c358b0974f97a25b44279c43e4
           token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
           persist-credentials: false
           path: private
       - name: Verify pinned source and full asset contract
         run: |
           set -euo pipefail
-          test "$(git -C private rev-parse HEAD)" = "ec8e22379bcbd08d52486f94036c828626640c2d"
+          test "$(git -C private rev-parse HEAD)" = "1f48ab01d21388c358b0974f97a25b44279c43e4"
           test -f private/.agents/skills/beast-arena-motion-logic/scripts/render_vector_pro.py
           test -f private/tools/pose_lock/vector_clearline/native_bridge.py
           test -f private/tools/pose_lock/vector_clearline/source/pose-contract.json
@@ -315,7 +315,26 @@ jobs:
           # The separate headless motor step deliberately removes the
           # transient input assets. Rebuild them before Web export, rather
           # than depending on leftover files in runner state.
-          python private/tools/pose_lock/vector_clearline/staging/build_24_frame_atlas.py "$RUNNER_TEMP/web-art-source"
+          python private/tools/pose_lock/vector_clearline/staging/build_24_frame_atlas.py "$RUNNER_TEMP/web-art-source" --art-style organic-v8
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          from PIL import Image,ImageChops
+          p=Path(os.environ["RUNNER_TEMP"])
+          v8=p/"web-art-source"
+          doc=json.loads((v8/"clearline_staging_motion24.json").read_text())
+          assert doc["art_style"]=="organic-v8-rig"
+          assert doc["authored_original_cels"]==6 and len(doc["frames"])==24
+          assert doc["owner_visual_acceptance"]=="NOT_GIVEN"
+          assert doc["art_release"]=="BLOCKED"
+          assert doc["atlas_png_sha256"]==hashlib.sha256((v8/"clearline_staging_24.png").read_bytes()).hexdigest()
+          with Image.open(v8/"clearline_staging_24.png") as a, Image.open(p/"staging-src/clearline_staging_24.png") as b:
+            assert a.size==b.size==(2880,1920)
+            assert a.mode==b.mode=="RGBA"
+            assert ImageChops.difference(a.convert("RGB"),b.convert("RGB")).getbbox(), "WEB_V8_ATLAS_IS_STILL_V6"
+            assert a.getpixel((0,0))[3]==0
+          print("BEAST_V8_ACTUAL_WEB_ATLAS_EXACT_SOURCE_SHA_AND_PIXELS_DIFFER_FROM_V6_PASS")
+          PY
           cp "$RUNNER_TEMP/web-art-source/clearline_staging_24.png" "$REVIEW/assets/"
           cp "$RUNNER_TEMP/web-art-source/clearline_staging_motion24.json" "$REVIEW/assets/"
           test -s "$REVIEW/assets/clearline_staging_24.png"
@@ -352,6 +371,8 @@ jobs:
           doc=json.loads(raw)
           assert doc['source']=='motion_rig.pose_at' and doc['art_release']=='BLOCKED'
           assert len(doc['frames'])==24 and doc['authored_original_cels']==6
+          assert doc['art_style']=='organic-v8-rig'
+          assert len(doc['atlas_png_sha256'])==64 and doc['owner_visual_acceptance']=='NOT_GIVEN'
           script=Path('private/experiments/physics_v2/scripts/clearline_web_staging.gd')
           data=script.read_text()
           old_json='const CLEARLINE_MOTION_BASE64: String = "STAGING_MOTION_CONTRACT_NOT_EMBEDDED"'
@@ -393,6 +414,10 @@ jobs:
           from pathlib import Path
           r=json.loads((Path(os.environ["RUNNER_TEMP"])/"web-motor-screenshots/actual-game-web-report.json").read_text())
           assert r["web_game"]=="PASS"
+          assert r["art_style"]=="organic-v8-rig"
+          source=Path(os.environ["RUNNER_TEMP"])/"web-art-source"
+          expected=json.loads((source/"clearline_staging_motion24.json").read_text())
+          assert r["atlas_png_sha256"]==expected["atlas_png_sha256"]
           assert r["physics"]=="REAL_CHARACTERBODY3D"
           assert r["sampled_frames"]>=6
           assert r["screenshots"]==3
@@ -401,6 +426,7 @@ jobs:
           assert r["screenshot_pixel_qa"]["world_changed_pixels"]>=r["screenshot_pixel_qa"]["required_changed_pixels"]
           assert r["art_release"]=="BLOCKED"
           assert r["production_pages_deploy"]=="NOT_DONE"
+          print("BEAST_V8_ORGANIC_ATLAS_ACTUALLY_DISPLAYED_BY_GODOT_WEB_PASS_ART_BLOCKED")
           print("BEAST_CLEARLINE_ACTUAL_GODOT_WEB_GAMEPLAY_E2E_PASS_NO_DEPLOY")
           PY
       - name: Declare source PASS, visual FAIL, gameplay/Pages blocked
@@ -410,5 +436,5 @@ jobs:
             echo "50 portable tests + 4 native tests + 5 adversarial screenshot gates = 59 tests, SVG SHA and identity parity,"
             echo "official LibreSprite 1.3 pixel exact, isolated Godot 4.7.2 import, Chromium source canvas."
             echo "ART self review FAIL_NOT_PRODUCTION_QUALITY. Owner signoff missing."
-            echo "Real Physics V2 CharacterBody3D staging motor and actual exported Web Chromium E2E executed. Pixel-gated world-region screenshot validates visible change beyond the HUD; Pages deploy NOT DONE, owner art BLOCKED, private assets NOT uploaded."
+            echo "Real Physics V2 CharacterBody3D motor, Web Chromium E2E and V8 source-atlas identity SHA verified; pixel-gated screenshot still does not certify anatomy. Pages deploy NOT DONE, owner art BLOCKED, private assets NOT uploaded."
           } >> "$GITHUB_STEP_SUMMARY"
