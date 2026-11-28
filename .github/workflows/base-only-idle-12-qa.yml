@@ -41,7 +41,7 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           s=Path("private/experiments/physics_v2/scripts/demo.gd").read_text()
-          assert s.count('&"base_human"')==4
+          assert s.count('BASE_ATLAS, &"base_human")')==4
           assert 'ALLY_ATLAS' not in s and 'RIVAL_A_ATLAS' not in s
           assert 'JADE_SCARF_ATLAS' not in s and 'PLAYER_ATLAS' not in s
           print("BASE_ONLY_ALL_FOUR_ACTIVE_FIGHTERS_PASS")
