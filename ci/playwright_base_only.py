@@ -129,7 +129,8 @@ def main():
             before = snap(page)["player"]
             page.keyboard.down("d")
             moved = until(page, "Real movement on D",
-                          "s.player.vx > 0.30 && s.human_sprite_hframes === 12")
+                          "s.player.vx > 0.30 && s.human_sprite_hframes === 12 && "
+                          "s.animation_clip_intent === 'base_guard_art_pending'")
             page.wait_for_timeout(300)
             page.keyboard.up("d")
             if float(snap(page)["player"]["x"]) <= float(before["x"]):
