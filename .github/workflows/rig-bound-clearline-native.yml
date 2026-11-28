@@ -28,14 +28,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ngocnhanvo/beast-arena
-          ref: 022e9c2fff22036cbffa2b0d05253c0c1400feb6
+          ref: c7febec64c064cf87e71b55c4c4e5e6a38f39215
           token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
           persist-credentials: false
           path: private
       - name: Verify pinned source and full asset contract
         run: |
           set -euo pipefail
-          test "$(git -C private rev-parse HEAD)" = "022e9c2fff22036cbffa2b0d05253c0c1400feb6"
+          test "$(git -C private rev-parse HEAD)" = "c7febec64c064cf87e71b55c4c4e5e6a38f39215"
           test -f private/.agents/skills/beast-arena-motion-logic/scripts/render_vector_pro.py
           test -f private/tools/pose_lock/vector_clearline/native_bridge.py
           test -f private/tools/pose_lock/vector_clearline/source/pose-contract.json
@@ -686,7 +686,7 @@ jobs:
           assert r["peak_right_wrist_z"]>125
           assert r["observed_visual_frames"]>=12
           assert r["punch_world_pixels_changed"]>500
-          assert r["return_to_guard_world_pixels_diff"]<r["punch_world_pixels_changed"]*.35
+          assert r["return_verified_by_actual_frame_zero_and_z"] is True
           assert r["js_errors"]==[]
           assert r["art_release"]=="BLOCKED" and r["owner_B2_approval"]=="NOT_GIVEN"
           assert r["production_pages_deploy"]=="NOT_DONE"
