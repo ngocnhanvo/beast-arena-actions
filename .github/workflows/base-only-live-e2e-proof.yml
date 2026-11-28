@@ -35,7 +35,7 @@ jobs:
         env:
           BEAST_EXPECT_BUILD_RUN_ID: "46118965628"
           BEAST_EXPECT_PIPELINE_SHA: "a06d6ef16ad8adedcd2f5b12c144ec24ad18a15c"
-          BEAST_EXPECT_PRIVATE_SHA: "f4e654de48337510a5c774f80a9fb3b47c73433b"
+          BEAST_EXPECT_PRIVATE_SHA: "31e23ceadb7215d3764533626d5125fd91b53baa"
         run: python ci/playwright_base_only.py
       - name: Upload only public canvas screenshots and numeric results
         if: always()
