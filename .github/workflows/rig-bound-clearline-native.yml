@@ -608,7 +608,7 @@ jobs:
             assert a.mode=="RGBA" and a.size==(2880,1920)
             assert a.getpixel((0,0))[3]==0
             guard=a.crop((0,0,480,480)).convert("RGB")
-            impact=a.crop((0,480,480,960)).convert("RGB")
+            impact=a.crop((0,960,480,1440)).convert("RGB")
             assert ImageChops.difference(guard,impact).getbbox() is not None, "PUNCH_ATLAS_STILL_ONE_FRAME"
           print("BEAST_B2_PUNCH_SOURCE_24_FRAMES_2_REAL_ART_CELS_Z_AXIS_PASS_NOT_OWNER_APPROVED")
           PY
