@@ -140,11 +140,14 @@ def main():
 
             page.keyboard.down("f")
             try:
-                punch = until(page, "Real F light punch data",
+                # Godot writes attack state on physics ticks but publishes the
+                # visual intent in _process. The browser may sample BETWEEN
+                # those two events. Wait for both to agree within one actual
+                # rendered snapshot; never fabricate an animation frame.
+                punch = until(page, "Real F punch and Base pending pose converge",
                               "s.human_attack_id === 'light_punch' && "
-                              "s.human_attack_frame > 0")
-                if punch.get("animation_clip_intent") != "base_guard_art_pending":
-                    raise AssertionError("Unpainted punch wrongly marked as drawn")
+                              "s.human_attack_frame > 0 && "
+                              "s.animation_clip_intent === 'base_guard_art_pending'")
                 report["evidence"]["real_punch"] = punch.get("human_attack_id")
                 canvas.screenshot(path=str(OUT / "base-punch-physics.png"))
             finally:
@@ -152,9 +155,10 @@ def main():
             until(page, "Punch recovery", "s.human_attack_id === ''")
             page.keyboard.down("g")
             try:
-                kick = until(page, "Real G kick data",
+                kick = until(page, "Real G kick and Base pending pose converge",
                              "s.human_attack_id === 'front_kick' && "
-                             "s.human_attack_frame > 0")
+                             "s.human_attack_frame > 0 && "
+                             "s.animation_clip_intent === 'base_guard_art_pending'")
                 report["evidence"]["real_kick"] = kick.get("human_attack_id")
                 canvas.screenshot(path=str(OUT / "base-kick-physics.png"))
             finally:
