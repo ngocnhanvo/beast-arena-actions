@@ -5,3 +5,5 @@ Owner explicitly asked to integrate the newly revised right-leg kick with curved
 **Trạng thái: PARTIAL — chưa hoàn tất.**
 
 Native #46169582506 FAILED at real Kick4 scene exit check code291, while source audit, head parity and punch passed. Private `8ecc5979d85cdb31be0e0600d8065e58f67392bd` adds exact scene debug (combat current attack, captured/presented frame lists, drawn texture/idle) for next run; no art/runtime modifications. Fail-closed Pages skipped. Next rerun pinned exact SHA, diagnose evidence and fix, no bypass.
+
+Godot #46169726924 failed due to test code still comparing `base_kick_2_approved` inside the frame sampling branch, although native Kick4 actually recorded captured/presented [0,1,2,3]. Exact log: `KICK4_SCENE_DEBUG: attack=<null> count=1 clip=idle_guard_front captured=[0,1,2,3] presented=[0,1,2,3] sampled=[] atlas_idle=true`. Fixed only the stale comparator in private `7a36ef4bde3b0e4e254e4b95a200a06a7bbbe8b8`; no artwork/runtime changes. Re-run source audit and full native Godot smoke before Pages.
