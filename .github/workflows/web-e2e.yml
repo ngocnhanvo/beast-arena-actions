@@ -84,21 +84,11 @@ jobs:
           python -m playwright install --with-deps chromium
       - name: Test live Godot game with Chromium
         run: python ci/playwright_smoke.py
-      - name: Test isolated Godot Physics V2 Web scene with Chromium
+      - name: Test Base-only 12-cel idle, real combat and physics on canonical Physics V2 Pages
         env:
           BEAST_EXPECT_PIPELINE_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || '' }}
           BEAST_EXPECT_BUILD_RUN_ID: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.id || '' }}
-        run: python ci/playwright_physics_v2.py
-      - name: Test opt-in Arcade V2 controls and clip intent (art remains PENDING)
-        env:
-          BEAST_EXPECT_PIPELINE_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || '' }}
-          BEAST_EXPECT_BUILD_RUN_ID: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.id || '' }}
-        run: python ci/playwright_arcade_v2.py
-      - name: Test canonical Physics V2 link and real Jade angled six-frame walk
-        env:
-          BEAST_EXPECT_PIPELINE_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || '' }}
-          BEAST_EXPECT_BUILD_RUN_ID: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.id || '' }}
-        run: python ci/playwright_jade_three_quarter.py
+        run: python ci/playwright_base_only.py
       - name: Save public screenshots
         if: always()
         uses: actions/upload-artifact@v4
