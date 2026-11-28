@@ -5,3 +5,5 @@ Previous private 0df2fbdcbf951d0fe71c13f8eb014ba55ccc7f21, public 6ca7bf2da19e18
 **Trạng thái: PARTIAL — chưa hoàn tất.**
 
 Follow-up: previous run #46161904467 was still running for many minutes despite a normally short Godot scene smoke. Updated concurrency to cancel obsolete in-progress public build when a newer source head supersedes it. This preserves integrity of the exact-SHA deploy and avoids blocked new builds. Log cancellation and actual new run evidence before PASS.
+
+Native #46162266234 completed FAIL; actual log: `SCRIPT ERROR: Trying to assign an array of type Array to a variable of type Array[int] at character_visual_contract_smoke.gd:151`. Watchdog correctly exits rather than hang; Pages SKIPPED as required. Private code correction 5cb142fb15a6b53bc62874e6f9eec0f332c757b6 changes only conditional typed test Array to untyped Array. New build must import exact Private SHA and verify real gameplay/Pages/Chromium.
