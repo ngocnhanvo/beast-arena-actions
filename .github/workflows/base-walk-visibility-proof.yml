@@ -1,0 +1,38 @@
+name: Base Walk - Live Visual Video Audit (No Deploy)
+
+on:
+  push:
+    branches: [ci/base-walk-visibility-proof]
+    paths:
+      - ".github/workflows/base-walk-visibility-proof.yml"
+      - "ci/base_walk_visibility_proof.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  video:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Playwright browser on PUBLIC runner
+        run: |
+          python -m pip install "playwright==1.56.0"
+          python -m playwright install --with-deps chromium
+      - name: Record ORIGINAL deployed Base walk with genuine WASD movement
+        run: python ci/base_walk_visibility_proof.py
+      - name: Publish only PUBLIC gameplay screenshots, video and numeric frame IDs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: beast-base-walk-live-visibility-video
+          path: playwright-report/walk-visible/
+          retention-days: 7
+          if-no-files-found: warn
