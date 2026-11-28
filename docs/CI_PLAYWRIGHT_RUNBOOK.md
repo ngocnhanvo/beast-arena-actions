@@ -927,3 +927,7 @@ Private source `3143db3e78a531806bcdeab254eb214f9192795d` contains the approved 
 
 ## Second Walk +2px (2026-11-28)
 Prior build #46141254963 and Chromium #46141414052 PASS. New source bc8b5249f00e754d61660f1125bf419c9f39f9d4; verify all four walk cels, offset -2 during walk and original -4 upon idle return. No physical changes. Wait for actual new Pages and Chromium.
+
+
+## Base Punch4 — 9613c3dc0b3266cfee038cf9b7dfe6b4da4087eb
+Owner-approved four complete punch poses, 96x80 cells at Idle calibrated source density. Previous Walk build #46142238765 and browser #46142407412 PASS. Browser now requires all four attached punch atlases and actual right/left render histories per accepted F attack; unchanged idle/walk/kick. Native, Pages and exact Chromium pending. See docs/checkpoints/2026-11-28-zzzzzzzz-base-punch-4.md.

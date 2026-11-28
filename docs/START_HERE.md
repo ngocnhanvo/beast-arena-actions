@@ -1,3 +1,7 @@
+
+
+## Base Punch4 — 9613c3dc0b3266cfee038cf9b7dfe6b4da4087eb
+Owner-approved four complete punch poses, 96x80 cells at Idle calibrated source density. Previous Walk build #46142238765 and browser #46142407412 PASS. Browser now requires all four attached punch atlases and actual right/left render histories per accepted F attack; unchanged idle/walk/kick. Native, Pages and exact Chromium pending. See docs/checkpoints/2026-11-28-zzzzzzzz-base-punch-4.md.
 **2026-11-28 — SECOND WALK +2PX (+4 TOTAL) SOURCE READY, LIVE VERIFICATION PENDING.** Private source bc8b5249f00e754d61660f1125bf419c9f39f9d4. Updated native and live browser support checks distinguish Walk -2 and Idle -4 source offsets, same world contact and pixel unit. See `docs/checkpoints/2026-11-28-zzzzzzz-walk-height-plus4.md`.
 
 **2026-11-28 — Owner-authorized Walk +2px source trial: build requested, NOT yet verified.** Private source `3143db3e78a531806bcdeab254eb214f9192795d`: same four pose images, each +2px vertically only, unchanged width and y76 ground support, original Idle12, 180ms reference, fixed 0.020m/pixel and runtime unchanged. Exact pixel match to owner-reviewed preview verified locally. New source regressions check exact preview pixels, archived original, all 4 heights and actual game pose binding. Existing Godot/Pages and Chromium gates must pass on exact new source; old #46130966383/#46131126049 do not certify it. See `docs/checkpoints/2026-11-28-zzzzzz-walk-height-plus2.md`. **Trạng thái: PARTIAL — chưa hoàn tất.**

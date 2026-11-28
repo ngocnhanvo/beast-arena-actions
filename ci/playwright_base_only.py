@@ -89,6 +89,7 @@ def main():
                     and start.get("base_idle_frame_count") == 12
                     and start.get("base_idle_frame_duration_ms") == 100
                     and start.get("base_walk_attached_count") == 4
+                    and start.get("base_punch_attached_count") == 4
                     and start.get("base_walk_frame_count") == 4
                     and start.get("base_walk_reference_frame_duration_ms") == 180
                     and start.get("visual_contract_schema") == 1
@@ -197,19 +198,22 @@ def main():
             # A short 60Hz attack is faster than some 120ms Web snapshots.
             # Its ACCEPTED attack_instance and last_attack_id are durable real
             # Godot gameplay state, not synthetic browser counters.
-            before_punch_instance = int(snap(page)["human_attack_instance"])
-            page.keyboard.down("f")
-            try:
-                punch = until(page, "Real F light punch event recorded",
+            punch_history = []
+            for hand, expected in (("right", {0,1,2}), ("left", {2,3})):
+                before_punch_instance = int(snap(page)["human_attack_instance"])
+                page.keyboard.press("f")
+                punch = until(page, "Real F attack and rendered punch",
                               "s.human_attack_instance > " + str(before_punch_instance)
                               + " && s.human_last_attack_id === 'light_punch'"
-                              + " && s.human_sprite_hframes === 12")
-                report["evidence"]["real_punch"] = punch.get("human_last_attack_id")
-                report["evidence"]["punch_instance"] = punch.get("human_attack_instance")
-                canvas.screenshot(path=str(OUT / "base-punch-physics.png"))
-            finally:
-                page.keyboard.up("f")
-            until(page, "Punch recovery", "s.human_attack_id === ''")
+                              + " && s.base_punch_hand === '" + hand + "'"
+                              + " && s.base_punch_rendered_frames.includes(" + str(1 if hand=="right" else 3) + ")")
+                canvas.screenshot(path=str(OUT / ("base-punch-"+hand+".png")))
+                final = until(page, "Punch restores idle", "s.human_attack_id === '' && s.human_sprite_hframes === 12 && s.visual_contract_clip === 'idle_guard_front'")
+                if not expected.issubset(set(final.get("base_punch_rendered_frames", []))):
+                    raise AssertionError("Missing actual rendered punch frames: " + str(final.get("base_punch_rendered_frames")))
+                punch_history.append({"hand": hand, "frames": final["base_punch_rendered_frames"], "instance": punch["human_attack_instance"]})
+            report["evidence"]["real_punch"] = "light_punch"
+            report["evidence"]["punch_history"] = punch_history
             before_kick_instance = int(snap(page)["human_attack_instance"])
             page.keyboard.down("g")
             try:
