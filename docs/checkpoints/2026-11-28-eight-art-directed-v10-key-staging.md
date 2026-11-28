@@ -1,0 +1,11 @@
+# 2026-11-28 — Eight explicit v10 art-direction key poses + real Web staging
+
+- PRIVATE PR #18 source SHA 782ec69fda9ace6af89261e9fe474cf95aa298c3: new render_organic_v10_keys.py and isolated v10_art_qa.py. Eight distinct hand-set surface directives (contour radius, body rib line, lean, line weight) are authored at eight run phases. All exact FK/IK shoulder/elbow/hand/hip/knee/ankle/toe remain bound to motion_organic_v9.pose_at; no independent prompt images or joint adjustments.
+- Eight editable 480px transparent vector SVG previews and 24 timed rig samples. Source metadata records pose SHA and art-direction SHA. Manifest honestly distinguishes eight original art-direction records from zero independently painted finished production cels, because these remain procedural silhouette studies.
+- Explicit 8-key art direction uses periodic smooth interpolation to prevent abrupt visual silhouette popping; all apparel/accessory layers remain neutral/empty as requested. Production Jade art and physics remain untouched.
+- Opt-in actual Web staging --art-style organic-v10 renders the eight-key style at 24 rig samples into 6x4 atlas; SHA-256 embedded in manifest, imported Godot Web sprite and Chromium must match. Browser refuses old v9 atlas and reports art_style organic-v10-eight-key-study; real motor unchanged.
+- PUBLIC CI workflow SHA 61b031ef8380746c1eb120c6acbfe3e1eec8191e pins exact PRIVATE source. Runs previous 65 rig/native/screenshot tests plus 5 separate v10 authoring tests; new expected count 70, native LibreSprite, Godot and Web E2E. Real [run #46093305706](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/46093305706) started; terminal status/log not yet verified.
+- Local prototype rendered 8 keys and 24 sample GIF from a manually updated older Skill copy aligned to current v6 motion primitives; exact private runner is needed to certify actual master output. Visual self review still FAIL_NOT_PRODUCTION_QUALITY: occasional knee/shin overlap, torso/arm depth and run-to-idle need further artwork polishing.
+- Owner approval NOT GIVEN. Eight art-directed source keys are NOT equivalent to eight independently illustrated/corrected production cels. No merge, public Pages or production deployment.
+
+Trạng thái: PARTIAL — chưa hoàn tất.
