@@ -27,7 +27,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ngocnhanvo/beast-arena
-          ref: 4fc66fb8a24b4356bcab014eb3620d0524b20989
+          ref: 212db7a92e82427cab9a1ba75c29bef023bb1c13
           token: ${{ secrets.BEAST_ARENA_READ_TOKEN }}
           persist-credentials: false
           path: private
@@ -35,7 +35,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git -C private rev-parse HEAD)" = "4fc66fb8a24b4356bcab014eb3620d0524b20989"
+          test "$(git -C private rev-parse HEAD)" = "212db7a92e82427cab9a1ba75c29bef023bb1c13"
           test -s private/experiments/physics_v2/art/base/base_idle_12_80.png
           test -s private/art/source/base_idle_12_hd.aseprite
           python - <<'PY'
@@ -106,6 +106,6 @@ jobs:
       - name: No public art / no game deploy declaration
         shell: bash
         run: |
-          echo "PRIVATE source exact SHA: 4fc66fb8a24b4356bcab014eb3620d0524b20989" >> "$GITHUB_STEP_SUMMARY"
+          echo "PRIVATE source exact SHA: 212db7a92e82427cab9a1ba75c29bef023bb1c13" >> "$GITHUB_STEP_SUMMARY"
           echo "Only source/CI checks; no public binary, no Pages, no Chromium E2E." >> "$GITHUB_STEP_SUMMARY"
           echo "Idle 12 authored; other motion graphics still PENDING_ART." >> "$GITHUB_STEP_SUMMARY"
