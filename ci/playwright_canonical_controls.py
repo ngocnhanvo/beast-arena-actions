@@ -41,6 +41,8 @@ def main():
             canvas.wait_for(state="visible", timeout=120000)
             start = await_proof(page, "s.ready === true && s.controls_v2 === true", 120000)
             report["start"] = start
+            if start.get("kick_native_cell_height") != 80:
+                raise AssertionError("Kick must use native 80px frame height: " + str(start.get("kick_native_cell_height")))
             focus = page.evaluate("document.activeElement && document.activeElement.tagName")
             report["focus"] = focus
             if focus != "CANVAS":

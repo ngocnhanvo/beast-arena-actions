@@ -953,3 +953,7 @@ Private `0df2fbdcbf951d0fe71c13f8eb014ba55ccc7f21` captures authoritative 60Hz a
 - No new CSS/screens, sprite art, damage, hitboxes, physics, movement altered by this fix. Owner must visually confirm G appearance/feel; technical PASS not visual acceptance. Canonical link only: https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/.
 
 **Trạng thái: PARTIAL — chưa hoàn tất owner manual visual signoff.**
+
+
+## 2026-11-28 — Kick2 native cell height = 80px
+Private source `50304af00807137b3cd5b85003ab2c6fef8611d5`: 2×120×80 source frame geometry for owner's exact PNG link (filename base_kick_2_120x104.png remains compatibility alias). Real source `base_kick_2_120x80.png` and archival original are private. Uniform 0.8 whole-pose shrink, pivot [52,76], 0.02 m/art pixel, native head widths [24,21] now differ slightly from Idle: **PENDING_ANATOMY_REAUTHOR**, owner must visually inspect. Actual static source bboxes and SHA audited in private test; Godot Sprite3D, PixelView and source contract updated. Public canonical G test adds kick_native_cell_height ==80 check in read-only user-path G probe, plus actual key / combat / drawn frame test; no query parameters. Fastlane exact source pin; build/Pages/Chromium pending. No game physics/hitbox/damage/other Idle-Walk-Punch art changed.
