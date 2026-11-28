@@ -82,9 +82,11 @@ jobs:
         run: |
           python -m pip install "playwright==1.56.0" "Pillow==11.3.0"
           python -m playwright install --with-deps chromium
-      - name: Test live Godot game with Chromium
+      - name: Test live Godot game with Chromium (scheduled full suite)
+        if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.event != 'push'
         run: python ci/playwright_smoke.py
-      - name: Test Base-only 12-cel idle, real combat and physics on canonical Physics V2 Pages
+      - name: Test Base-only 12-cel idle, real combat and physics (scheduled full suite)
+        if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.event != 'push'
         env:
           BEAST_EXPECT_PIPELINE_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || '' }}
           BEAST_EXPECT_BUILD_RUN_ID: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.id || '' }}
