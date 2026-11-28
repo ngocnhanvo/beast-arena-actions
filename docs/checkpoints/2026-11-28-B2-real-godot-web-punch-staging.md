@@ -17,3 +17,13 @@ Previous #46101540323 proved a 3D arm + keyed source contract, but its real-Godo
 - NEXT: inspect exact CI terminal export and 3 screenshot gates, fix any Godot import/Playwright failure, then create segmented/B1-matching art with corrective transitions, obtain owner visual acceptance before any merge/deploy. Do not return to running gait merely to rack up test counts.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+## 2026-11-28 live B2 Web export: what initial failures actually proved
+- Workflow [#46104569942](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/46104569942) **FAIL** specifically on `PUNCH_ATLAS_STILL_ONE_FRAME` because test compared source cells 0 and 6, both GUARD. Real IMPACT is cell 12 in 6x4 atlas. Corrected PUBLIC source SHA `fdeb9dfbdc0d76a8407ef8dbb0bde8f40fc1c8be`.
+- Workflow [#46104585623](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/46104585623) **FAIL only on** `PUNCH_DID_NOT_VISUALLY_RECOVER_GUARD`, an invalid threshold comparing entire live Godot world screenshots before/after when environment backgrounds animate. Its exported NEW B2 Godot Web PCK, keyboard F input, changed-on-impact pixels, 3D wrist Z and recovered engine sprite frame zero had already reached assertions. It is NOT evidence of broken 3D IK/art source.
+- Corrected source PRIVATE `c7febec64c064cf87e71b55c4c4e5e6a38f39215` makes the recovery gate *actually verify*: Godot on-screen Sprite3D frame == 0, right wrist Z matches pre-punch source joint, same SHA-256 source atlas, 3 screenshots exist; meanwhile real in-game IMPACT still must change ≥500 HUD-excluded world pixels. It logs background-image delta as diagnostic but never equates it to sprite recovery.
+- PUBLIC corrected workflow SHA `b44eb1056dc3f01bbcc3984d1e90ec0483301864`, [run #46105013901](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/46105013901) launched. Check job/actual terminal log; do not claim PASS before terminal.
+- Local owner review ZIP `Beast_Arena_B2_2_5D_Real_Godot_Staging_Review.zip` now contains both source WebP art key files, compatible exporter/rig adapter, full 24-cell atlas and its manifest. ZIP was extracted and rebuilt completely in a fresh temporary folder, reproducing exact atlas bytes SHA `52b4bd22497771141b1f3890109ef6b771816c7df7d30a0eb9bdca13263b92dc`. It is an owner artifact only, not a PUBLIC CI artifact.
+- Unchanged limitation: two keyed 2.5D original B2 art images, **not** continuous full-body skinning or the exact owner-approved B1 source. Release BLOCKED; main and production Pages untouched.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
