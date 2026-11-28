@@ -91,6 +91,14 @@ def main():
                     and start.get("base_walk_attached_count") == 4
                     and start.get("base_walk_frame_count") == 4
                     and start.get("base_walk_reference_frame_duration_ms") == 180
+                    and start.get("visual_contract_schema") == 1
+                    and start.get("visual_contract_clip") == "idle_guard_front"
+                    and start.get("visual_contract_cell") == [80, 80]
+                    and start.get("visual_contract_auto_fit") is False
+                    and start.get("visual_contract_anatomy_pending") ==
+                        "PENDING_ANATOMY_REAUTHOR"
+                    and abs(float(start.get(
+                        "visual_contract_meters_per_art_pixel", 0.0)) - 0.020) < 0.00001
                     and start.get("human_sprite_hframes") == 12
                     and start.get("human_sprite_vframes") == 1
                     and start.get("hero_atlas_frame_size") == 80
@@ -105,6 +113,14 @@ def main():
                 raise AssertionError("Baseline real actor not grounded at sprite foot")
             report["version"] = {key: start.get(key) for key in
                                  ("source_sha", "pipeline_sha", "build_run_id")}
+            report["evidence"]["pose_scale_contract"] = {
+                "schema": start.get("visual_contract_schema"),
+                "native_meters_per_pixel":
+                    start.get("visual_contract_meters_per_art_pixel"),
+                "auto_fit": start.get("visual_contract_auto_fit"),
+                "known_legacy_anatomy_status":
+                    start.get("visual_contract_anatomy_pending"),
+            }
             canvas.screenshot(path=str(OUT / "base-idle.png"))
             seen = set()
             for _ in range(32):
@@ -136,7 +152,10 @@ def main():
                 moved = until(page, "Real D movement selects owner 4-cel walk",
                               "s.player.vx > 0.30 && s.base_walk_active === true && "
                               "s.human_sprite_hframes === 4 && "
-                              "s.animation_clip_intent === 'base_walk_4_approved'")
+                              "s.animation_clip_intent === 'base_walk_4_approved' && "
+                              "s.visual_contract_clip === 'base_walk_4_approved' && "
+                              "s.visual_contract_auto_fit === false && "
+                              "Math.abs(s.human_sprite_pixel_size - 0.020) < 0.00001")
                 walk_seen.add(int(moved["human_sprite_frame"]))
                 # Observe REAL game-originated pose indices and moving X.
                 # 4 frames span 3.024m of real world travel; no browser
@@ -146,7 +165,10 @@ def main():
                     state = snap(page)
                     if state and state.get("base_walk_active") is True:
                         if (state.get("human_sprite_hframes") != 4 or
-                                state.get("human_sprite_offset_y") != -4):
+                                state.get("human_sprite_offset_y") != -4 or
+                                state.get("visual_contract_cell") != [80, 80] or
+                                state.get("visual_contract_clip") != "base_walk_4_approved" or
+                                abs(float(state.get("human_sprite_pixel_size", 0.0)) - 0.020) > 0.00001):
                             raise AssertionError("Walk atlas or shoe anchor changed")
                         walk_seen.add(int(state.get("human_sprite_frame", -1)))
                 canvas.screenshot(path=str(OUT / "base-walk-4-live.png"))
@@ -164,7 +186,9 @@ def main():
             idle_again = until(page, "Stopping restores 12 original idle poses",
                                "Math.abs(s.player.vx) < 0.2 && s.player.grounded && "
                                "s.human_sprite_hframes === 12 && "
-                               "s.base_walk_active === false")
+                               "s.base_walk_active === false && "
+                               "s.visual_contract_clip === 'idle_guard_front' && "
+                               "Math.abs(s.human_sprite_pixel_size - 0.020) < 0.00001")
             canvas.screenshot(path=str(OUT / "base-idle-after-walk.png"))
 
             # A short 60Hz attack is faster than some 120ms Web snapshots.

@@ -108,6 +108,20 @@ jobs:
         run: python3 game/tests/animation_source_contract_test.py
       - name: Audit four reusable fighter guard profiles and Web PCK asset inclusion
         run: python3 pipeline/ci/check_guard_profiles.py game
+      - name: Audit native pose scale without hiding anatomical source defects
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --disable-pip-version-check "Pillow==11.3.0"
+          python3 game/tools/pose_scale_audit.py --project game/experiments/physics_v2 --report /tmp/beast-pose-scale-audit.json
+          PYTHONPATH=game/tools python3 -m unittest discover -s game/tools/tests -p test_pose_scale_audit.py -v
+          set +e
+          python3 game/tools/pose_scale_audit.py --project game/experiments/physics_v2 --strict-anatomy > /tmp/pose-strict.log 2>&1
+          STRICT_EXIT=$?
+          set -e
+          test "$STRICT_EXIT" -eq 3
+          grep -q "STRICT_ANATOMY_FAIL" /tmp/pose-strict.log
+          echo "ART ANATOMY: PENDING_REAUTHOR. Source 26px vs Walk 29px head span; DO NOT per-clip auto-fit." >> "$GITHUB_STEP_SUMMARY"
       - name: Record source commit (SHA only)
         id: source-sha
         shell: bash
@@ -202,6 +216,9 @@ jobs:
       - name: Test owner-approved four-cel Base walk with real grounded physics
         if: steps.change-gate.outputs.skip_build != 'true'
         run: godot --headless --path game/experiments/physics_v2 --script res://tests/base_walk_4_smoke.gd
+      - name: Test pose-independent art unit and lying-support geometry with real four-fighter scene
+        if: steps.change-gate.outputs.skip_build != 'true'
+        run: godot --headless --path game/experiments/physics_v2 --script res://tests/character_visual_contract_smoke.gd
       - name: Physics V2 native 3D contact and slope smoke test
         if: steps.change-gate.outputs.skip_build != 'true'
         run: godot --headless --path game/experiments/physics_v2 --script res://tests/physics_smoke.gd
