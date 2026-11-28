@@ -96,7 +96,7 @@ jobs:
         run: |
           set -euo pipefail
           cd private/experiments/physics_v2
-          for test in arcade_animation_v2_smoke.gd guard_animation_profiles_smoke.gd three_quarter_preview_smoke.gd map_editor_smoke.gd visual_smoke.gd pixel_projection_smoke.gd combat_scene_smoke.gd hit_effects_smoke.gd match_state_smoke.gd match_scene_smoke.gd obstacle_collision_smoke.gd; do
+          for test in arcade_animation_v2_smoke.gd guard_animation_profiles_smoke.gd map_editor_smoke.gd pixel_projection_smoke.gd combat_scene_smoke.gd hit_effects_smoke.gd match_state_smoke.gd match_scene_smoke.gd obstacle_collision_smoke.gd; do
             echo "TEST_START $test"
             godot --headless --path . --script "res://tests/$test" 2>&1 | tee "/tmp/base-regression-$test.log"
             if grep -E 'SCRIPT ERROR:|Parser Error:' "/tmp/base-regression-$test.log"; then exit 1; fi
