@@ -128,8 +128,9 @@ def main():
 
             before = snap(page)["player"]
             page.keyboard.down("d")
-            moved = until(page, "Real movement on D",
-                          "s.player.vx > 0.30 && s.human_sprite_hframes === 12")
+            moved = until(page, "Real movement on D with pending art",
+                          "s.player.vx > 0.30 && s.human_sprite_hframes === 12 && "
+                          "s.animation_clip_intent === 'base_guard_art_pending'")
             page.wait_for_timeout(300)
             page.keyboard.up("d")
             if float(snap(page)["player"]["x"]) <= float(before["x"]):
@@ -142,28 +143,31 @@ def main():
             until(page, "Stop on the same physics motor",
                   "Math.abs(s.player.vx) < 0.2 && s.player.grounded")
 
+            # A short 60Hz attack is faster than some 120ms Web snapshots.
+            # Its ACCEPTED attack_instance and last_attack_id are durable real
+            # Godot gameplay state, not synthetic browser counters.
+            before_punch_instance = int(snap(page)["human_attack_instance"])
             page.keyboard.down("f")
             try:
-                # Godot writes attack state on physics ticks but publishes the
-                # visual intent in _process. The browser may sample BETWEEN
-                # those two events. Wait for both to agree within one actual
-                # rendered snapshot; never fabricate an animation frame.
-                punch = until(page, "Real F punch and Base pending pose converge",
-                              "s.human_attack_id === 'light_punch' && "
-                              "s.human_attack_frame > 0 && "
-                              "s.animation_clip_intent === 'base_guard_art_pending'")
-                report["evidence"]["real_punch"] = punch.get("human_attack_id")
+                punch = until(page, "Real F light punch event recorded",
+                              "s.human_attack_instance > " + str(before_punch_instance)
+                              + " && s.human_last_attack_id === 'light_punch'"
+                              + " && s.human_sprite_hframes === 12")
+                report["evidence"]["real_punch"] = punch.get("human_last_attack_id")
+                report["evidence"]["punch_instance"] = punch.get("human_attack_instance")
                 canvas.screenshot(path=str(OUT / "base-punch-physics.png"))
             finally:
                 page.keyboard.up("f")
             until(page, "Punch recovery", "s.human_attack_id === ''")
+            before_kick_instance = int(snap(page)["human_attack_instance"])
             page.keyboard.down("g")
             try:
-                kick = until(page, "Real G kick and Base pending pose converge",
-                             "s.human_attack_id === 'front_kick' && "
-                             "s.human_attack_frame > 0 && "
-                             "s.animation_clip_intent === 'base_guard_art_pending'")
-                report["evidence"]["real_kick"] = kick.get("human_attack_id")
+                kick = until(page, "Real G front kick event recorded",
+                             "s.human_attack_instance > " + str(before_kick_instance)
+                             + " && s.human_last_attack_id === 'front_kick'"
+                             + " && s.human_sprite_hframes === 12")
+                report["evidence"]["real_kick"] = kick.get("human_last_attack_id")
+                report["evidence"]["kick_instance"] = kick.get("human_attack_instance")
                 canvas.screenshot(path=str(OUT / "base-kick-physics.png"))
             finally:
                 page.keyboard.up("g")
