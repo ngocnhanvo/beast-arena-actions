@@ -9,3 +9,11 @@
 - NEXT: full B1-style layered/vector artwork with true per-bone binding and shoulder/elbow/fist corrective views, isolate only three punch poses, obtain owner review before game integration/production cutover.
 
 **Trạng thái: PARTIAL — chưa hoàn tất.**
+
+## Verified terminal exact-pin public CI
+- [Actions run #46098918805](https://github.com/ngocnhanvo/beast-arena-actions/actions/runs/46098918805), job `140836647034`, workflow tested SHA `b15b1bfbc5f81f14034b4ca9eea9a045709cadaa` and PRIVATE pinned source `2c89dd62211f35d5aacc1b708edf45534ffab82a`: **COMPLETED SUCCESS**.
+- Actual logs: **56** base portable rig tests + **5** B1/B2 fail-closed tests + **9** native/screenshot tests + **5** old v10 style-key tests + **10** NEW true-3D arm punch tests = **85/85 PASS**; marker `BEAST_PUNCH_25D_THREE_AXES_3D_IK_10_TESTS_PASS_VISUAL_UNAPPROVED_NO_DEPLOY`; 3 vector SVGs +21 generated frames +80px preview in ephemeral runner only.
+- Existing OLD-v10 Godot Web/Chromium motor still PASS: art_style `organic-v10-eight-key-study`, SHA `3e3f8dde093fae43ad376996b9720c5b0cbf68910a7a240b88a47a93725a8802`, 24 old-run art samples, 234 physics ticks, X -11.30m→-4.43m, 114966 changed world-region pixels, zero JS errors. **This is NOT a live-Godot 2.5D punch test.**
+- Punch 3D mathematical tests PASS, **VISUAL SELF REVIEW NOT B1 PARITY / FAIL**, `owner_B2_approval=NOT_GIVEN`, source master not yet skinned to owner-approved B1 image. No PUBLIC artwork, no production Pages or main source changes.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
