@@ -66,8 +66,9 @@ jobs:
     outputs:
       pages_artifact_ready: ${{ steps.upload_pages.outcome }}
       source_sha: ${{ steps.source-sha.outputs.sha }}
-    needs: preflight
-    if: (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || github.event_name == 'push') && needs.preflight.outputs.has_read_token == 'true'
+      fastlane: ${{ steps.lane.outputs.fastlane }}
+    # Parallel preflight; Pages still depends on both jobs.
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || github.event_name == 'push'
     runs-on: ubuntu-24.04
     timeout-minutes: 35
     steps:
@@ -93,6 +94,8 @@ jobs:
         with:
           persist-credentials: false
           path: pipeline
+      - name: Validate pipeline before Godot import
+        run: cd pipeline && bash ci/validate.sh
       - name: Inventory source-authored sprite clips (PENDING is not art PASS)
         shell: bash
         run: |
@@ -265,10 +268,21 @@ jobs:
         if: steps.change-gate.outputs.skip_build != 'true' && steps.lane.outputs.fastlane != 'true'
         run: godot --headless --path game/experiments/physics_v2 --script res://tests/obstacle_collision_smoke.gd
 
-      - name: Install export templates
+      # Cache only PUBLIC, pinned Godot template binaries, not private source/assets.
+      - name: Restore cached Godot 4.7.2 export templates
+        id: templates-cache
         if: steps.change-gate.outputs.skip_build != 'true'
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/godot/export_templates/4.7.2.stable
+          key: beast-arena-public-godot-export-templates-4.7.2-linux-v1
+      - name: Install export templates only on cache miss
+        if: steps.change-gate.outputs.skip_build != 'true' && steps.templates-cache.outputs.cache-hit != 'true'
         shell: bash
         run: bash pipeline/ci/install_templates.sh
+      - name: Validate cached/fresh export templates
+        if: steps.change-gate.outputs.skip_build != 'true'
+        run: test -s "$HOME/.local/share/godot/export_templates/4.7.2.stable/web_release.zip"
       - name: Export Web and Windows
         if: steps.change-gate.outputs.skip_build != 'true' && steps.lane.outputs.fastlane != 'true'
         shell: bash
@@ -464,3 +478,41 @@ jobs:
         with:
           path: .ci-pages-success.txt
           key: beast-arena-pages-success-${{ needs.build.outputs.source_sha }}
+      # Approved sprite pushes run real no-query browser QA in this SAME Pages runner.
+      # The independent E2E workflow is retained for scheduled/manual full suites.
+      - name: Checkout matching owner-path assertions
+        if: github.event_name == 'push' && needs.build.outputs.fastlane == 'true' && success()
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.sha }}
+      - name: Setup Python for fast owner-path proof
+        if: github.event_name == 'push' && needs.build.outputs.fastlane == 'true' && success()
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install browser harness (reuse runner Chrome when present)
+        if: github.event_name == 'push' && needs.build.outputs.fastlane == 'true' && success()
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check "playwright==1.56.0" "Pillow==11.3.0"
+          if command -v google-chrome >/dev/null 2>&1; then
+            google-chrome --version
+            echo "BEAST_PLAYWRIGHT_CHANNEL=chrome" >> "$GITHUB_ENV"
+          else
+            echo "::warning::No hosted Chrome; using pinned Playwright Chromium fallback."
+            python -m playwright install --with-deps chromium
+          fi
+      - name: Verify real canonical G and ALL 4 rendered frames
+        if: github.event_name == 'push' && needs.build.outputs.fastlane == 'true' && success()
+        env:
+          BEAST_EXPECT_SOURCE_SHA: ${{ needs.build.outputs.source_sha }}
+        run: python ci/playwright_canonical_controls.py
+      - name: Upload fastlane canonical browser report
+        if: always() && github.event_name == 'push' && needs.build.outputs.fastlane == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: beast-arena-fastlane-browser-proof
+          path: playwright-report/canonical-g/
+          retention-days: 7
+          if-no-files-found: warn

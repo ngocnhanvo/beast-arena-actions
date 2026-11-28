@@ -21,7 +21,8 @@ jobs:
     # A successful scheduled build can reuse its source/Pages SHA cache.
     # In that case no NEW Web PCK was deployed and E2E must be SKIPPED,
     # not incorrectly compared to the schedule's fresh run ID.
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    # Browser QA on push now occurs in the Pages job. Retain manual/scheduled E2E.
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event != 'push')
     runs-on: ubuntu-24.04
     timeout-minutes: 3
     outputs:

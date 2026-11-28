@@ -1,5 +1,6 @@
 """Verify real G input and all four actually drawn Kick4 frames on the user's EXACT no-query URL."""
 import json
+import os
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 
@@ -15,9 +16,12 @@ def await_proof(page, predicate, timeout=12000):
 def main():
     report = {"url": OWNER, "status": "NOT_RUN", "steps": []}
     with sync_playwright() as pw:
-        browser = pw.chromium.launch(headless=True, args=[
+        options = {"headless": True, "args": [
             "--enable-webgl", "--use-gl=angle", "--use-angle=swiftshader",
-            "--enable-unsafe-swiftshader", "--disable-dev-shm-usage"])
+            "--enable-unsafe-swiftshader", "--disable-dev-shm-usage"]}
+        if os.environ.get("BEAST_PLAYWRIGHT_CHANNEL"):
+            options["channel"] = os.environ["BEAST_PLAYWRIGHT_CHANNEL"]
+        browser = pw.chromium.launch(**options)
         page = browser.new_page(viewport={"width": 1200, "height": 800})
         errors = []
         page.on("pageerror", lambda e: errors.append(str(e)))
@@ -40,6 +44,17 @@ def main():
                 canvas = page.locator("canvas").first
             canvas.wait_for(state="visible", timeout=120000)
             start = await_proof(page, "s.ready === true && s.controls_v2 === true", 120000)
+            expected = os.environ.get("BEAST_EXPECT_SOURCE_SHA", "")
+            if expected and start.get("source_sha") != expected:
+                # Pages CDN can be briefly stale; retry the SAME unmodified URL.
+                for retry in range(3):
+                    page.wait_for_timeout(1200)
+                    page.reload(wait_until="domcontentloaded", timeout=50000)
+                    start = await_proof(page, "s.ready === true && s.controls_v2 === true", 120000)
+                    if start.get("source_sha") == expected:
+                        break
+                if start.get("source_sha") != expected:
+                    raise AssertionError("Stale Pages source: " + str(start.get("source_sha")) + " != " + expected)
             report["start"] = start
             if start.get("kick_native_cell_height") != 80:
                 raise AssertionError("Kick must use native 80px frame height: " + str(start.get("kick_native_cell_height")))

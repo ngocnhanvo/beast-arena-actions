@@ -972,3 +972,16 @@ Owner explicitly asked to integrate the newly revised right-leg kick with curved
 ### Kick4 exact production terminal evidence
 Private compiled source `7a36ef4bde3b0e4e254e4b95a200a06a7bbbe8b8`, later Private docs-only checkpoint `ce9e2f04d5deb172e82f967e957a347801aed629`. Public pipeline source `1dfbc0dcfeee29da8f3ca105040c221f883bfcae`. Native Godot, Pages deployment, root and Physics V2 export #46169863419 SUCCESS. Canonical no-query Playwright #46170012572 SUCCESS. Downloadable CI artifact #15272962474 `canonical-g/result.json` proves real g_keydown_count 0→1, accepted_kick_count 0→1, 4 native 120×80 frame cells, `kick_presented_frames` and actually `kick_drawn_frames` both [0,1,2,3]; exact source SHA, no JS errors. Screenshot is post-animation and is NOT a substitute for frame telemetry. Native log `BASE_KICK_4_REAL_GAME_PASS`; Punch4 and G input native tests PASS; old Idle/Walk/Punch/Kick2 art retained. Earlier runs #46169582506/#46169726924 failed closed on stale native Kick2 test comparator and did not deploy; corrected source passed. Canonical owner URL unchanged: https://ngocnhanvo.github.io/beast-arena-actions/physics-v2/. Owner *visual art* acceptance remains pending, separate from technical PASS. Public documentation-only checkpoint must not trigger another build.
 **Trạng thái: PARTIAL — chưa hoàn tất owner visual signoff.**
+
+## 2026-11-29 — OBSERVED / DECISION sprite-release fastlane
+# Approved sprite fastlane v2 / goal 50% less waiting (2026-11-29)
+
+OBSERVED successful Kick4 build/Pages #46169863419: 91s 2026-11-28 17:19:36 to 17:21:07 UTC; follow-up canonical browser #46170012572: 44s 17:21:10 to 17:21:54 UTC. End-to-end baseline 135s, excludes art authoring or owner signoff.
+
+DECISION: parallel preflight+build, Pages requires both jobs PASS; version-pinned Godot 4.7.2 templates cache (only PUBLIC SDK files; NEVER cache private game assets); same Pages deploy runner executes canonical no-query real G input, accepted attack and ALL 4 actually drawn Kick4 frames using hosted Chrome with pinned Playwright Chromium fallback; still keep independent scheduled/manual full E2E.
+
+Security/fidelity: require exact Private source SHA (docs-only head ce9e2f04d5deb172e82f967e957a347801aed629 after compiled 7a36ef4bde3b0e4e254e4b95a200a06a7bbbe8b8), bounded CDN retry, preserve native Idle12/Walk4/Punch4/Kick4, source scale and combat gates. Original art/physics not modified.
+
+ACCEPTANCE target: <=67s on WARM cache from public push run created_at to terminal embedded browser proof. Cold-cache and hosted services can vary. No measurement yet for new pipeline; await actual run and precise jobs/logs.
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
