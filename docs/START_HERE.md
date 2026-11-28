@@ -1,3 +1,9 @@
+# Kick2 native QA watchdog (2026-11-28)
+
+Previous private 0df2fbdcbf951d0fe71c13f8eb014ba55ccc7f21, public 6ca7bf2da19e189b2c46adcebb0b0c76e3d7306c, build #46161904467 was still IN_PROGRESS at native Character Visual Contract smoke (Godot command produced no terminal result in initial polling). Corrective Private 18368f820aa234ef229f19690dce76ed71e3f53d adds native SceneTree 18-second watchdog; public adds 45-second shell timeout on exactly this smoke step (not skips). The stale run cannot establish deploy success. New build must test actual smoke and Pages + Chromium with expected Private SHA. Strict visual authoring of legacy Idle/Walk remains pending. 
+
+**Trạng thái: PARTIAL — chưa hoàn tất.**
+
 
 ## 2026-11-28 — Kick2 browser proof / Punch render safety
 Private `0df2fbdcbf951d0fe71c13f8eb014ba55ccc7f21` captures authoritative 60Hz attack phases to reusable presentation FIFO so 3-tick contact cannot be skipped under slow WebGL. Owner-approved kick two whole-body 120×104 cels, root (52,100), same native 0.02m/pixel, right leg kick while left supports. In canonical /physics-v2/ E2E, require actual F right+left contact drawn by PixelView, actual G kick both frames and extended contact actually drawn, post-kick Idle12, plus prior Walk4 and zero JS errors. Asset master and game source stay PRIVATE; public pipeline contains only assertion code. Build, Pages, Chromium pending.
